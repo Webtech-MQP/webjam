@@ -17,8 +17,8 @@ import type { AdapterAccount } from "next-auth/adapters"
 export const createTable = sqliteTableCreator((name) => `prototype-3_${name}`);
  
 const client = createClient({
-  url: "DATABASE_URL",
-  authToken: "DATABASE_AUTH_TOKEN",
+  url: process.env.DATABASE_URL!,
+  authToken: process.env.DATABASE_AUTH_TOKEN!,
 })
 export const db = drizzle(client)
 

@@ -8,6 +8,7 @@ export interface GanttChartSection {
     name: string;
     color: string;
     header?: boolean;
+    isDummy?: boolean; // not a prop, here for render
 }
 
 interface GanttChartProps {
@@ -41,7 +42,6 @@ export const GanttChart = (props:GanttChartProps) => {
                 // For each section, find the lowest row it can fit into
                 let lowestValidRowIndex: number | null = null;
                 buildingRows.forEach((r, ri)=>{
-                    console.log(`Row ${ri} ends at ${r.end}. ${s.name} starts at ${s.start}. Lowest at ${lowestValidRowIndex}`);
                     if(r.end <= s.start && (lowestValidRowIndex === null || ri < lowestValidRowIndex)){
                         lowestValidRowIndex = ri;
                     }
@@ -55,7 +55,6 @@ export const GanttChart = (props:GanttChartProps) => {
                     }
                     buildingRows.push(emptyRow);
                     lowestValidRowIndex = buildingRows.length - 1;
-                    console.log("Making new row ", lowestValidRowIndex, "for", s.name)
                 }
 
                 if(s.header){
@@ -77,6 +76,7 @@ export const GanttChart = (props:GanttChartProps) => {
                         color: 'transparent',
                         end: s.start ,
                         start: lastSectionInRow.end,
+                        isDummy: true,
                     };
                     row.sections.push(dummySection);
                 }
@@ -87,6 +87,7 @@ export const GanttChart = (props:GanttChartProps) => {
                     color: s.color,
                     end: s.end,
                     start: s.start,
+                    header: s.header
                 };
 
                 row.sections.push(renderedSection);
@@ -117,7 +118,6 @@ export const GanttChart = (props:GanttChartProps) => {
         
     }, [props.sections])
 
-    console.log(rows);
     return (
         <div
             style={{
@@ -135,7 +135,7 @@ export const GanttChart = (props:GanttChartProps) => {
                         <div
                             key={`row ${rowIndex}`}
                             style={{
-                                height: "2rem",
+                                height: "2.5rem",
                                 width: "100%",
                                 display:'flex',
                                 flexDirection: "row",
@@ -147,27 +147,36 @@ export const GanttChart = (props:GanttChartProps) => {
                             {
                                 row.sections.map((section, sectionIndex) => {
                                     const progress = (props.progressBar ?? 1) / gspan;
-                                    if(section.start < progress){
-                                        
+                                    let color = section.color;
+                                    if(section.header){
+                                        if(section.start > progress){
+                                            color = 'transparent';
+                                        } else if(section.end < progress){
+                                            color = section.color;
+                                        } else {
+                                            const p = (progress - section.start) / (section.end - section.start);
+                                            color = `linear-gradient(90deg,${section.color} 0%, ${section.color} ${p * 100}%, ${"transparent"} ${p * 100}%, ${"transparent"} 100%)`
+                                        }
                                     }
                                     return (
                                         <div
                                             key={`section ${sectionIndex} ${section.name}`}
                                             style={{
-                                                backgroundColor: section.color,
+                                                background: color,
                                                 display: "flex",
                                                 justifyContent: "flex-start",
                                                 alignItems: "center",
                                                 height: '90%',
                                                 width: `${(section.end - section.start) * 100}%`,
-                                                marginRight: "2px",
-                                                marginLeft: "2px",
+                                                marginRight: "1px",
+                                                marginLeft: "1px",
                                                 borderRadius: "7px",
                                                 textAlign: "left",
                                                 paddingLeft: "10px",
                                                 textWrap: "nowrap",
                                                 textOverflow: "ellipsis",
                                                 fontSize: ".75rem",
+                                                border: section.isDummy ? 'none' : "1px solid #292524",
                                             }}
                                         >
                                             {section.name}
@@ -189,10 +198,10 @@ export const GanttChart = (props:GanttChartProps) => {
                     <div
                         style={{
                             backgroundColor: "red",
-                            width:"2px",
-                            height: `${rows.length * 2}rem`,
+                            width:"1px",
+                            height: `${rows.length * 2.9}rem`,
                             position: "absolute",
-                            bottom: 0,
+                            bottom: "-.4rem",
                             left: `${props.progressBar / gspan * 100}%`
                         }}
                     />
