@@ -13,28 +13,32 @@ export const projectRouter = createTRPCRouter({
     }),
 
   getOne: publicProcedure
-    .input(z.object({ id: z.number() }))
+    .input(z.object({ id: z.string().cuid2() }))
     .query(async ({ ctx, input }) => {
       return ctx.db.query.projects.findFirst({
         where: (projects, { eq }) => eq(projects.id, input.id),
         with: {
-          usersToProjects: true
+          usersToProjects: {
+            with: {
+              user: true,
+            },
+          },
         },
       });
     }),
 
   getAll: publicProcedure.query(async ({ ctx }) => {
-    return ctx.db.query.projects.findMany(
-      {
-        with: {
-          usersToProjects: true
-        },
-      }
-    );
+    return ctx.db.query.projects.findMany({
+      with: {
+        usersToProjects: true,
+      },
+    });
   }),
 
   updateOne: publicProcedure
-    .input(z.object({ id: z.number(), title: z.string().min(1).max(255) }))
+    .input(
+      z.object({ id: z.string().cuid2(), title: z.string().min(1).max(255) }),
+    )
     .mutation(async ({ ctx, input }) => {
       return ctx.db
         .update(projects)
@@ -43,7 +47,7 @@ export const projectRouter = createTRPCRouter({
     }),
 
   deleteOne: publicProcedure
-    .input(z.object({ id: z.number() }))
+    .input(z.object({ id: z.string().cuid2() }))
     .mutation(async ({ ctx, input }) => {
       return ctx.db.delete(projects).where(eq(projects.id, input.id));
     }),
