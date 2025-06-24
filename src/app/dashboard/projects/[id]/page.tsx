@@ -4,6 +4,8 @@ import { Clock, ExternalLink, Users } from "lucide-react";
 import Image from "next/image";
 import { GanttChart } from "@/app/_components/gantt-chart";
 import { api } from "@/trpc/server";
+import { CommitChart } from "../../_components/commit-chart";
+import { DeploymentChart } from "../../_components/deployment-chart";
 
 export default async function Page({
   params,
@@ -47,52 +49,17 @@ export default async function Page({
           </div>
           <div className="flex-1">
             <GanttChart
-              sections={[
-                {
-                  name: "Week 1",
-                  color: "#e8871e",
-                  start: 0,
-                  end: 7,
-                  header: true,
-                },
-                {
-                  name: "Week 2",
-                  color: "#e8871e",
-                  start: 7,
-                  end: 14,
-                  header: true,
-                },
-                {
-                  name: "Week 3",
-                  color: "#e8871e",
-                  start: 14,
-                  end: 21,
-                  header: true,
-                },
-                {
-                  name: "Week 4",
-                  color: "#e8871e",
-                  start: 21,
-                  end: 28,
-                  header: true,
-                },
-                {
-                  name: "Week 5",
-                  color: "#e8871e",
-                  start: 28,
-                  end: 35,
-                  header: true,
-                },
-                {
-                  name: "Meet your teammates",
-                  color: "#404040",
-                  start: 0,
-                  end: 6,
-                },
-                { name: "Code Stuff", color: "#6366f1", start: 4, end: 28 },
-              ]}
-              progressBar={10}
-            />
+						sections={[
+							{name:"Week 1", color:"#e8871e", start:0, end:7, header:true},
+							{name:"Week 2", color:"#e8871e", start:7, end:14, header:true},
+							{name:"Week 3", color:"#e8871e", start:14, end:21, header:true},
+							{name:"Week 4", color:"#e8871e", start:21, end:28, header:true},
+							{name:"Week 5", color:"#e8871e", start:28, end:35, header:true},
+							{name:"Meet your teammates", color:"#404040", start:0, end:6},
+							{name:"Code Stuff", color:"#6366f1", start:4, end:28},
+						]}
+						progressBar={10}
+					/>
           </div>
         </div>
       </DashboardCard>
