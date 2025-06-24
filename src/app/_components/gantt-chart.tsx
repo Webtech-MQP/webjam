@@ -1,6 +1,6 @@
-'use client'
+"use client";
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 
 export interface GanttChartSection {
     start: number;
@@ -12,15 +12,58 @@ export interface GanttChartSection {
 }
 
 interface GanttChartProps {
-    sections: GanttChartSection[];
-    progressBar?: number;
+  sections: GanttChartSection[];
+  progressBar?: number;
 }
 
 interface GanttChartRow {
-    sections: GanttChartSection[];
-    end: number;
+  sections: GanttChartSection[];
+  end: number;
 }
 
+export const GanttChart = (props: GanttChartProps) => {
+  const [rows, setRows] = useState<GanttChartRow[]>([]);
+  const [gspan, setGSpan] = useState<number>(0);
+  useEffect(() => {
+    let strictIgnore = false;
+
+    const buildRows = async () => {
+      // Ignore the UseStrict double mount
+      await new Promise((resolve) => setTimeout(resolve, 0));
+      if (strictIgnore) {
+        return;
+      }
+
+      const buildingRows: GanttChartRow[] = [];
+      const rawSections = props.sections.sort((a, b) => a.start - b.start);
+      let globalStart = 999999999;
+      let globalEnd = -999999999;
+
+      rawSections.forEach((s) => {
+        // For each section, find the lowest row it can fit into
+        let lowestValidRowIndex: number | null = null;
+        buildingRows.forEach((r, ri) => {
+          console.log(
+            `Row ${ri} ends at ${r.end}. ${s.name} starts at ${s.start}. Lowest at ${lowestValidRowIndex}`,
+          );
+          if (
+            r.end <= s.start &&
+            (lowestValidRowIndex === null || ri < lowestValidRowIndex)
+          ) {
+            lowestValidRowIndex = ri;
+          }
+        });
+
+        // If there is no row it fits into, make a new row
+        if (lowestValidRowIndex === null) {
+          const emptyRow: GanttChartRow = {
+            sections: [],
+            end: 0,
+          };
+          buildingRows.push(emptyRow);
+          lowestValidRowIndex = buildingRows.length - 1;
+          console.log("Making new row ", lowestValidRowIndex, "for", s.name);
+        }
 
 export const GanttChart = (props:GanttChartProps) => {
     const [rows, setRows] = useState<GanttChartRow[]>([]);
@@ -110,23 +153,37 @@ export const GanttChart = (props:GanttChartProps) => {
             setRows(buildingRows);
         }
 
-        void buildRows();
-
-        return ()=>{
-            strictIgnore = true;
+        // Put the section into the row
+        const row = buildingRows[lowestValidRowIndex];
+        if (!row) {
+          throw new Error(
+            `Invalid row ${lowestValidRowIndex} / ${buildingRows.length}`,
+          );
         }
-        
-    }, [props.sections])
+
+        // Check the last section before this one. If there is a gap, fill it with a dummy section
+        let lastSectionInRow = row.sections[row.sections.length - 1];
+        lastSectionInRow ??= { name: "", color: "", end: 0, start: 0 };
+        if (lastSectionInRow && s.start - lastSectionInRow.end > 0.0001) {
+          const dummySection: GanttChartSection = {
+            name: "",
+            color: "transparent",
+            end: s.start,
+            start: lastSectionInRow.end,
+          };
+          row.sections.push(dummySection);
+        }
 
     return (
         <div
             style={{
-                width: "100%",
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "flex-start",
-                alignItems: "flex-start",
-                flexWrap: "nowrap"
+              height: "2rem",
+              width: "100%",
+              display: "flex",
+              flexDirection: "row",
+              flexWrap: "nowrap",
+              justifyContent: "flex-start",
+              alignItems: "center",
             }}
         >
             {
@@ -190,10 +247,23 @@ export const GanttChart = (props:GanttChartProps) => {
             }
             { props.progressBar !== undefined &&
                 <div
-                    style={{
-                        position:"relative",
-                        width: "100%"
-                    }}
+                  key={`section ${sectionIndex} ${section.name}`}
+                  style={{
+                    backgroundColor: section.color,
+                    display: "flex",
+                    justifyContent: "flex-start",
+                    alignItems: "center",
+                    height: "90%",
+                    width: `${(section.end - section.start) * 100}%`,
+                    marginRight: "2px",
+                    marginLeft: "2px",
+                    borderRadius: "7px",
+                    textAlign: "left",
+                    paddingLeft: "10px",
+                    textWrap: "nowrap",
+                    textOverflow: "ellipsis",
+                    fontSize: ".75rem",
+                  }}
                 >
                     <div
                         style={{
@@ -206,7 +276,30 @@ export const GanttChart = (props:GanttChartProps) => {
                         }}
                     />
                 </div>
-            }
+              );
+            })}
+          </div>
+        );
+      })}
+      {props.progressBar !== undefined && (
+        <div
+          style={{
+            position: "relative",
+            width: "100%",
+          }}
+        >
+          <div
+            style={{
+              backgroundColor: "red",
+              width: "2px",
+              height: `${rows.length * 2}rem`,
+              position: "absolute",
+              bottom: 0,
+              left: `${(props.progressBar / gspan) * 100}%`,
+            }}
+          />
         </div>
-    )
-}
+      )}
+    </div>
+  );
+};

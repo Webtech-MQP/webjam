@@ -2,12 +2,18 @@
 // https://orm.drizzle.team/docs/sql-schema-declaration
 
 import { sql, relations } from "drizzle-orm";
-import { index, sqliteTableCreator, text, primaryKey, integer } from "drizzle-orm/sqlite-core";
-import { createClient } from "@libsql/client"
-import { drizzle } from "drizzle-orm/libsql"
-import type { AdapterAccount } from "next-auth/adapters"
-
-
+import {
+  index,
+  sqliteTableCreator,
+  text,
+  primaryKey,
+  integer,
+} from "drizzle-orm/sqlite-core";
+import { createClient } from "@libsql/client";
+import { drizzle } from "drizzle-orm/libsql";
+import type { AdapterAccount } from "next-auth/adapters";
+import { env } from "@/env";
+import { createId } from "@paralleldrive/cuid2";
 /**
  * This is an example of how to use the multi-project schema feature of Drizzle ORM. Use the same
  * database instance for multiple projects.
@@ -15,12 +21,11 @@ import type { AdapterAccount } from "next-auth/adapters"
  * @see https://orm.drizzle.team/docs/goodies#multi-project-schema
  */
 export const createTable = sqliteTableCreator((name) => `prototype-3_${name}`);
- 
+
 const client = createClient({
-  url: process.env.DATABASE_URL!,
-  authToken: process.env.DATABASE_AUTH_TOKEN!,
-})
-export const db = drizzle(client)
+  url: env.DATABASE_URL,
+});
+export const db = drizzle(client);
 
 export const users = createTable("user", (d) => ({
   id: d
@@ -37,7 +42,6 @@ export const users = createTable("user", (d) => ({
 export const usersRelations = relations(users, ({ many }) => ({
   accounts: many(accounts),
   usersToProjects: many(usersToProjects),
-
 }));
 
 export const accounts = createTable(
@@ -50,7 +54,7 @@ export const accounts = createTable(
     type: d.text({ length: 255 }).$type<AdapterAccount["type"]>().notNull(),
     provider: d.text({ length: 255 }).notNull(),
     providerAccountId: d.text({ length: 255 }).notNull(),
-    refresh_token: d.text(),    
+    refresh_token: d.text(),
     refresh_token_expires_in: d.text(),
     access_token: d.text(),
     expires_at: d.integer(),
@@ -98,16 +102,15 @@ export const verificationTokens = createTable(
   (t) => [primaryKey({ columns: [t.identifier, t.token] })],
 );
 
-export const projects = createTable(
-  "project",
-  (d) => ({
-    id: d.integer({ mode: "number" }).primaryKey({ autoIncrement: true }),
-    title: d.text({ length: 256 }),
-    description: d.text(),
-    deadline: d.integer({ mode: "timestamp" }), 
-    
-  }),
-);
+export const projects = createTable("project", (d) => ({
+  id: d
+    .text()
+    .$defaultFn(() => createId())
+    .primaryKey(),
+  title: d.text({ length: 256 }),
+  description: d.text(),
+  deadline: d.integer({ mode: "timestamp" }),
+}));
 
 export const projectsRelations = relations(projects, ({ many }) => ({
   usersToProjects: many(usersToProjects),
@@ -117,24 +120,25 @@ export const usersToProjects = createTable(
   "users_to_projects",
   {
     userId: integer("user_id")
-    .notNull()
-    .references(() => users.id, { onDelete: "cascade" }),
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
     projectId: integer("project_id")
-    .notNull()
-    .references(() => projects.id, { onDelete: "cascade" }),
+      .notNull()
+      .references(() => projects.id, { onDelete: "cascade" }),
   },
-  (t) => [
-    primaryKey({ columns: [t.userId, t.projectId] }),
-  ]
+  (t) => [primaryKey({ columns: [t.userId, t.projectId] })],
 );
 
-export const usersToProjectsRelations = relations(usersToProjects, ({ one }) => ({
-  user: one(users, {
-    fields: [usersToProjects.userId],
-    references: [users.id],
+export const usersToProjectsRelations = relations(
+  usersToProjects,
+  ({ one }) => ({
+    user: one(users, {
+      fields: [usersToProjects.userId],
+      references: [users.id],
+    }),
+    project: one(projects, {
+      fields: [usersToProjects.projectId],
+      references: [projects.id],
+    }),
   }),
-  project: one(projects, {
-    fields: [usersToProjects.projectId],
-    references: [projects.id],
-  }),
-}));
+);
