@@ -3,6 +3,8 @@ import { DashboardCard } from "../../_components/dashboard-card";
 import { Clock, ExternalLink, Users } from "lucide-react";
 import Image from "next/image";
 import { GanttChart } from "@/app/_components/gantt-chart";
+import { CommitChart } from "../../_components/commit-chart";
+import { DeploymentChart } from "../../_components/deployment-chart";
 
 export default async function Page({ params }: { params: Promise<{ id: string }> }) {
 	const { id } = await params;
@@ -54,7 +56,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
 			</div>
 		</DashboardCard>
 		<DashboardCard>
-			<h1>Teammates</h1>
+			<h2>Teammates</h2>
 			<div className="relative flex flex-col w-full gap-4">
 				{teammateData.map((teammate, index) => (
 					<div key={index} className="flex items-center gap-2">
@@ -69,12 +71,13 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
 		</DashboardCard>
 		<div className="flex gap-2 w-full">
 		<DashboardCard className="flex-1">
-			<h1>Deployment</h1>
-			
+			<h2>Deployment</h2>
+			<p>Deployed to <span className="text-primary">AWS us-east-1</span></p>
+			<DeploymentChart />
 		</DashboardCard>
 		<DashboardCard className="flex-1">
-			<h1>GitHub</h1>
-			
+			<h2>GitHub</h2>
+			<CommitChart />
 		</DashboardCard>
 		</div>
 	</div>;
