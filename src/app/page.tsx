@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { api, HydrateClient } from "@/trpc/server";
 import { GanttChart } from "./_components/gantt-chart";
+import AuthButton from "./_components/auth-button";
 
 export default async function Home() {
 
@@ -18,6 +19,7 @@ export default async function Home() {
             progressBar={1.5}
           />
         </div>
+        <AuthButton />
       </main>
     </HydrateClient>
   );

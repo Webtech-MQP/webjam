@@ -4,6 +4,7 @@ import { type Metadata } from "next";
 import { Poppins, Overpass } from "next/font/google";
 
 import { TRPCReactProvider } from "@/trpc/react";
+import { AuthProvider } from "./_components/auth-provider";
 
 export const metadata: Metadata = {
   title: "Create T3 App",
@@ -26,10 +27,15 @@ const overpass = Overpass({
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  
   return (
     <html lang="en" className={`${poppins.className} ${overpass.variable}`}>
       <body>
-        <TRPCReactProvider>{children}</TRPCReactProvider>
+          <TRPCReactProvider>
+            <AuthProvider>
+              {children}
+            </AuthProvider>
+          </TRPCReactProvider>
       </body>
     </html>
   );
