@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 import { api, HydrateClient } from "@/trpc/server";
-import { GanttChart } from "./_components/gantt-chart";
+import { GanttChart } from "../features/time-tracking/components/gantt-chart";
 
 export default async function Home() {
   return (

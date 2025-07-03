@@ -1,11 +1,11 @@
 import { Badge } from "@/components/ui/badge";
-import { DashboardCard } from "../../_components/dashboard-card";
+import { DashboardCard } from "../../../../components/dashboard-card";
 import { Clock, ExternalLink, Users } from "lucide-react";
 import Image from "next/image";
-import { GanttChart } from "@/app/_components/gantt-chart";
+import { GanttChart } from "@/features/time-tracking/components/gantt-chart";
 import { api } from "@/trpc/server";
-import { CommitChart } from "../../_components/commit-chart";
-import { DeploymentChart } from "../../_components/deployment-chart";
+import { CommitChart } from "../../../../features/github-integration/components/commit-chart";
+import { DeploymentChart } from "../../../../features/aws-integration/components/deployment-chart";
 
 export default async function Page({
   params,
