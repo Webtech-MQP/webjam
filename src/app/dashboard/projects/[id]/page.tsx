@@ -3,8 +3,15 @@ import { DashboardCard } from "../../_components/dashboard-card";
 import { Clock, ExternalLink, Users } from "lucide-react";
 import Image from "next/image";
 import { GanttChart } from "@/app/_components/gantt-chart";
+import { auth } from "@/server/auth";
+import { redirect } from "next/navigation";
 
 export default async function Page({ params }: { params: Promise<{ id: string }> }) {
+	const session = await auth();
+
+  if (!session?.user) {
+    redirect("/"); 
+  }
 	const { id } = await params;
 
 	const teammateData = [{

@@ -2,7 +2,7 @@
 // https://orm.drizzle.team/docs/sql-schema-declaration
 
 import { sql, relations } from "drizzle-orm";
-import { index, sqliteTableCreator, text, primaryKey, integer } from "drizzle-orm/sqlite-core";
+import { index, sqliteTableCreator, primaryKey, integer } from "drizzle-orm/sqlite-core";
 import { createClient } from "@libsql/client"
 import { drizzle } from "drizzle-orm/libsql"
 import type { AdapterAccount } from "next-auth/adapters"
