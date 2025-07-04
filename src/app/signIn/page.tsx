@@ -12,7 +12,7 @@ export default function SignInPage() {
       <CardHeader>
         <CardTitle>Login to your account</CardTitle>
         <CardDescription>
-          Select a provider to sign in. If you don't have an account, you can create one after signing in.
+          Select a provider to sign in. If you don&apos;t have an account, you can create one after signing in.
         </CardDescription>
       </CardHeader>
       <CardContent>

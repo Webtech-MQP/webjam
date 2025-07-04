@@ -23,7 +23,7 @@ const ROUTES = [{
 
 export function Sidebar() {
 	const path = usePathname();
-	const { data: session } = useSession();
+	const { data: session, status } = useSession();
 	const [ profileOpen, setProfileOpen ] = useState(false);
 
     console.log(session?.user.image);
@@ -76,7 +76,10 @@ export function Sidebar() {
                             <Image
                                 fill
                                 objectFit="contain"
-                                src={session?.user?.image ?? "/default-avatar.png"}
+                                src={status === "loading"
+                                    ? "/default-avatar.png"
+                                    : session?.user?.image ?? "/default-avatar.png"
+                                }
                                 alt="User Avatar"
                                 className="w-5 h-5 rounded-full"
                             />
