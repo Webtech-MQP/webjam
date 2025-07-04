@@ -7,6 +7,7 @@ import { usePathname } from "next/navigation";
 import { useCallback } from "react";
 import { useSession, signOut } from "next-auth/react";
 import { useState } from "react";
+import Image from "next/image";
 
 
 const ROUTES = [{
@@ -22,8 +23,10 @@ const ROUTES = [{
 
 export function Sidebar() {
 	const path = usePathname();
-	const { data: session, status} = useSession();
+	const { data: session } = useSession();
 	const [ profileOpen, setProfileOpen ] = useState(false);
+
+    console.log(session?.user.image);
 
 	const closestMatch = useCallback(() => {
 		return ROUTES.reduce((a, b) => {
@@ -69,7 +72,15 @@ export function Sidebar() {
                     className="flex justify-between border border-accent rounded-md p-2 items-center gap-4 w-full cursor-pointer"
                 >
                     <div className="flex items-center gap-2">
-                        <img src={session?.user?.image || "/default-avatar.png"} alt="User Avatar" className="w-5 h-5 rounded-full" />
+                        <div className="relative w-5 h-5">
+                            <Image
+                                fill
+                                objectFit="contain"
+                                src={session?.user?.image ?? "/default-avatar.png"}
+                                alt="User Avatar"
+                                className="w-5 h-5 rounded-full"
+                            />
+                        </div>
                         <p className="text-sm">My profile</p>
                     </div>
                     {profileOpen ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
