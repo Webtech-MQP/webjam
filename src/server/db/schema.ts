@@ -5,7 +5,6 @@ import { sql, relations } from "drizzle-orm";
 import {
   index,
   sqliteTableCreator,
-  text,
   primaryKey,
   integer,
 } from "drizzle-orm/sqlite-core";
