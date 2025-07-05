@@ -37,12 +37,47 @@ export const users = createTable("user", (d) => ({
   email: d.text({ length: 255 }).notNull(),
   emailVerified: d.integer({ mode: "timestamp" }).default(sql`(unixepoch())`),
   image: d.text({ length: 255 }),
+  // role: d.enum(["candidate", "recruiter", "admin"]).default("candidate"),
+  createdAt: d.integer({ mode: "timestamp" }).default(sql`(unixepoch())`),
+  updatedAt: d.integer({ mode: "timestamp" }).default(sql`(unixepoch())`),
 }));
 
 export const usersRelations = relations(users, ({ many }) => ({
   accounts: many(accounts),
   usersToProjects: many(usersToProjects),
 }));
+
+export const admins = createTable("admin", (d) => ({
+  userId: d
+    .text({ length: 255 })
+    .notNull()
+    .references(() => users.id),
+  // role: d.enum(["Reg", "Mod", "Super", "idk"]).default("Reg"),
+}))
+
+export const candidates = createTable("candidate", (d) => ({
+  userId: d
+    .text({ length: 255 })
+    .notNull()
+    .references(() => users.id),
+  bio: d.text({ length: 255 }),
+  location: d.text({ length: 255 }),
+  language: d.text({ length: 255 }),
+  experience: d.text({ length: 255 }),
+  githubUsername: d.text({ length: 255 }),
+  portfolioURL: d.text({ length: 255 }),
+  linkedinURL: d.text({ length: 255 }),
+  resumeURL: d.text({ length: 255 }),
+}))
+
+export const recruiters = createTable("recruiter", (d) => ({
+  userId: d
+    .text({ length: 255 })
+    .notNull()
+    .references(() => users.id),
+  companyName: d.text({ length: 255 }),
+}))
+
 
 export const accounts = createTable(
   "account",
@@ -108,8 +143,48 @@ export const projects = createTable("project", (d) => ({
     .$defaultFn(() => createId())
     .primaryKey(),
   title: d.text({ length: 256 }),
-  description: d.text(),
   deadline: d.integer({ mode: "timestamp" }),
+  description: d.text({ length: 256 }),
+  instructions: d.text({ length: 256 }),
+  requirements: d.text({ length: 256 }),
+  // status: d.enum(["in-progress", "completed", "upcoming"]).default("in-progress"),
+  createdAt: d.integer({ mode: "timestamp" }).default(sql`(unixepoch())`),
+  updatedAt: d.integer({ mode: "timestamp" }).default(sql`(unixepoch())`),
+  startDateTime: d.integer({ mode: "timestamp" }),
+  endDateTime: d.integer({ mode: "timestamp" }),
+  img: d.text({ length: 256 }),
+  createdBy: d
+    .text({ length: 255 })
+    .notNull()
+    .references(() => admins.userId),
+}));
+
+export const projectSubmissions = createTable("projectSubmission", (d) => ({
+  id: d
+    .text()
+    .$defaultFn(() => createId())
+    .primaryKey(),
+  projectId: d
+    .text()
+    .notNull()
+    .references(() => projects.id),
+  submittedOn: d.integer({ mode: "timestamp" }).default(sql`(unixepoch())`),
+  // status: d.enum(["submitted", "under-review", "approved"]).default("submitted");
+  reviewedOn: d.integer({ mode: "timestamp" }),
+  reviewedBy: d
+    .text({ length: 255 })
+    .notNull()
+    .references(() => admins.userId),
+  repoURL: d.text({ length: 255 }),
+  notes: d.text({ length: 255 }),
+}))
+
+export const tags = createTable("tag", (d) => ({
+  id: d
+    .text()
+    .$defaultFn(() => createId())
+    .primaryKey(),
+  name: d.text({ length: 256 }).unique(),
 }));
 
 export const projectsRelations = relations(projects, ({ many }) => ({
