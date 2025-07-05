@@ -6,8 +6,17 @@ import "./src/env.js";
 
 /** @type {import("next").NextConfig} */
 const config = {
-  images: {
-    remotePatterns: [new URL("https://placehold.co/**")],
+	images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'placehold.co',
+      },
+      {
+        protocol: 'https',
+        hostname: 'avatars.githubusercontent.com',
+      },
+    ],
   },
 };
 

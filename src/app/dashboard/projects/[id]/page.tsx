@@ -1,18 +1,21 @@
 import { Badge } from "@/components/ui/badge";
-import { DashboardCard } from "../../../../components/dashboard-card";
+import { DashboardCard } from "@/components/dashboard-card";
 import { Clock, ExternalLink, Users } from "lucide-react";
 import Image from "next/image";
 import { GanttChart } from "@/features/time-tracking/components/gantt-chart";
 import { api } from "@/trpc/server";
-import { CommitChart } from "../../../../features/github-integration/components/commit-chart";
-import { DeploymentChart } from "../../../../features/aws-integration/components/deployment-chart";
+// import { CommitChart } from "@/features/github-integration/components/commit-chart";
+// import { DeploymentChart } from "@/features/aws-integration/components/deployment-chart";
+import { auth } from "@/server/auth";
+import { redirect } from "next/navigation";
 
-export default async function Page({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
-  const { id } = await params;
+export default async function Page({ params }: { params: Promise<{ id: string }> }) {
+	const session = await auth();
+
+  if (!session?.user) {
+    redirect("/"); 
+  }
+	const { id } = await params;
 
   const teammates = await api.projects.getOne({ id });
 
