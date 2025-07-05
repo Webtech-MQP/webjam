@@ -37,6 +37,8 @@
     "next-auth": "5.0.0-beta.29",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-roughviz": "^0.1.10",
+    "recharts": "^2.15.4",
     "server-only": "^0.0.1",
     "superjson": "^2.2.1",
     "tailwind-merge": "^3.3.1",
@@ -44,11 +46,12 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.1",
+    "@paralleldrive/cuid2": "^2.2.2",
     "@tailwindcss/postcss": "^4.0.15",
     "@types/node": "^20.14.10",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
-    "drizzle-kit": "^0.30.5",
+    "drizzle-kit": "^0.31.1",
     "eslint": "^9.23.0",
     "eslint-config-next": "^15.2.3",
     "eslint-plugin-drizzle": "^0.2.3",
@@ -64,5 +67,5 @@
   "ct3aMetadata": {
     "initVersion": "7.39.3"
   },
-  "packageManager": "pnpm@9.12.3"
+  "packageManager": "pnpm@10.12.1"
 }
