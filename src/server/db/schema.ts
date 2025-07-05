@@ -4,6 +4,7 @@
 import { sql, relations } from "drizzle-orm";
 import {
   index,
+  text,
   sqliteTableCreator,
   primaryKey,
   integer,
@@ -13,6 +14,7 @@ import { drizzle } from "drizzle-orm/libsql";
 import type { AdapterAccount } from "next-auth/adapters";
 import { env } from "@/env";
 import { createId } from "@paralleldrive/cuid2";
+
 /**
  * This is an example of how to use the multi-project schema feature of Drizzle ORM. Use the same
  * database instance for multiple projects.
@@ -41,6 +43,7 @@ export const users = createTable("user", (d) => ({
 export const usersRelations = relations(users, ({ many }) => ({
   accounts: many(accounts),
   usersToProjects: many(usersToProjects),
+  ratings: many(ratings),
 }));
 
 export const accounts = createTable(
@@ -113,15 +116,81 @@ export const projects = createTable("project", (d) => ({
 
 export const projectsRelations = relations(projects, ({ many }) => ({
   usersToProjects: many(usersToProjects),
+  tagsToProjects: many(tagsToProjects),
+  ratings: many(ratings),
 }));
 
+export const ratings = createTable("rating", (d) => ({
+  id: d
+    .text()
+    .$defaultFn(() => createId())
+    .primaryKey(),
+  comment: d.text(),
+  rating: d.integer().notNull(),
+  createdAt: d.integer({ mode: "timestamp" }).default(sql`(unixepoch())`),
+  userId: d.text("user_id"),
+  projectId: d.text("project_id")
+}));
+
+export const ratingsRelations = relations(ratings, ({ one }) => ({
+  project: one(projects, {
+    fields: [ratings.projectId],
+    references: [projects.id],
+  }),
+  user: one(users, {
+    fields: [ratings.userId],
+    references: [users.id],
+  }),
+}));
+
+export const tags = createTable("tag", (d) => ({
+  id: d
+    .text()
+    .$defaultFn(() => createId())
+    .primaryKey(),
+  name: d.text({ length: 256 }).notNull()
+}));
+
+export const tagsRelations = relations(tags, ({ many }) => ({
+  projects: many(tagsToProjects),
+}));
+
+// Tags to projects many-to-many relationship
+export const tagsToProjects = createTable(
+  "projects_to_tags",
+  {
+    projectId: integer("project_id")
+      .notNull()
+      .references(() => projects.id, { onDelete: "cascade" }),
+    tagId: integer("tag_id")
+      .notNull()
+      .references(() => tags.id, { onDelete: "cascade" }),
+  },
+  (t) => [primaryKey({ columns: [t.projectId, t.tagId] })],
+);
+
+export const tagsToProjectsRelations = relations(
+  tagsToProjects,
+  ({ one }) => ({
+    project: one(projects, {
+      fields: [tagsToProjects.projectId],
+      references: [projects.id],
+    }),
+    tag: one(tags, {
+      fields: [tagsToProjects.tagId],
+      references: [tags.id],
+    }),
+  }),
+);
+
+// User to projects many-to-many relationship
 export const usersToProjects = createTable(
   "users_to_projects",
   {
-    userId: integer("user_id")
+    userId: text("user_id")
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
-    projectId: integer("project_id")
+    projectId: text("project_id")
       .notNull()
       .references(() => projects.id, { onDelete: "cascade" }),
   },

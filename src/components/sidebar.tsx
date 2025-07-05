@@ -1,7 +1,7 @@
 "use client"
 
 import { cn } from "@/lib/utils";
-import { Home, Folders, ChevronUp, ChevronDown, Settings, LogOut } from "lucide-react"
+import { Home, Folders, ChevronUp, ChevronDown, Settings, LogOut, Search } from "lucide-react"
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCallback } from "react";
@@ -19,6 +19,11 @@ const ROUTES = [{
 	name: "Projects",
 	href: "/dashboard/projects",
 	icon: Folders,
+},
+{
+    name: "Find a Jam",
+    href: "/dashboard/jamFinder",
+    icon: Search,
 }]
 
 export function Sidebar() {
