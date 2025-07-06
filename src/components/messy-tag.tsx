@@ -28,6 +28,7 @@ export const MessyTag = (props:MessyTagProps)=>{
                 padding: 8,
                 color: props.color,
                 width: "fit-content",
+                transform:`translate(5px, 5px)`,
                 ...props.style,
             }}
             className={props.className}
@@ -46,22 +47,24 @@ export const MessyTag = (props:MessyTagProps)=>{
                     className={props.textClassName}
                 >{props.children}</p>
             </div>
-            {/* @ts-expect-error this can have children.. weird type issue */}
-            <ReactRough
-                renderer={"svg"}
-                width={dim.x + 10}
-                height={dim.y + 10}
-            >
-                <Rectangle
-                    width={dim.x}
-                    height={dim.y}
-                    x={0}
-                    y={0}
-                    stroke="white"
-                    strokeWidth={2}
-                    roughness={3}
-                />
-            </ReactRough>
+            <div style={{transform:`translate(-5px, -5px)`}}>
+                {/* @ts-expect-error this can have children.. weird type issue */}
+                <ReactRough
+                    renderer={"svg"}
+                    width={dim.x + 10}
+                    height={dim.y + 10}
+                >
+                    <Rectangle
+                        width={dim.x}
+                        height={dim.y}
+                        x={5}
+                        y={5}
+                        stroke="white"
+                        strokeWidth={2}
+                        roughness={3}
+                    />
+                </ReactRough>
+            </div>
         </div>
     )
 }
