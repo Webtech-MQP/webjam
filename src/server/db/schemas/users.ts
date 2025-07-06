@@ -65,7 +65,10 @@ export const adminProfiles = createTable("admin_profile", (d) => ({
 }));
 
 export const adminProfilesRelations = relations(adminProfiles, ({ one }) => ({
-  admin: one(admins, { fields: [adminProfiles.adminId], references: [admins.userId] }),
+  admin: one(admins, {
+    fields: [adminProfiles.adminId],
+    references: [admins.userId],
+  }),
 }));
 
 export const candidates = createTable("candidate", (d) => ({
@@ -107,7 +110,10 @@ export const candidateProfiles = createTable("candidate_profile", (d) => ({
 export const candidateProfilesRelations = relations(
   candidateProfiles,
   ({ one, many }) => ({
-    candidate: one(candidates, { fields: [candidateProfiles.candidateId], references: [candidates.userId] }),
+    candidate: one(candidates, {
+      fields: [candidateProfiles.candidateId],
+      references: [candidates.userId],
+    }),
     projects: many(candidateProfilesToProjects),
   }),
 );
@@ -143,9 +149,15 @@ export const recruiterProfiles = createTable("recruiter_profile", (d) => ({
   publicEmail: d.text({ length: 255 }),
 }));
 
-export const recruiterProfilesRelations = relations(recruiterProfiles, ({ one }) => ({
-  recruiter: one(recruiters, { fields: [recruiterProfiles.recruiterId], references: [recruiters.userId] }),
-}));
+export const recruiterProfilesRelations = relations(
+  recruiterProfiles,
+  ({ one }) => ({
+    recruiter: one(recruiters, {
+      fields: [recruiterProfiles.recruiterId],
+      references: [recruiters.userId],
+    }),
+  }),
+);
 
 export const recruitersToCandidates = createTable(
   "recruiters_candidates",

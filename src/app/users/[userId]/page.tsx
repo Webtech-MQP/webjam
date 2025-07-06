@@ -10,9 +10,15 @@ type Props = {
 };
 
 export default async function Page({ params }: Props) {
-  const userId = (await params).userId;
+  const userId = decodeURIComponent((await params).userId);
 
-  const user = await api.users.getOne({ id: userId });
+  console.log(userId);
+
+  const user = await api.users.getOne(
+    userId.startsWith("@")
+      ? { githubUsername: userId.slice(1) }
+      : { id: userId },
+  );
 
   if (!user) {
     return <div>User not found</div>;
@@ -29,7 +35,7 @@ export default async function Page({ params }: Props) {
           <div className="z-30 -mt-30">
             {/* Profile Picture */}
             <Image
-              src="https://placehold.co/100.png"
+              src={user.image ?? "https://placehold.co/100.png"}
               className="relative z-20 box-content rounded-xl border-6 border-(--color-background)"
               alt="Profile picture"
               height={100}

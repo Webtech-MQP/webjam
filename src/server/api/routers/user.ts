@@ -26,10 +26,18 @@ export const userRouter = createTRPCRouter({
     }),
 
   getOne: publicProcedure
-    .input(z.object({ id: z.string().cuid2() }))
+    .input(
+      z.union([
+        z.object({ id: z.string().cuid2() }),
+        z.object({ githubUsername: z.string() }),
+      ]),
+    )
     .query(async ({ ctx, input }) => {
       return ctx.db.query.users.findFirst({
-        where: (users, { eq }) => eq(users.id, input.id),
+        where:
+          "id" in input
+            ? (users, { eq }) => eq(users.id, input.id)
+            : (users, { eq }) => eq(users.githubUsername, input.githubUsername),
         with: {
           candidate: {
             with: {

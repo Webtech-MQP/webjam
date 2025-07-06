@@ -1,94 +1,125 @@
-"use client"
+"use client";
 
 import { cn } from "@/lib/utils";
-import { Home, Folders, ChevronUp, ChevronDown, Settings, LogOut } from "lucide-react"
+import {
+  Home,
+  Folders,
+  ChevronUp,
+  ChevronDown,
+  Settings,
+  LogOut,
+} from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCallback } from "react";
 import { useSession, signOut } from "next-auth/react";
 import { useState } from "react";
 import Image from "next/image";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
-
-const ROUTES = [{
-	name: "Home",
-	href: "/dashboard",
-	icon: Home,
-},
-{
-	name: "Projects",
-	href: "/dashboard/projects",
-	icon: Folders,
-}]
+const ROUTES = [
+  {
+    name: "Home",
+    href: "/dashboard",
+    icon: Home,
+  },
+  {
+    name: "Projects",
+    href: "/dashboard/projects",
+    icon: Folders,
+  },
+];
 
 export function Sidebar() {
-	const path = usePathname();
-	const { data: session, status } = useSession();
-	const [ profileOpen, setProfileOpen ] = useState(false);
+  const path = usePathname();
+  const { data: session, status } = useSession();
+  const [profileOpen, setProfileOpen] = useState(false);
 
-    console.log(session?.user.image);
+  console.log(session?.user.image);
 
-	const closestMatch = useCallback(() => {
-		return ROUTES.reduce((a, b) => {
-			return path.startsWith(b.href) && b.href.length > a.href.length ? b : a;
-		}, { href: "", name: "", icon: Home });
-	}, [path])
-
-	return (
-        <div className="w-64 h-full border-r border-accent p-4 flex flex-col">
-            <h1 className="text-primary font-bold">mqp</h1>
-            <nav className="flex-1">
-                {ROUTES.map((route) => (
-                    <Link
-                        key={route.name}
-						href={route.href}
-                        className={cn("flex items-center gap-3 mb-4 p-4 hover:text-primary", closestMatch().href === route.href && "border-b-4 border-primary")}
-                    >
-                        <route.icon className="w-5 h-5" />
-                        {route.name}
-                    </Link>
-                ))}
-            </nav>
-            <div className="mt-auto">
-                <div
-                    className={cn(
-                        "overflow-hidden transition-all duration-300",
-                        profileOpen ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4 pointer-events-none"
-                    )}
-                >
-                    <div className="flex flex-col items-left gap-4 p-4">
-						<div className="flex items-center gap-3 hover:text-primary">
-							<Settings className="w-5 h-5" />
-                        	<button className="text-left cursor-pointer transition-colors">Settings</button>
-						</div>
-						<div className="flex items-center gap-3 hover:text-primary">	
-							<LogOut className="w-5 h-5" />
-                        	<button className="text-left cursor-pointer hover:text-primary transition-colors" onClick={() => signOut()}>Sign out</button>
-						</div>
-                    </div>
-                </div>
-                <div
-                    onClick={() => setProfileOpen(prevState => !prevState)}
-                    className="flex justify-between border border-accent rounded-md p-2 items-center gap-4 w-full cursor-pointer"
-                >
-                    <div className="flex items-center gap-2">
-                        <div className="relative w-5 h-5">
-                            <Image
-                                fill
-                                objectFit="contain"
-                                src={status === "loading"
-                                    ? "/default-avatar.png"
-                                    : session?.user?.image ?? "/default-avatar.png"
-                                }
-                                alt="User Avatar"
-                                className="w-5 h-5 rounded-full"
-                            />
-                        </div>
-                        <p className="text-sm">My profile</p>
-                    </div>
-                    {profileOpen ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
-                </div>
-            </div>
-        </div>
+  const closestMatch = useCallback(() => {
+    return ROUTES.reduce(
+      (a, b) => {
+        return path.startsWith(b.href) && b.href.length > a.href.length ? b : a;
+      },
+      { href: "", name: "", icon: Home },
     );
+  }, [path]);
+
+  return (
+    <div className="border-accent flex h-full w-64 flex-col border-r p-4">
+      <h1 className="text-primary font-bold">mqp</h1>
+      <nav className="flex-1">
+        {ROUTES.map((route) => (
+          <Link
+            key={route.name}
+            href={route.href}
+            className={cn(
+              "hover:text-primary mb-4 flex items-center gap-3 p-4",
+              closestMatch().href === route.href && "border-primary border-b-4",
+            )}
+          >
+            <route.icon className="h-5 w-5" />
+            {route.name}
+          </Link>
+        ))}
+      </nav>
+      <div className="mt-auto">
+        <div
+          className={cn(
+            "overflow-hidden transition-all duration-300",
+            profileOpen
+              ? "translate-y-0 opacity-100"
+              : "pointer-events-none translate-y-4 opacity-0",
+          )}
+        >
+          <div className="items-left border-accent flex flex-col gap-4 rounded border-2 p-4">
+            <div className="hover:text-primary flex items-center gap-3">
+              <Avatar className="h-5 w-5">
+                <AvatarImage src={session?.user.image ?? undefined} />
+                <AvatarFallback>
+                  {session?.user?.name?.split(" ")[0]?.charAt(0)}
+                </AvatarFallback>
+              </Avatar>
+              <Link
+                href={`/users/${session?.user.id}`}
+                className="cursor-pointer text-left transition-colors"
+              >
+                View Profile
+              </Link>
+            </div>
+            <div className="hover:text-primary flex items-center gap-3">
+              <LogOut className="h-5 w-5" />
+              <button
+                className="hover:text-primary cursor-pointer text-left transition-colors"
+                onClick={() => signOut()}
+              >
+                Sign out
+              </button>
+            </div>
+          </div>
+        </div>
+        <div
+          onClick={() => setProfileOpen((prevState) => !prevState)}
+          className="border-accent flex w-full cursor-pointer items-center justify-between gap-4 rounded-md border p-2"
+        >
+          <div className="flex items-center gap-2">
+            <Avatar className="h-5 w-5">
+              <AvatarImage src={session?.user.image ?? undefined} />
+              <AvatarFallback>
+                {session?.user?.name?.split(" ")[0]?.charAt(0)}
+              </AvatarFallback>
+            </Avatar>
+            <p className="">My profile</p>
+          </div>
+          {profileOpen ? (
+            <ChevronUp className="h-5 w-5" />
+          ) : (
+            <ChevronDown className="h-5 w-5" />
+          )}
+        </div>
+      </div>
+    </div>
+  );
 }
+
