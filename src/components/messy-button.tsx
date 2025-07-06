@@ -68,11 +68,22 @@ export const MessyButton = (props:MessyButtonProps)=>{
                     className={props.textClassName}
                 >{props.children}</p>
             </div>
-            <div 
-                style={{transform:`translate(-5px, -5px)`}}
+            <button
+                type="button"
+                style={{
+                    background: "none",
+                    border: "none",
+                    padding: 0,
+                    margin: 0,
+                    cursor: "pointer",
+                    outline: "none",
+                    transform: `translate(-5px, -5px)`,
+                    display: "block"
+                }}
                 onMouseOver={onHover}
                 onMouseLeave={onDehover}
                 onClick={onClick}
+                aria-label={props.children}
             >
                 {/* @ts-expect-error this can have children.. weird type issue */}
                 <ReactRough
@@ -94,7 +105,7 @@ export const MessyButton = (props:MessyButtonProps)=>{
                         fill={hovered && props.variant==="fill" ? "#ffffff60" : "none"}
                     />
                 </ReactRough>
-            </div>
+            </button>
         </div>
     )
 }

@@ -49,19 +49,18 @@ export default function Home() {
                       <div key={`col${c}`} className="flex flex-col gap-[2px]">
                         {
                           Array.from({length:7}).map((xx, r:number)=>{
-                            let color = "bg-[#151b23] hover:bg-[#2b3849]";
-                            let tooltip = null;
-                            [{x: 9, y: 2}, {x: 17, y:4}]
-                            .forEach(((p)=>{
-                              if (p.x === c && p.y === r){
-                                color = "bg-[#033a16] hover:bg-[#046024]";
-                                tooltip = (
-                                  <TooltipContent>
-                                    <p>1 commit</p>
-                                  </TooltipContent>
-                                )
-                              }
-                            }))
+                            const highlight = [{x: 9, y: 2}, {x: 17, y:4}]
+                              .find((p) => p.x === c && p.y === r);
+
+                            const color = highlight
+                              ? "bg-[#033a16] hover:bg-[#046024]"
+                              : "bg-[#151b23] hover:bg-[#2b3849]";
+
+                            const tooltip = highlight ? (
+                              <TooltipContent>
+                                <p>1 commit</p>
+                              </TooltipContent>
+                            ) : null;
 
                             return (
                               <Tooltip key={`col${c}row${r}`} delayDuration={0}>
