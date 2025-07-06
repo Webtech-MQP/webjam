@@ -1,14 +1,19 @@
 import { z } from "zod";
 import { eq } from "drizzle-orm";
-import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
-import { candidatesToProjects, projects } from "@/server/db/schema";
+import {
+  createTRPCRouter,
+  protectedProcedure,
+  publicProcedure,
+} from "@/server/api/trpc";
+import { candidatesToProjects, projects } from "@/server/db/schemas/projects";
 
 export const projectRouter = createTRPCRouter({
-  create: publicProcedure
+  create: protectedProcedure
     .input(z.object({ title: z.string().min(1).max(255) }))
     .mutation(async ({ ctx, input }) => {
       return ctx.db.insert(projects).values({
         title: input.title,
+        createdBy: ctx.session.user.id,
       });
     }),
 
@@ -34,7 +39,13 @@ export const projectRouter = createTRPCRouter({
   getAll: publicProcedure.query(async ({ ctx }) => {
     return ctx.db.query.projects.findMany({
       with: {
-        usersToProjects: true,
+        candidatesToProjects: {
+          with: {
+            candidate: {
+              with: { user: true },
+            },
+          },
+        },
       },
     });
   }),

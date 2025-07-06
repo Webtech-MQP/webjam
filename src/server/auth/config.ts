@@ -8,7 +8,7 @@ import {
   sessions,
   users,
   verificationTokens,
-} from "@/server/db/schema";
+} from "@/server/db/schemas/users";
 import { type SqlFlavorOptions } from "node_modules/@auth/drizzle-adapter/lib/utils";
 
 /**
@@ -40,7 +40,10 @@ declare module "next-auth" {
 
 export const authConfig = {
   providers: [
-    GithubProvider({ clientId: process.env.AUTH_GITHUB_ID, clientSecret: process.env.AUTH_GITHUB_SECRET }),
+    GithubProvider({
+      clientId: process.env.AUTH_GITHUB_ID,
+      clientSecret: process.env.AUTH_GITHUB_SECRET,
+    }),
     /**
      * ...add more providers here.
      *
