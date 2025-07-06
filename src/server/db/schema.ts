@@ -159,10 +159,10 @@ export const tagsRelations = relations(tags, ({ many }) => ({
 export const tagsToProjects = createTable(
   "projects_to_tags",
   {
-    projectId: integer("project_id")
+    projectId: text("project_id")
       .notNull()
       .references(() => projects.id, { onDelete: "cascade" }),
-    tagId: integer("tag_id")
+    tagId: text("tag_id")
       .notNull()
       .references(() => tags.id, { onDelete: "cascade" }),
   },

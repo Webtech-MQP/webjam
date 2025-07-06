@@ -11,6 +11,7 @@ import {
 import { Slider } from "@/components/ui/slider";
 import { useState } from "react";
 import type { RouterOutputs } from "@/trpc/react";
+import { JamCard } from "@/components/jam-card";
 
 interface JamFinderProps {
   projects: RouterOutputs["projects"]["getAll"];
@@ -26,10 +27,7 @@ export default function JamFinderClient({ projects }: JamFinderProps) {
 
   return (
     <>
-      <h1 className="mb text-2xl font-bold">Web Jam Finder</h1>
-      <p className="mb-4 text-gray-600">
-        Find a jam to join or create a new one!
-      </p>
+      <h1 className="mb font-bold">Web Jam Finder</h1>
       <div className="flex gap-3">
         <Input placeholder="Enter a jam name" />
         <Input placeholder="Date picker" />
@@ -70,24 +68,14 @@ export default function JamFinderClient({ projects }: JamFinderProps) {
       <div>
         Found {projects.length} {projects.length > 1 ? "jams" : "jam"}
       </div>
-      <div className="mt-6">
-        <h2 className="mb-4 text-xl font-semibold">Available Jams</h2>
-        {projects.length > 0 ? (
-          <ul className="space-y-4">
-            {projects.map((project) => (
-              <li
-                key={project.id}
-                className="rounded-md border p-4 transition-colors hover:bg-gray-800"
-              >
-                <h3 className="text-lg font-bold">{project.title}</h3>
-                <p>{project.description}</p>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p>No jams available at the moment.</p>
-        )}
-      </div>
+        <JamCard
+        name="Patient Management System"
+        startDate="12/12/2023"
+        numberOfTeammates={5}
+        imageUrl="https://placehold.co/150/png"
+        tags={projects[0]?.tagsToProjects.map((t) => t.tag)}
+        className="w-1/3"
+      />
     </>
   );
 }
