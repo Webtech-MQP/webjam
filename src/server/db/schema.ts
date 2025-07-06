@@ -49,6 +49,7 @@ export const admins = createTable("admin", (d) => ({
   userId: d
     .text({ length: 255 })
     .notNull()
+    .primaryKey()
     .references(() => users.id),
   // role: d.enum(["Reg", "Mod", "Super", "idk"]).default("Reg"),
 }))
@@ -57,6 +58,7 @@ export const candidates = createTable("candidate", (d) => ({
   userId: d
     .text({ length: 255 })
     .notNull()
+    .primaryKey()
     .references(() => users.id),
   bio: d.text({ length: 255 }),
   location: d.text({ length: 255 }),
@@ -68,14 +70,11 @@ export const candidates = createTable("candidate", (d) => ({
   resumeURL: d.text({ length: 255 }),
 }))
 
-export const candidatesRelations = relations(candidates, ({ many }) => ({
-  candidatesToProjects: many(candidatesToProjects),
-}));
-
 export const recruiters = createTable("recruiter", (d) => ({
   userId: d
     .text({ length: 255 })
     .notNull()
+    .primaryKey()
     .references(() => users.id),
   companyName: d.text({ length: 255 }),
 }))
@@ -201,29 +200,38 @@ export const tags = createTable("tag", (d) => ({
   name: d.text({ length: 256 }).unique(),
 }));
 
+export const candidatesToProjects = createTable(
+  "candidates_to_projects",
+  (d) => ({
+    candidateId: d.text("candidate_id")
+      .notNull()
+      .references(() => candidates.userId, { onDelete: "cascade" }),
+    projectId: d.text("project_id")
+      .notNull()
+      .references(() => projects.id, { onDelete: "cascade" }),
+  }),
+  (t) => [primaryKey({ columns: [t.candidateId, t.projectId] })],
+);
+
+export const candidatesRelations = relations(candidates, ({ many }) => ({
+  projects: many(candidatesToProjects),
+  recruiters: many(recruitersToCandidates),
+}));
+
 export const projectsRelations = relations(projects, ({ many }) => ({
-  usersToProjects: many(candidatesToProjects),
+  candidates: many(candidatesToProjects),
   tags: many(projectsTags),
 }));
 
-export const candidatesToProjects = createTable(
-  "candidates_to_projects",
-  {
-    userId: integer("user_id")
-      .notNull()
-      .references(() => candidates.userId, { onDelete: "cascade" }),
-    projectId: integer("project_id")
-      .notNull()
-      .references(() => projects.id, { onDelete: "cascade" }),
-  },
-  (t) => [primaryKey({ columns: [t.userId, t.projectId] })],
-);
+export const recruitersRelations = relations(recruiters, ({ many }) => ({
+  candidates: many(recruitersToCandidates),
+}));
 
 export const candidatesToProjectsRelations = relations(
   candidatesToProjects,
   ({ one }) => ({
     candidate: one(candidates, {
-      fields: [candidatesToProjects.userId],
+      fields: [candidatesToProjects.candidateId],
       references: [candidates.userId],
     }),
     project: one(projects, {
@@ -248,14 +256,15 @@ export const submissionRelations = relations(projectSubmissions, ({ one }) => ({
 }));
 
 //m-m project and tags
-export const projectsTags = createTable("projects_tags", {
-  projectId: integer("project_id")
-    .notNull()
-    .references(() => projects.id, { onDelete: "cascade" }),
-  tagId: integer("tag_id")
-    .notNull()
-    .references(() => tags.id, { onDelete: "cascade" }),
-});
+export const projectsTags = createTable("projects_tags",
+  (d) => ({
+    projectId: d.text("project_id")
+      .notNull()
+      .references(() => projects.id, { onDelete: "cascade" }),
+    tagId: d.text("tag_id")
+      .notNull()
+      .references(() => tags.id, { onDelete: "cascade" }),
+}));
 
 export const tagRelations = relations(tags, ({ many }) => ({
   projects: many(projectsTags),
@@ -271,4 +280,18 @@ export const projectsTagsRelations = relations(projectsTags, ({ one }) => ({
     references: [tags.id],
   }),
 }));
+
+export const recruitersToCandidates = createTable("recruiters_candidates",
+  (d) => ({
+    recruiterId: d.text("recruiter_id")
+      .notNull()
+      .references(() => recruiters.userId, { onDelete: "cascade" }),
+    candidateId: d.text("candidate_id")
+      .notNull()
+      .references(() => candidates.userId, { onDelete: "cascade" }),
+    comments: d.text("comments").notNull().default("")
+}),
+  (t) => [primaryKey({ columns: [t.candidateId, t.recruiterId] })],
+);
+
 

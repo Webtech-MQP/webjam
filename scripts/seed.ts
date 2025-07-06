@@ -49,7 +49,7 @@ async function seed() {
     image: "",
   };
 
-  await db.insert(users).values([userBrian, userTyler]);
+  await db.insert(users).values([userBrian, userTyler, userJohnny, userSally, userAce]);
   console.log('Users seeded!');
 
   console.log('Seeding candidates...');
