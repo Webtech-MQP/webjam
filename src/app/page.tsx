@@ -50,21 +50,23 @@ export default function Home() {
                         {
                           Array.from({length:7}).map((xx, r:number)=>{
                             let color = "bg-[#151b23] hover:bg-[#2b3849]";
-                            let tooltip = "0 commits";
+                            let tooltip = null;
                             [{x: 9, y: 2}, {x: 17, y:4}]
                             .forEach(((p)=>{
                               if (p.x === c && p.y === r){
                                 color = "bg-[#033a16] hover:bg-[#046024]";
-                                tooltip = "1 commit"
+                                tooltip = (
+                                  <TooltipContent>
+                                    <p>1 commit</p>
+                                  </TooltipContent>
+                                )
                               }
                             }))
 
                             return (
                               <Tooltip key={`col${c}row${r}`} delayDuration={0}>
                                 <TooltipTrigger><div className={"w-[17px] h-[17px] rounded-sm "+color}></div></TooltipTrigger>
-                                <TooltipContent>
-                                  <p>{tooltip}</p>
-                                </TooltipContent>
+                                {tooltip}
                               </Tooltip>
                             )
                           })
@@ -79,8 +81,8 @@ export default function Home() {
           <div className="flex flex-col items-center pt-12 gap-5">
             <MessyTag textClassName="text-sm">Ready to make something cool?</MessyTag>
             <h1 className="text-4xl">Time to show off some <span className="font-serif">REAL</span> projects!</h1>
-            <Button asChild>
-              <Link href="/signIn">Get Started <ArrowRight/> </Link>
+            <Button asChild >
+              <Link href="/signIn">Get Started <ArrowRight/></Link>
             </Button>
           </div>
           <div className="flex flex-col items-center pt-12 gap-5">
