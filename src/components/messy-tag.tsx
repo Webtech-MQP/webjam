@@ -4,7 +4,7 @@ import type { CSSProperties } from "react";
 import ReactRough, { Rectangle } from 'rough-react-wrapper'
 
 interface MessyTagProps {
-    children?: ReactNode;
+    children: string;
     color?: string;
     style?: CSSProperties;
     className?: string;
@@ -13,7 +13,7 @@ interface MessyTagProps {
 }
 export const MessyTag = (props:MessyTagProps)=>{
     const labelRef = useRef<HTMLParagraphElement>(null);
-    const [dim, setDim] = useState<{x:number, y:number}>({x:0, y:0});
+    const [dim, setDim] = useState<{x:number, y:number}>({x:props.children.length * 8, y:20});
 
     useEffect(()=>{
         const boxModel = labelRef.current?.getBoundingClientRect();

@@ -1,15 +1,17 @@
-'use client'
+'use client';
 import { useEffect, useRef, useState, type ReactNode } from "react"
 import type { CSSProperties } from "react";
 import ReactRough, { Rectangle } from 'rough-react-wrapper'
 
 interface MessyButtonProps {
-    children?: ReactNode;
+    children: string;
     color?: string;
     style?: CSSProperties;
     className?: string;
     textClassName?: string;
     textStyles?: CSSProperties;
+
+    variant?: "fill" | "outline";
 
     onClick?: ()=>void;
     onMouseOver?: ()=>void;
@@ -17,9 +19,9 @@ interface MessyButtonProps {
 }
 export const MessyButton = (props:MessyButtonProps)=>{
     const labelRef = useRef<HTMLParagraphElement>(null);
-    const [dim, setDim] = useState<{x:number, y:number}>({x:0, y:0});
+    const [dim, setDim] = useState<{x:number, y:number}>({x:props.children.length * 8, y:20});
     const [hovered, setHovered] = useState<boolean>(false);
-
+    
     useEffect(()=>{
         const boxModel = labelRef.current?.getBoundingClientRect();
         if(boxModel){
@@ -83,13 +85,13 @@ export const MessyButton = (props:MessyButtonProps)=>{
                         height={dim.y}
                         x={5}
                         y={5}
-                        stroke="white"
+                        stroke={props.variant==="fill" || hovered ? "white" : "none"}
                         strokeWidth={.8}
                         roughness={3}
                         simplification={.5}
                         maxRandomnessOffset={1.75}
                         fillStyle="cross-hatch"
-                        fill={hovered ? "#ffffff60" : "none"}
+                        fill={hovered && props.variant==="fill" ? "#ffffff60" : "none"}
                     />
                 </ReactRough>
             </div>

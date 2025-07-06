@@ -1,4 +1,4 @@
-import { HydrateClient } from "@/trpc/server";
+'use client';
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { MessyTag } from "@/components/messy-tag";
@@ -9,17 +9,17 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 import { ArrowRight } from "lucide-react";
+import { MessyButton } from "@/components/messy-button";
 
 
-export default async function Home() {
+export default function Home() {
   return (
-    <HydrateClient>
       <main className="flex min-h-screen flex-col items-center justify-start py-7">
         <header className="w-1/2 flex flex-row flex-nowrap items-center justify-between">
           <h1>MQP</h1>
           <nav className="flex flex-row flex-nowrap gap-5">
-            <span>How it works</span>
-            <span><Link href="/signIn">Sign In</Link></span>
+            <MessyButton>How it works</MessyButton>
+            <MessyButton onClick={()=>{window.location.href="/signIn"}}>Sign In</MessyButton>
           </nav>
         </header>
         <section className="flex flex-col pt-15 items-center">
@@ -91,6 +91,5 @@ export default async function Home() {
           </div>
         </section>
       </main>
-    </HydrateClient>
   );
 }
