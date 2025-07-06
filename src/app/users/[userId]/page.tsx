@@ -12,8 +12,6 @@ type Props = {
 export default async function Page({ params }: Props) {
   const userId = (await params).userId;
 
-  console.log(userId);
-
   const user = await api.users.getOne({ id: userId });
 
   if (!user) {
