@@ -5,14 +5,15 @@ import { createId } from "@paralleldrive/cuid2";
 import {
   admins,
   candidates,
-  projects,
   recruiters,
-  recruitersToCandidates,
   users,
+} from "@/server/db/schemas/users";
+import {
+  projects,
   tags,
   projectsTags,
   candidatesToProjects,
-} from "@/server/db/schema";
+} from "@/server/db/schemas/projects";
 import { env } from "../src/env";
 
 const client = createClient({
@@ -124,20 +125,20 @@ async function seed() {
 
   console.log("Seeding recruiter list...");
   // eslint-disable-next-line drizzle/enforce-delete-with-where
-  await db.delete(recruitersToCandidates);
-  await db.insert(recruitersToCandidates).values([
-    {
-      recruiterId: userSally.id,
-      candidateId: userBrian.id,
-      comments: "Strong portfolio, very passionate.",
-    },
-    {
-      recruiterId: userSally.id,
-      candidateId: userTyler.id,
-      comments: "Solid experience",
-    },
-  ]);
-  console.log("Recruiter candidate lists seeded!");
+  // await db.delete(recruitersToCandidates);
+  // await db.insert(recruitersToCandidates).values([
+  //   {
+  //     recruiterId: userSally.id,
+  //     candidateId: userBrian.id,
+  //     comments: "Strong portfolio, very passionate.",
+  //   },
+  //   {
+  //     recruiterId: userSally.id,
+  //     candidateId: userTyler.id,
+  //     comments: "Solid experience",
+  //   },
+  // ]);
+  // console.log("Recruiter candidate lists seeded!");
 
   console.log("Seeding projects...");
   // eslint-disable-next-line drizzle/enforce-delete-with-where
