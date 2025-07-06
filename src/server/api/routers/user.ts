@@ -29,14 +29,11 @@ export const userRouter = createTRPCRouter({
   }),
 
   getCandidates: publicProcedure.query(async ({ ctx }) => {
-    // return ctx.db.query.candidates.findMany({});
-    return ctx.db
-      .select({
-        candidate: candidates,
-        user: users,
-      })
-      .from(candidates)
-      .innerJoin(users, eq(candidates.userId, users.id));
+    return ctx.db.query.candidates.findMany({
+      with: {
+        user: true,
+      },
+    });
   }),
 
   updateOne: publicProcedure

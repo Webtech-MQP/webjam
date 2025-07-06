@@ -43,7 +43,6 @@ export const users = createTable("user", (d) => ({
 
 export const usersRelations = relations(users, ({ many }) => ({
   accounts: many(accounts),
-  usersToProjects: many(usersToProjects),
 }));
 
 export const admins = createTable("admin", (d) => ({
@@ -69,6 +68,10 @@ export const candidates = createTable("candidate", (d) => ({
   resumeURL: d.text({ length: 255 }),
 }))
 
+export const candidatesRelations = relations(candidates, ({ many }) => ({
+  candidatesToProjects: many(candidatesToProjects),
+}));
+
 export const recruiters = createTable("recruiter", (d) => ({
   userId: d
     .text({ length: 255 })
@@ -77,6 +80,18 @@ export const recruiters = createTable("recruiter", (d) => ({
   companyName: d.text({ length: 255 }),
 }))
 
+//for faster query through user fields
+export const adminsUserRelations = relations(admins, ({ one }) => ({
+  user: one(users, { fields: [admins.userId], references: [users.id] }),
+}));
+
+export const candidatesUserRelations = relations(candidates, ({ one }) => ({
+  user: one(users, { fields: [candidates.userId], references: [users.id] }),
+}));
+
+export const recruitersUserRelations = relations(recruiters, ({ one }) => ({
+  user: one(users, { fields: [recruiters.userId], references: [users.id] }),
+}));
 
 export const accounts = createTable(
   "account",
@@ -187,15 +202,16 @@ export const tags = createTable("tag", (d) => ({
 }));
 
 export const projectsRelations = relations(projects, ({ many }) => ({
-  usersToProjects: many(usersToProjects),
+  usersToProjects: many(candidatesToProjects),
+  tags: many(projectsTags),
 }));
 
-export const usersToProjects = createTable(
-  "users_to_projects",
+export const candidatesToProjects = createTable(
+  "candidates_to_projects",
   {
     userId: integer("user_id")
       .notNull()
-      .references(() => users.id, { onDelete: "cascade" }),
+      .references(() => candidates.userId, { onDelete: "cascade" }),
     projectId: integer("project_id")
       .notNull()
       .references(() => projects.id, { onDelete: "cascade" }),
@@ -203,16 +219,56 @@ export const usersToProjects = createTable(
   (t) => [primaryKey({ columns: [t.userId, t.projectId] })],
 );
 
-export const usersToProjectsRelations = relations(
-  usersToProjects,
+export const candidatesToProjectsRelations = relations(
+  candidatesToProjects,
   ({ one }) => ({
-    user: one(users, {
-      fields: [usersToProjects.userId],
-      references: [users.id],
+    candidate: one(candidates, {
+      fields: [candidatesToProjects.userId],
+      references: [candidates.userId],
     }),
     project: one(projects, {
-      fields: [usersToProjects.projectId],
+      fields: [candidatesToProjects.projectId],
       references: [projects.id],
     }),
   }),
 );
+//0/1-1 projSubmission and project
+export const projectRelations = relations(projects, ({ one }) => ({
+  submission: one(projectSubmissions, {
+    fields: [projects.id],
+    references: [projectSubmissions.projectId],
+  }),
+}));
+
+export const submissionRelations = relations(projectSubmissions, ({ one }) => ({
+  project: one(projects, {
+    fields: [projectSubmissions.projectId],
+    references: [projects.id],
+  }),
+}));
+
+//m-m project and tags
+export const projectsTags = createTable("projects_tags", {
+  projectId: integer("project_id")
+    .notNull()
+    .references(() => projects.id, { onDelete: "cascade" }),
+  tagId: integer("tag_id")
+    .notNull()
+    .references(() => tags.id, { onDelete: "cascade" }),
+});
+
+export const tagRelations = relations(tags, ({ many }) => ({
+  projects: many(projectsTags),
+}));
+
+export const projectsTagsRelations = relations(projectsTags, ({ one }) => ({
+  project: one(projects, {
+    fields: [projectsTags.projectId],
+    references: [projects.id],
+  }),
+  tag: one(tags, {
+    fields: [projectsTags.tagId],
+    references: [tags.id],
+  }),
+}));
+

@@ -1,7 +1,7 @@
 import { drizzle } from 'drizzle-orm/libsql';
 import { createClient } from '@libsql/client';
 import crypto from 'crypto';
-import { candidates, users } from "@/server/db/schema";
+import { admins, candidates, recruiters, users } from "@/server/db/schema";
 import { env } from "../src/env";
 
 const client = createClient({
@@ -25,6 +25,27 @@ async function seed() {
     id: crypto.randomUUID(),
     name: "Tyler",
     email: "tyler@example.com",
+    image: "",
+  };
+
+  const userJohnny = {
+    id: crypto.randomUUID(),
+    name: "Johnny",
+    email: "johnny@example.com",
+    image: "",
+  };
+
+  const userSally = {
+    id: crypto.randomUUID(),
+    name: "Sally",
+    email: "sally@recruit.com",
+    image: "",
+  };
+
+  const userAce = {
+    id: crypto.randomUUID(),
+    name: "Ace",
+    email: "ace@admin.com",
     image: "",
   };
 
@@ -57,8 +78,37 @@ async function seed() {
       linkedinURL: "https://linkedin.com/in/tyler",
       resumeURL: "https://tyler.dev/resume.pdf",
     },
+    {
+      userId: userJohnny.id,
+      bio: "Johnny is a Junior at Wong Institute of Technology. He is very passionate about coding and is hopeful for a successful career post-graduation, though is sometimes worried about the job market from what he sees online. He is taking a full-time course load and only has a couple hours in the evening or on weekends to work on personal projects. He isn’t very confident in his coding ability, despite being a high academic performer",
+      location: "An Avg College",
+      language: "Python",
+      experience: "0 years",
+      githubUsername: "johnnycodes",
+      portfolioURL: "https://johnny.dev",
+      linkedinURL: "https://linkedin.com/in/johnny",
+      resumeURL: "https://johnny.dev/resume.pdf",
+    },
   ]);
   console.log('Candidates seeded!');
+
+  console.log("Seeding recruiters...");
+  await db.insert(recruiters).values([
+    {
+      userId: userSally.id,
+      companyName: "SushiRecruit Inc.",
+    },
+  ]);
+  console.log("Recruiters seeded!");
+
+  console.log("Seeding admin...");
+  await db.insert(admins).values([
+    {
+      userId: userAce.id,
+      // role: "super",
+    },
+  ]);
+  console.log("Admin seeded!");
 }
 
 seed().catch((err) => {
