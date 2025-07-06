@@ -1,6 +1,10 @@
 import { z } from "zod";
 import { eq } from "drizzle-orm";
-import { createTRPCRouter, protectedProcedure, publicProcedure } from "@/server/api/trpc";
+import {
+  createTRPCRouter,
+  protectedProcedure,
+  publicProcedure,
+} from "@/server/api/trpc";
 import { projects } from "@/server/db/schema";
 
 export const projectRouter = createTRPCRouter({
@@ -35,12 +39,16 @@ export const projectRouter = createTRPCRouter({
             user: true,
           },
         },
-        tagsToProjects: true,
+        tagsToProjects: {
+          with: {
+            tag: true,
+          },
+        },
         ratings: {
           with: {
             user: true,
           },
-        }
+        },
       },
     });
   }),

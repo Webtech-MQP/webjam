@@ -128,8 +128,8 @@ export const ratings = createTable("rating", (d) => ({
   comment: d.text(),
   rating: d.integer().notNull(),
   createdAt: d.integer({ mode: "timestamp" }).default(sql`(unixepoch())`),
-  userId: d.text("user_id"),
-  projectId: d.text("project_id")
+  userId: d.text("user_id").notNull(),
+  projectId: d.text("project_id").notNull(),
 }));
 
 export const ratingsRelations = relations(ratings, ({ one }) => ({
@@ -148,7 +148,7 @@ export const tags = createTable("tag", (d) => ({
     .text()
     .$defaultFn(() => createId())
     .primaryKey(),
-  name: d.text({ length: 256 }).notNull()
+  name: d.text({ length: 256 }).notNull(),
 }));
 
 export const tagsRelations = relations(tags, ({ many }) => ({
@@ -169,19 +169,16 @@ export const tagsToProjects = createTable(
   (t) => [primaryKey({ columns: [t.projectId, t.tagId] })],
 );
 
-export const tagsToProjectsRelations = relations(
-  tagsToProjects,
-  ({ one }) => ({
-    project: one(projects, {
-      fields: [tagsToProjects.projectId],
-      references: [projects.id],
-    }),
-    tag: one(tags, {
-      fields: [tagsToProjects.tagId],
-      references: [tags.id],
-    }),
+export const tagsToProjectsRelations = relations(tagsToProjects, ({ one }) => ({
+  project: one(projects, {
+    fields: [tagsToProjects.projectId],
+    references: [projects.id],
   }),
-);
+  tag: one(tags, {
+    fields: [tagsToProjects.tagId],
+    references: [tags.id],
+  }),
+}));
 
 // User to projects many-to-many relationship
 export const usersToProjects = createTable(

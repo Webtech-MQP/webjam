@@ -5,7 +5,7 @@ import Link from "next/link";
 export default async function Home() {
   return (
     <HydrateClient>
-      <div className="flex flex-col gap-2 items-center justify-center h-screen">
+      <div className="flex h-screen flex-col items-center justify-center gap-2">
         <h1>Landing page goes here!</h1>
         <Button asChild>
           <Link href="/signIn">Get started</Link>
