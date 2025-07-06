@@ -11,8 +11,6 @@ import {
 } from "@/server/db/schemas/auth";
 import { type SqlFlavorOptions } from "node_modules/@auth/drizzle-adapter/lib/utils";
 import { env } from "@/env";
-import { eq } from "drizzle-orm";
-import { TRPCError } from "@trpc/server";
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
@@ -45,6 +43,15 @@ export const authConfig = {
     GithubProvider({
       clientId: env.AUTH_GITHUB_ID,
       clientSecret: env.AUTH_GITHUB_SECRET,
+      profile(profile) {
+        return {
+          id: profile.id.toString(),
+          name: profile.name ?? profile.login,
+          email: profile.email,
+          image: profile.avatar_url,
+          githubUsername: profile.login,
+        };
+      },
     }),
     /**
      * ...add more providers here.
