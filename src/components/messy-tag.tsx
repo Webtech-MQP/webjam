@@ -25,7 +25,6 @@ export const MessyTag = (props:MessyTagProps)=>{
     return (
         <div
             style={{
-                padding: 8,
                 color: props.color,
                 width: "fit-content",
                 transform:`translate(5px, 5px)`,
