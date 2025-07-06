@@ -6,6 +6,7 @@ import {
   admins,
   candidates,
   recruiters,
+  recruitersToCandidates,
   users,
 } from "@/server/db/schemas/users";
 import {
@@ -125,20 +126,20 @@ async function seed() {
 
   console.log("Seeding recruiter list...");
   // eslint-disable-next-line drizzle/enforce-delete-with-where
-  // await db.delete(recruitersToCandidates);
-  // await db.insert(recruitersToCandidates).values([
-  //   {
-  //     recruiterId: userSally.id,
-  //     candidateId: userBrian.id,
-  //     comments: "Strong portfolio, very passionate.",
-  //   },
-  //   {
-  //     recruiterId: userSally.id,
-  //     candidateId: userTyler.id,
-  //     comments: "Solid experience",
-  //   },
-  // ]);
-  // console.log("Recruiter candidate lists seeded!");
+  await db.delete(recruitersToCandidates);
+  await db.insert(recruitersToCandidates).values([
+    {
+      recruiterId: userSally.id,
+      candidateId: userBrian.id,
+      comments: "Strong portfolio, very passionate.",
+    },
+    {
+      recruiterId: userSally.id,
+      candidateId: userTyler.id,
+      comments: "Solid experience",
+    },
+  ]);
+  console.log("Recruiter candidate lists seeded!");
 
   console.log("Seeding projects...");
   // eslint-disable-next-line drizzle/enforce-delete-with-where

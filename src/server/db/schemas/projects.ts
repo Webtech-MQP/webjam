@@ -3,7 +3,7 @@ import { createTable } from "../schema-util";
 
 import { createId } from "@paralleldrive/cuid2";
 import { primaryKey } from "drizzle-orm/sqlite-core";
-import { admins, candidates, recruiters, users } from "./users";
+import { admins, candidates } from "./users";
 
 export const projects = createTable("project", (d) => ({
   id: d
@@ -25,6 +25,15 @@ export const projects = createTable("project", (d) => ({
     .text({ length: 255 })
     .notNull()
     .references(() => admins.userId),
+}));
+
+export const projectsRelations = relations(projects, ({ one, many }) => ({
+  submission: one(projectSubmissions, {
+    fields: [projects.id],
+    references: [projectSubmissions.projectId],
+  }),
+  candidatesToProjects: many(candidatesToProjects),
+  tags: many(projectsTags),
 }));
 
 export const projectSubmissions = createTable("projectSubmission", (d) => ({
@@ -70,28 +79,6 @@ export const candidatesToProjects = createTable(
   (t) => [primaryKey({ columns: [t.candidateId, t.projectId] })],
 );
 
-export const candidatesRelations = relations(candidates, ({ one, many }) => ({
-  candidatesToProjects: many(candidatesToProjects),
-  user: one(users, {
-    fields: [candidates.userId],
-    references: [users.id],
-  }),
-  // recruiters: many(recruitersToCandidates),
-}));
-
-export const projectsRelations = relations(projects, ({ one, many }) => ({
-  submission: one(projectSubmissions, {
-    fields: [projects.id],
-    references: [projectSubmissions.projectId],
-  }),
-  candidatesToProjects: many(candidatesToProjects),
-  tags: many(projectsTags),
-}));
-
-export const recruitersRelations = relations(recruiters, ({ many }) => ({
-  // candidates: many(recruitersToCandidates),
-}));
-
 export const candidatesToProjectsRelations = relations(
   candidatesToProjects,
   ({ one }) => ({
@@ -106,12 +93,15 @@ export const candidatesToProjectsRelations = relations(
   }),
 );
 
-export const submissionRelations = relations(projectSubmissions, ({ one }) => ({
-  project: one(projects, {
-    fields: [projectSubmissions.projectId],
-    references: [projects.id],
+export const projectSubmissionsRelations = relations(
+  projectSubmissions,
+  ({ one }) => ({
+    project: one(projects, {
+      fields: [projectSubmissions.projectId],
+      references: [projects.id],
+    }),
   }),
-}));
+);
 
 //m-m project and tags
 export const projectsTags = createTable("projects_tags", (d) => ({
