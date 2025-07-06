@@ -1,6 +1,6 @@
-import { drizzle } from 'drizzle-orm/libsql';
-import { createClient } from '@libsql/client';
-import crypto from 'crypto';
+import { drizzle } from "drizzle-orm/libsql";
+import { createClient } from "@libsql/client";
+import crypto from "crypto";
 import { createId } from "@paralleldrive/cuid2";
 import {
   admins,
@@ -10,18 +10,19 @@ import {
   recruitersToCandidates,
   users,
   tags,
-  projectsTags, candidatesToProjects
+  projectsTags,
+  candidatesToProjects,
 } from "@/server/db/schema";
 import { env } from "../src/env";
 
 const client = createClient({
-  url: env.DATABASE_URL
+  url: env.DATABASE_URL,
 });
 
 export const db = drizzle(client);
 
 async function seed() {
-  console.log('Seeding users...');
+  console.log("Seeding users...");
   // eslint-disable-next-line drizzle/enforce-delete-with-where
   await db.delete(users);
   const userBrian = {
@@ -54,10 +55,12 @@ async function seed() {
     email: "ace@admin.com",
     image: "",
   };
-  await db.insert(users).values([userBrian, userTyler, userJohnny, userSally, userAce]);
-  console.log('Users seeded!');
+  await db
+    .insert(users)
+    .values([userBrian, userTyler, userJohnny, userSally, userAce]);
+  console.log("Users seeded!");
 
-  console.log('Seeding candidates...');
+  console.log("Seeding candidates...");
   // eslint-disable-next-line drizzle/enforce-delete-with-where
   await db.delete(candidates);
   await db.insert(candidates).values([
@@ -95,7 +98,7 @@ async function seed() {
       resumeURL: "https://johnny.dev/resume.pdf",
     },
   ]);
-  console.log('Candidates seeded!');
+  console.log("Candidates seeded!");
 
   console.log("Seeding recruiters...");
   // eslint-disable-next-line drizzle/enforce-delete-with-where
@@ -143,10 +146,13 @@ async function seed() {
   const project1 = {
     id: projectId,
     title: "Reinvent The To-do List",
-    description: "Create a full-stack webapp that rethinks how we go about managing our tasks and work",
-    instructions: "The goal of this project is to design and build a modern task and work management platform that breaks away from traditional models like static to-do lists, calendars, and Kanban boards. Your app should explore new ways of organizing, prioritizing, and completing tasks—whether through innovative UI/UX, smart automation, collaboration tools, or integrations with other services.\n" +
+    description:
+      "Create a full-stack webapp that rethinks how we go about managing our tasks and work",
+    instructions:
+      "The goal of this project is to design and build a modern task and work management platform that breaks away from traditional models like static to-do lists, calendars, and Kanban boards. Your app should explore new ways of organizing, prioritizing, and completing tasks—whether through innovative UI/UX, smart automation, collaboration tools, or integrations with other services.\n" +
       "You should aim to improve how users think about and interact with their work. This could mean introducing adaptive workflows, using AI to assist with prioritization, or designing systems that account for context like focus level, urgency, or energy. Think beyond existing tools like Trello, Todoist, or Notion—what should task management look like if we started from scratch?",
-    requirements: "Full-stack implementation (frontend, backend, database)\n" +
+    requirements:
+      "Full-stack implementation (frontend, backend, database)\n" +
       "Support for creating, editing, and managing tasks\n" +
       "Some form of prioritization or workflow structure\n" +
       "A clearly explained “rethinking” approach: what makes your app different",
@@ -157,7 +163,7 @@ async function seed() {
     createdAt: new Date(),
     updatedAt: new Date(),
     createdBy: userAce.id,
-  }
+  };
   await db.insert(projects).values(project1);
   console.log("Project seeded!");
 
@@ -190,9 +196,8 @@ async function seed() {
     { projectId, candidateId: userTyler.id },
   ]);
   console.log("Project candidates seeded!");
-
 }
 
 seed().catch((err) => {
-  console.error('Error while seeding:', err);
+  console.error("Error while seeding:", err);
 });

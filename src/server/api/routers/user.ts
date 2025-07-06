@@ -5,7 +5,13 @@ import { users, candidates } from "@/server/db/schema";
 
 export const userRouter = createTRPCRouter({
   create: publicProcedure
-    .input(z.object({ name: z.string().min(1).max(255), email: z.string(), image: z.string() }))
+    .input(
+      z.object({
+        name: z.string().min(1).max(255),
+        email: z.string(),
+        image: z.string(),
+      }),
+    )
     .mutation(async ({ ctx, input }) => {
       return ctx.db.insert(users).values({
         name: input.name,
@@ -17,10 +23,15 @@ export const userRouter = createTRPCRouter({
     }),
 
   getOne: publicProcedure
-    .input(z.object({ id: z.string().uuid() }))
+    .input(z.object({ id: z.string().cuid2() }))
     .query(async ({ ctx, input }) => {
       return ctx.db.query.users.findFirst({
         where: (users, { eq }) => eq(users.id, input.id),
+        with: {
+          candidate: true,
+          admin: true,
+          recruiter: true,
+        },
       });
     }),
 
@@ -38,7 +49,12 @@ export const userRouter = createTRPCRouter({
 
   updateOne: publicProcedure
     .input(
-      z.object({ id: z.string().uuid(), name: z.string().min(1).max(255), email: z.string(), image: z.string() }),
+      z.object({
+        id: z.string().uuid(),
+        name: z.string().min(1).max(255),
+        email: z.string(),
+        image: z.string(),
+      }),
     )
     .mutation(async ({ ctx, input }) => {
       return ctx.db

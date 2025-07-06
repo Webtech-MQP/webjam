@@ -19,7 +19,7 @@
     "start": "next start",
     "typecheck": "tsc --noEmit",
     "prepare": "husky",
-    "seed": "tsx scripts/seed.ts"
+    "seed": "dotenv -e .env -- tsx scripts/seed.ts"
   },
   "dependencies": {
     "@auth/drizzle-adapter": "^1.10.0",
@@ -52,6 +52,7 @@
     "@types/node": "^20.14.10",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
+    "dotenv-cli": "^8.0.0",
     "drizzle-kit": "^0.31.1",
     "eslint": "^9.23.0",
     "eslint-config-next": "^15.2.3",

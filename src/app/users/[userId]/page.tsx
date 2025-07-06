@@ -1,12 +1,24 @@
-// import { api } from "@/trpc/server";
+import { api } from "@/trpc/server";
 import Image from "next/image";
 
-type Props = {
-  userId: Promise<string>;
+type Params = {
+  userId: string;
 };
 
-export default function Page(params: Props) {
-  // const users = api.user.getUsers();
+type Props = {
+  params: Promise<Params>;
+};
+
+export default async function Page({ params }: Props) {
+  const userId = (await params).userId;
+
+  console.log(userId);
+
+  const user = await api.users.getOne({ id: userId });
+
+  if (!user) {
+    return <div>User not found</div>;
+  }
 
   return (
     <div>
@@ -25,8 +37,8 @@ export default function Page(params: Props) {
               height={100}
               width={100}
             />
-            <h1 className="mt-2">Ace Beattie</h1>
-            <p>Joined 2025 ⋅ Really cool description</p>
+            <h1 className="mt-2">{user.name}</h1>
+            <p>{user.candidate?.bio}</p>
           </div>
           <div>
             <h2>Jams</h2>
