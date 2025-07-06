@@ -10,6 +10,7 @@ import {
   verificationTokens,
 } from "@/server/db/schemas/auth";
 import { type SqlFlavorOptions } from "node_modules/@auth/drizzle-adapter/lib/utils";
+import { env } from "@/env";
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
@@ -41,8 +42,8 @@ declare module "next-auth" {
 export const authConfig = {
   providers: [
     GithubProvider({
-      clientId: process.env.AUTH_GITHUB_ID,
-      clientSecret: process.env.AUTH_GITHUB_SECRET,
+      clientId: env.AUTH_GITHUB_ID,
+      clientSecret: env.AUTH_GITHUB_SECRET,
     }),
     /**
      * ...add more providers here.
