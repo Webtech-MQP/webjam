@@ -1,22 +1,67 @@
-import type { ReactNode } from "react"
+'use client'
+import { useEffect, useRef, useState, type ReactNode } from "react"
 import type { CSSProperties } from "react";
+import ReactRough, { Rectangle } from 'rough-react-wrapper'
 
 interface MessyTagProps {
-    children: ReactNode;
+    children?: ReactNode;
     color?: string;
-    textStyle?: CSSProperties;
+    style?: CSSProperties;
+    className?: string;
+    textClassName?: string;
+    textStyles?: CSSProperties;
 }
 export const MessyTag = (props:MessyTagProps)=>{
+    const labelRef = useRef<HTMLParagraphElement>(null);
+    const [dim, setDim] = useState<{x:number, y:number}>({x:0, y:0});
+
+    useEffect(()=>{
+        const boxModel = labelRef.current?.getBoundingClientRect();
+        if(boxModel){
+            setDim({x:boxModel.width, y:boxModel.height})
+        }
+    }, [props.children])
+
     return (
         <div
             style={{
-                border: "2px solid white",
-                borderRadius: "1000px",
                 padding: 8,
                 color: props.color,
+                width: "fit-content",
+                ...props.style,
             }}
+            className={props.className}
         >
-            <p style={props.textStyle}>{props.children}</p>
+            <div style={{
+                position: "relative",
+            }}>
+                <p 
+                    ref={labelRef}
+                    style={{
+                        position:"absolute",
+                        textWrap: "nowrap",
+                        padding: "8px",
+                        ...props.textStyles
+                    }} 
+                    className={props.textClassName}
+                >{props.children}</p>
+            </div>
+            {/* @ts-expect-error this can have children.. weird type issue */}
+            <ReactRough
+                renderer={"svg"}
+                width={dim.x + 10}
+                height={dim.y + 10}
+            >
+                <Rectangle
+                    width={dim.x}
+                    height={dim.y}
+                    x={0}
+                    y={0}
+                    stroke="white"
+                    strokeWidth={2}
+                    roughness={3}
+                />
+            </ReactRough>
         </div>
     )
 }
