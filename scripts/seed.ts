@@ -1,7 +1,17 @@
 import { drizzle } from 'drizzle-orm/libsql';
 import { createClient } from '@libsql/client';
 import crypto from 'crypto';
-import { admins, candidates, recruiters, users } from "@/server/db/schema";
+import { createId } from "@paralleldrive/cuid2";
+import {
+  admins,
+  candidates,
+  projects,
+  recruiters,
+  recruitersToCandidates,
+  users,
+  tags,
+  projectsTags, candidatesToProjects
+} from "@/server/db/schema";
 import { env } from "../src/env";
 
 const client = createClient({
@@ -20,35 +30,30 @@ async function seed() {
     email: "brian@example.com",
     image: "",
   };
-
   const userTyler = {
     id: crypto.randomUUID(),
     name: "Tyler",
     email: "tyler@example.com",
     image: "",
   };
-
   const userJohnny = {
     id: crypto.randomUUID(),
     name: "Johnny",
     email: "johnny@example.com",
     image: "",
   };
-
   const userSally = {
     id: crypto.randomUUID(),
     name: "Sally",
     email: "sally@recruit.com",
     image: "",
   };
-
   const userAce = {
     id: crypto.randomUUID(),
     name: "Ace",
     email: "ace@admin.com",
     image: "",
   };
-
   await db.insert(users).values([userBrian, userTyler, userJohnny, userSally, userAce]);
   console.log('Users seeded!');
 
@@ -93,6 +98,8 @@ async function seed() {
   console.log('Candidates seeded!');
 
   console.log("Seeding recruiters...");
+  // eslint-disable-next-line drizzle/enforce-delete-with-where
+  await db.delete(recruiters);
   await db.insert(recruiters).values([
     {
       userId: userSally.id,
@@ -102,6 +109,8 @@ async function seed() {
   console.log("Recruiters seeded!");
 
   console.log("Seeding admin...");
+  // eslint-disable-next-line drizzle/enforce-delete-with-where
+  await db.delete(admins);
   await db.insert(admins).values([
     {
       userId: userAce.id,
@@ -109,6 +118,79 @@ async function seed() {
     },
   ]);
   console.log("Admin seeded!");
+
+  console.log("Seeding recruiter list...");
+  // eslint-disable-next-line drizzle/enforce-delete-with-where
+  await db.delete(recruitersToCandidates);
+  await db.insert(recruitersToCandidates).values([
+    {
+      recruiterId: userSally.id,
+      candidateId: userBrian.id,
+      comments: "Strong portfolio, very passionate.",
+    },
+    {
+      recruiterId: userSally.id,
+      candidateId: userTyler.id,
+      comments: "Solid experience",
+    },
+  ]);
+  console.log("Recruiter candidate lists seeded!");
+
+  console.log("Seeding projects...");
+  // eslint-disable-next-line drizzle/enforce-delete-with-where
+  await db.delete(projects);
+  const projectId = createId();
+  const project1 = {
+    id: projectId,
+    title: "Reinvent The To-do List",
+    description: "Create a full-stack webapp that rethinks how we go about managing our tasks and work",
+    instructions: "The goal of this project is to design and build a modern task and work management platform that breaks away from traditional models like static to-do lists, calendars, and Kanban boards. Your app should explore new ways of organizing, prioritizing, and completing tasks—whether through innovative UI/UX, smart automation, collaboration tools, or integrations with other services.\n" +
+      "You should aim to improve how users think about and interact with their work. This could mean introducing adaptive workflows, using AI to assist with prioritization, or designing systems that account for context like focus level, urgency, or energy. Think beyond existing tools like Trello, Todoist, or Notion—what should task management look like if we started from scratch?",
+    requirements: "Full-stack implementation (frontend, backend, database)\n" +
+      "Support for creating, editing, and managing tasks\n" +
+      "Some form of prioritization or workflow structure\n" +
+      "A clearly explained “rethinking” approach: what makes your app different",
+    img: "https://placehold.co/600x400?text=Reinvent+To-do+List",
+    deadline: new Date("2025-11-17T00:00:00Z"),
+    startDateTime: new Date("2025-08-17T00:00:00Z"),
+    endDateTime: new Date("2025-11-24T00:00:00Z"),
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    createdBy: userAce.id,
+  }
+  await db.insert(projects).values(project1);
+  console.log("Project seeded!");
+
+  console.log("Seeding tags...");
+  // eslint-disable-next-line drizzle/enforce-delete-with-where
+  await db.delete(tags);
+  const tagReact = { id: createId(), name: "React" };
+  const tagUIDesign = { id: createId(), name: "UI Design" };
+  const tagManagement = { id: createId(), name: "Management" };
+  const tagWeb = { id: createId(), name: "Web" };
+  await db.insert(tags).values([tagReact, tagUIDesign, tagManagement, tagWeb]);
+  console.log("Tags seeded!");
+
+  console.log("Seeding Project-tag links...");
+  // eslint-disable-next-line drizzle/enforce-delete-with-where
+  await db.delete(projectsTags);
+  await db.insert(projectsTags).values([
+    { projectId: projectId, tagId: tagReact.id },
+    { projectId: projectId, tagId: tagUIDesign.id },
+    { projectId: projectId, tagId: tagManagement.id },
+    { projectId: projectId, tagId: tagWeb.id },
+  ]);
+  console.log("Project-tag links seeded!");
+
+  console.log("Seeding project candidates...");
+  // eslint-disable-next-line drizzle/enforce-delete-with-where
+  await db.delete(candidatesToProjects);
+  await db.insert(candidatesToProjects).values([
+    { projectId, candidateId: userBrian.id },
+    { projectId, candidateId: userTyler.id },
+  ]);
+  console.log("Project candidates seeded!");
+
 }
 
 seed().catch((err) => {

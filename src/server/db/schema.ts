@@ -156,16 +156,16 @@ export const projects = createTable("project", (d) => ({
     .$defaultFn(() => createId())
     .primaryKey(),
   title: d.text({ length: 256 }),
-  deadline: d.integer({ mode: "timestamp" }),
   description: d.text({ length: 256 }),
   instructions: d.text({ length: 256 }),
   requirements: d.text({ length: 256 }),
+  img: d.text({ length: 256 }),
   // status: d.enum(["in-progress", "completed", "upcoming"]).default("in-progress"),
-  createdAt: d.integer({ mode: "timestamp" }).default(sql`(unixepoch())`),
-  updatedAt: d.integer({ mode: "timestamp" }).default(sql`(unixepoch())`),
+  deadline: d.integer({ mode: "timestamp" }),
   startDateTime: d.integer({ mode: "timestamp" }),
   endDateTime: d.integer({ mode: "timestamp" }),
-  img: d.text({ length: 256 }),
+  createdAt: d.integer({ mode: "timestamp" }).default(sql`(unixepoch())`),
+  updatedAt: d.integer({ mode: "timestamp" }).default(sql`(unixepoch())`),
   createdBy: d
     .text({ length: 255 })
     .notNull()
