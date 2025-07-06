@@ -60,8 +60,10 @@ export const MessyTag = (props:MessyTagProps)=>{
                         x={5}
                         y={5}
                         stroke="white"
-                        strokeWidth={2}
+                        strokeWidth={.8}
                         roughness={3}
+                        simplification={.5}
+                        maxRandomnessOffset={1.75}
                     />
                 </ReactRough>
             </div>
