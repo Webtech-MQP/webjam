@@ -1,7 +1,6 @@
 import { HydrateClient } from "@/trpc/server";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { HydrateClient } from "@/trpc/server";
 import { MessyTag } from "@/components/messy-tag";
 import Image from "next/image";
 
@@ -14,6 +13,9 @@ export default async function Home() {
           <nav className="flex flex-row flex-nowrap gap-5">
             <span>How it works</span>
             <span>Sign Up</span>
+            <Button asChild>
+              <Link href="/signIn">Get started</Link>
+            </Button>
           </nav>
         </header>
         <section className="w-1/2 flex flex-col pt-15">
