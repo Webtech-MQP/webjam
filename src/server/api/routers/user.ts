@@ -1,6 +1,11 @@
 import { z } from "zod";
 import { eq } from "drizzle-orm";
-import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
+import {
+  adminProcedure,
+  createTRPCRouter,
+  protectedProcedure,
+  publicProcedure,
+} from "@/server/api/trpc";
 import { users } from "@/server/db/schemas/users";
 
 export const userRouter = createTRPCRouter({
@@ -55,7 +60,7 @@ export const userRouter = createTRPCRouter({
     });
   }),
 
-  updateOne: publicProcedure
+  updateOne: adminProcedure
     .input(
       z.object({
         id: z.string().cuid2(),
@@ -71,13 +76,13 @@ export const userRouter = createTRPCRouter({
         .where(eq(users.id, input.id));
     }),
 
-  deleteOne: publicProcedure
+  deleteOne: adminProcedure
     .input(z.object({ id: z.string().cuid2() }))
     .mutation(async ({ ctx, input }) => {
       return ctx.db.delete(users).where(eq(users.id, input.id));
     }),
 
-  deleteAll: publicProcedure.mutation(async ({ ctx }) => {
+  deleteAll: adminProcedure.mutation(async ({ ctx }) => {
     // eslint-disable-next-line drizzle/enforce-delete-with-where
     return ctx.db.delete(users);
   }),
