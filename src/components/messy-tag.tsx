@@ -20,7 +20,7 @@ export const MessyTag = (props:MessyTagProps)=>{
         if(boxModel){
             setDim({x:boxModel.width, y:boxModel.height})
         }
-    }, [props.children])
+    }, [props.children, props.textClassName, props.textStyles])
 
     return (
         <div

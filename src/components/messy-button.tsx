@@ -27,7 +27,7 @@ export const MessyButton = (props:MessyButtonProps)=>{
         if(boxModel){
             setDim({x:boxModel.width, y:boxModel.height})
         }
-    }, [props.children])
+    }, [props.children, props.textClassName, props.textStyles])
 
     const onHover = () => {
         setHovered(true);
@@ -46,7 +46,6 @@ export const MessyButton = (props:MessyButtonProps)=>{
     return (
         <div
             style={{
-                padding: 8,
                 color: props.color,
                 width: "fit-content",
                 transform:`translate(5px, 5px)`,
