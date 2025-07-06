@@ -1,6 +1,5 @@
 import { drizzle } from "drizzle-orm/libsql";
 import { createClient } from "@libsql/client";
-import crypto from "crypto";
 import { createId } from "@paralleldrive/cuid2";
 import {
   admins,
@@ -28,31 +27,31 @@ async function seed() {
   // eslint-disable-next-line drizzle/enforce-delete-with-where
   await db.delete(users);
   const userBrian = {
-    id: crypto.randomUUID(),
+    id: createId(),
     name: "Brian",
     email: "brian@example.com",
     image: "",
   };
   const userTyler = {
-    id: crypto.randomUUID(),
+    id: createId(),
     name: "Tyler",
     email: "tyler@example.com",
     image: "",
   };
   const userJohnny = {
-    id: crypto.randomUUID(),
+    id: createId(),
     name: "Johnny",
     email: "johnny@example.com",
     image: "",
   };
   const userSally = {
-    id: crypto.randomUUID(),
+    id: createId(),
     name: "Sally",
     email: "sally@recruit.com",
     image: "",
   };
   const userAce = {
-    id: crypto.randomUUID(),
+    id: createId(),
     name: "Ace",
     email: "ace@admin.com",
     image: "",
