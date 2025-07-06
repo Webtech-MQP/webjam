@@ -42,7 +42,9 @@ export default async function Page({ params }: Props) {
           </div>
           <div>
             <h2>Jams</h2>
-            <div className="grid"></div>
+            <div className="grid">
+              {user.candidate?.candidatesToProjects.map((p) => p.project.title)}
+            </div>
           </div>
         </div>
       </div>

@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { eq } from "drizzle-orm";
 import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
-import { projects } from "@/server/db/schema";
+import { candidatesToProjects, projects } from "@/server/db/schema";
 
 export const projectRouter = createTRPCRouter({
   create: publicProcedure
@@ -18,9 +18,13 @@ export const projectRouter = createTRPCRouter({
       return ctx.db.query.projects.findFirst({
         where: (projects, { eq }) => eq(projects.id, input.id),
         with: {
-          usersToProjects: {
+          candidatesToProjects: {
             with: {
-              user: true,
+              candidate: {
+                with: {
+                  user: true,
+                },
+              },
             },
           },
         },

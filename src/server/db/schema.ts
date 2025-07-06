@@ -87,10 +87,6 @@ export const adminsUserRelations = relations(admins, ({ one }) => ({
   user: one(users, { fields: [admins.userId], references: [users.id] }),
 }));
 
-export const candidatesUserRelations = relations(candidates, ({ one }) => ({
-  user: one(users, { fields: [candidates.userId], references: [users.id] }),
-}));
-
 export const recruitersUserRelations = relations(recruiters, ({ one }) => ({
   user: one(users, { fields: [recruiters.userId], references: [users.id] }),
 }));
@@ -218,13 +214,21 @@ export const candidatesToProjects = createTable(
   (t) => [primaryKey({ columns: [t.candidateId, t.projectId] })],
 );
 
-export const candidatesRelations = relations(candidates, ({ many }) => ({
-  projects: many(candidatesToProjects),
+export const candidatesRelations = relations(candidates, ({ one, many }) => ({
+  candidatesToProjects: many(candidatesToProjects),
+  user: one(users, {
+    fields: [candidates.userId],
+    references: [users.id],
+  }),
   // recruiters: many(recruitersToCandidates),
 }));
 
-export const projectsRelations = relations(projects, ({ many }) => ({
-  candidates: many(candidatesToProjects),
+export const projectsRelations = relations(projects, ({ one, many }) => ({
+  submission: one(projectSubmissions, {
+    fields: [projects.id],
+    references: [projectSubmissions.projectId],
+  }),
+  candidatesToProjects: many(candidatesToProjects),
   tags: many(projectsTags),
 }));
 
@@ -245,13 +249,6 @@ export const candidatesToProjectsRelations = relations(
     }),
   }),
 );
-//0/1-1 projSubmission and project
-export const projectRelations = relations(projects, ({ one }) => ({
-  submission: one(projectSubmissions, {
-    fields: [projects.id],
-    references: [projectSubmissions.projectId],
-  }),
-}));
 
 export const submissionRelations = relations(projectSubmissions, ({ one }) => ({
   project: one(projects, {
