@@ -1,3 +1,3 @@
-import GithubProvider from "next-auth/providers/github";
+import { handlers } from "@/server/auth/index";
 
-import NextAuth from "next-auth";
+export const { GET, POST } = handlers;

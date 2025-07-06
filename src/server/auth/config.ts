@@ -40,7 +40,7 @@ declare module "next-auth" {
 
 export const authConfig = {
   providers: [
-    GithubProvider({ clientId: "THEUISHFE", clientSecret: "THEUISHFE" }),
+    GithubProvider({ clientId: process.env.AUTH_GITHUB_ID, clientSecret: process.env.AUTH_GITHUB_SECRET }),
     /**
      * ...add more providers here.
      *
