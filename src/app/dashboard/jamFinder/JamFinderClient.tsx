@@ -68,7 +68,7 @@ export default function JamFinderClient({ projects }: JamFinderProps) {
       <div>
         Found {projects.length} {projects.length > 1 ? "jams" : "jam"}
       </div>
-        <JamCard
+      <JamCard
         name="Patient Management System"
         startDate="12/12/2023"
         numberOfTeammates={5}
