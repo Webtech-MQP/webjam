@@ -19,6 +19,7 @@ export const users = createTable("user", (d) => ({
   // role: d.enum(["candidate", "recruiter", "admin"]).default("candidate"),
   createdAt: d.integer({ mode: "timestamp" }).default(sql`(unixepoch())`),
   updatedAt: d.integer({ mode: "timestamp" }).default(sql`(unixepoch())`),
+  githubUsername: d.text({ length: 255 }),
 }));
 
 export const usersRelations = relations(users, ({ one, many }) => ({
