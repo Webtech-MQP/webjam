@@ -93,7 +93,7 @@ export default function JamFinderClient({ projects }: JamFinderProps) {
               mode="range"
               selected={dateRange}
               onSelect={(range) => {
-                if (range && range.from && range.to) {
+                if (range?.from && range?.to) {
                   setDateRange({ from: range.from, to: range.to });
                 } else {
                   setDateRange({ from: undefined, to: undefined });

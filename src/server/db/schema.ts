@@ -7,7 +7,6 @@ import {
   text,
   sqliteTableCreator,
   primaryKey,
-  integer,
 } from "drizzle-orm/sqlite-core";
 import { createClient } from "@libsql/client";
 import { drizzle } from "drizzle-orm/libsql";
