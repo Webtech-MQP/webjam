@@ -19,7 +19,8 @@
     "start": "next start",
     "typecheck": "tsc --noEmit",
     "prepare": "husky",
-    "seed": "dotenv -e .env -- tsx scripts/seed.ts"
+    "seed": "dotenv -e .env -- tsx scripts/seed.ts",
+    "dev:setup": "pnpm install && drizzle-kit push --force && pnpm run seed"
   },
   "dependencies": {
     "@auth/drizzle-adapter": "^1.10.0",

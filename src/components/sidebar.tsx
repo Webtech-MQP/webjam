@@ -1,21 +1,15 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import {
-  Home,
-  Folders,
-  ChevronUp,
-  ChevronDown,
-  Settings,
-  LogOut,
-} from "lucide-react";
+import { Home, Folders, ChevronUp, ChevronDown, LogOut } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCallback } from "react";
 import { useSession, signOut } from "next-auth/react";
 import { useState } from "react";
-import Image from "next/image";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { api } from "@/trpc/react";
+import { Badge } from "@/components/ui/badge";
 
 const ROUTES = [
   {
@@ -46,6 +40,8 @@ export function Sidebar() {
     );
   }, [path]);
 
+  const { data: isAdmin } = api.users.isAdmin.useQuery();
+
   return (
     <div className="border-accent flex h-full w-64 flex-col border-r p-4">
       <h1 className="text-primary font-bold">mqp</h1>
@@ -74,6 +70,9 @@ export function Sidebar() {
           )}
         >
           <div className="items-left border-accent flex flex-col gap-4 rounded border-2 p-4">
+            {isAdmin && (
+              <Badge className="w-full bg-green-800">LOGGED IN AS ADMIN</Badge>
+            )}
             <div className="hover:text-primary flex items-center gap-3">
               <Avatar className="h-5 w-5">
                 <AvatarImage src={session?.user.image ?? undefined} />
@@ -122,4 +121,3 @@ export function Sidebar() {
     </div>
   );
 }
-

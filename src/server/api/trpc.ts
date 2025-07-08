@@ -13,6 +13,8 @@ import { ZodError } from "zod";
 
 import { auth } from "@/server/auth";
 import { db } from "@/server/db";
+import { admins, users } from "../db/schemas/users";
+import { eq } from "drizzle-orm";
 
 /**
  * 1. CONTEXT
@@ -132,10 +134,21 @@ export const protectedProcedure = t.procedure
     });
   });
 
-export const adminProcedure = protectedProcedure.use(function isAdmin(opts) {
-  if (!opts.ctx.session.user.isAdmin) {
-    throw new TRPCError({ code: "UNAUTHORIZED" });
-  }
+export const adminProcedure = protectedProcedure.use(
+  async function isAdmin(opts) {
+    const admin = (
+      await opts.ctx.db
+        .select()
+        .from(users)
+        .innerJoin(admins, eq(users.id, admins.userId))
+        .where(eq(users.id, opts.ctx.session.user.id))
+        .limit(1)
+    )[0];
 
-  return opts.next();
-});
+    if (!admin) {
+      throw new TRPCError({ code: "UNAUTHORIZED" });
+    }
+
+    return opts.next();
+  },
+);

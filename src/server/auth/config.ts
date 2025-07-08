@@ -11,7 +11,7 @@ import {
 } from "@/server/db/schemas/auth";
 import { type SqlFlavorOptions } from "node_modules/@auth/drizzle-adapter/lib/utils";
 import { env } from "@/env";
-
+import { eq } from "drizzle-orm";
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
  * object and keep type safety.
@@ -25,10 +25,6 @@ declare module "next-auth" {
       // ...other properties
       // role: UserRole;
     } & DefaultSession["user"];
-  }
-
-  interface User {
-    isAdmin: boolean;
   }
 }
 
@@ -71,18 +67,11 @@ export const authConfig = {
   }),
   callbacks: {
     session: async ({ session, user }) => {
-      const isAdmin = await db
-        .select()
-        .from(users)
-        .where(eq(users.id, user.id))
-        .innerJoin(admins, eq(users.id, admins.userId));
-
       return {
         ...session,
         user: {
           ...session.user,
           id: user.id,
-          isAdmin: isAdmin.length > 0,
         },
       };
     },

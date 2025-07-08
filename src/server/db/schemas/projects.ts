@@ -21,10 +21,10 @@ export const projects = createTable("project", (d) => ({
   endDateTime: d.integer({ mode: "timestamp" }),
   createdAt: d.integer({ mode: "timestamp" }).default(sql`(unixepoch())`),
   updatedAt: d.integer({ mode: "timestamp" }).default(sql`(unixepoch())`),
+  //TODO: Should this be set null on delete? Should users be deletable?
   createdBy: d
     .text({ length: 255 })
-    .notNull()
-    .references(() => admins.userId),
+    .references(() => admins.userId, { onDelete: "set null" }),
 }));
 
 export const projectsRelations = relations(projects, ({ one, many }) => ({
@@ -34,6 +34,10 @@ export const projectsRelations = relations(projects, ({ one, many }) => ({
   }),
   candidatesToProjects: many(candidatesToProjects),
   tags: many(projectsTags),
+  creator: one(admins, {
+    fields: [projects.createdBy],
+    references: [admins.userId],
+  }),
 }));
 
 export const projectSubmissions = createTable("projectSubmission", (d) => ({
