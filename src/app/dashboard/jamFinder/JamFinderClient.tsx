@@ -2,6 +2,7 @@
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Sliders, ChevronDown, ChevronUp } from "lucide-react";
 import {
   Popover,
@@ -11,7 +12,7 @@ import {
 import { Calendar } from "@/components/ui/calendar";
 import { Slider } from "@/components/ui/slider";
 import { useState, useMemo } from "react";
-import type { RouterOutputs } from "@/trpc/react";
+import { api, type RouterOutputs } from "@/trpc/react";
 import { JamCard } from "@/components/jam-card";
 import { format } from "date-fns";
 
@@ -31,11 +32,11 @@ export default function JamFinderClient({ projects }: JamFinderProps) {
     from: undefined,
     to: undefined,
   });
-
   const [activeFilters, setActiveFilters] = useState({
     numberOfTeammates: 1,
     jamName: "",
   });
+  const [selectedTags, setSelectedTags] = useState<Set<string>>(new Set());
 
   const filteredProjects = useMemo(() => {
     return projects.filter((project) => {
@@ -53,6 +54,8 @@ export default function JamFinderClient({ projects }: JamFinderProps) {
       return matchesName && matchesGroupSize;
     });
   }, [projects, activeFilters]);
+
+  const tags = api.tags.getAll.useQuery();
 
   const handleSearch = () => {
     setActiveFilters({
@@ -97,7 +100,7 @@ export default function JamFinderClient({ projects }: JamFinderProps) {
                   setDateRange({ from: range.from, to: range.to });
                 } else {
                   setDateRange({ from: undefined, to: undefined });
-                }
+                } 
               }}
               numberOfMonths={2}
             />
@@ -132,7 +135,27 @@ export default function JamFinderClient({ projects }: JamFinderProps) {
             </Button>
           </PopoverTrigger>
           <PopoverContent>
-            <div>Filters and stuff</div>
+            <h5>Tags</h5>
+            {tags.data?.map((tag) => (
+              <Badge
+                className="cursor-pointer"
+                variant={selectedTags.has(tag.id) ? "default" : "outline"}
+                key={tag.id}
+                onClick={() => {
+                  setSelectedTags((prev) => {
+                    const newSet = new Set(prev);
+                    if (newSet.has(tag.id)) {
+                      newSet.delete(tag.id);
+                    } else {
+                      newSet.add(tag.id);
+                    }
+                    return newSet;
+                  });
+                }}
+              >
+                {tag.name}
+              </Badge>
+            ))}
           </PopoverContent>
         </Popover>
         <Button onClick={handleSearch}>Search</Button>
