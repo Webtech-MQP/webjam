@@ -1,10 +1,10 @@
 'use client'
 import { useEffect, useRef, useState } from "react"
-import type { CSSProperties } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import ReactRough, { Rectangle } from 'rough-react-wrapper'
 
 interface MessyTagProps {
-    children: string;
+    children: string | ReactNode;
     color?: string;
     style?: CSSProperties;
     className?: string;
@@ -13,19 +13,18 @@ interface MessyTagProps {
 }
 export const MessyTag = (props:MessyTagProps)=>{
     const labelRef = useRef<HTMLParagraphElement>(null);
-    const [dim, setDim] = useState<{x:number, y:number}>({x:props.children.length * 8, y:20});
+    const [dim, setDim] = useState<{x:number, y:number}>({x:( typeof props.children === "string" ? props.children.length * 8 : 20), y:20});
 
     useEffect(()=>{
         const boxModel = labelRef.current?.getBoundingClientRect();
         if(boxModel){
             setDim({x:boxModel.width, y:boxModel.height})
         }
-    }, [props.children])
+    }, [props.children, props.textClassName, props.textStyles])
 
     return (
         <div
             style={{
-                padding: 8,
                 color: props.color,
                 width: "fit-content",
                 transform:`translate(5px, 5px)`,
@@ -59,7 +58,7 @@ export const MessyTag = (props:MessyTagProps)=>{
                         height={dim.y}
                         x={5}
                         y={5}
-                        stroke="white"
+                        stroke={props.color || "white"}
                         strokeWidth={.8}
                         roughness={3}
                         simplification={.5}

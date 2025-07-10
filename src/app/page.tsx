@@ -11,7 +11,6 @@ import {
 import { ArrowRight } from "lucide-react";
 import { MessyButton } from "@/components/messy-button";
 
-
 export default function Home() {
   return (
       <main className="flex min-h-screen flex-col items-center justify-start py-7">
