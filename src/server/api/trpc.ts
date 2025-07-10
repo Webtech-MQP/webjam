@@ -131,3 +131,11 @@ export const protectedProcedure = t.procedure
       },
     });
   });
+
+export const adminProcedure = protectedProcedure.use(function isAdmin(opts) {
+  if (!opts.ctx.session.user.isAdmin) {
+    throw new TRPCError({ code: "UNAUTHORIZED" });
+  }
+
+  return opts.next();
+});
