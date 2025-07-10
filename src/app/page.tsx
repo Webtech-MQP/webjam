@@ -10,8 +10,6 @@ import {
 } from "@/components/ui/tooltip"
 import { ArrowRight } from "lucide-react";
 import { MessyButton } from "@/components/messy-button";
-import { ProjectModal } from "@/components/project-modal";
-
 
 export default function Home() {
   return (
