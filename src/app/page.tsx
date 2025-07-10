@@ -24,25 +24,6 @@ export default function Home() {
           </nav>
         </header>
         <section className="flex flex-col pt-15 items-center">
-          <ProjectModal
-            title={"Reinvent The To-do List"}
-            subtitle={"Create a full-stack webapp that rethinks how we go about managing our tasks and work"}
-            starts={"Jan 1st"}
-            ends={"Dec 31st"}
-            signups={123}
-            description={"The goal of this project is to design and build a modern task and work management platform that breaks away from traditional models like static to-do lists, calendars, and Kanban boards. Your app should explore new ways of organizing, prioritizing, and completing tasks—whether through innovative UI/UX, smart automation, collaboration tools, or integrations with other services.\nYou should aim to improve how users think about and interact with their work. This could mean introducing adaptive workflows, using AI to assist with prioritization, or designing systems that account for context like focus level, urgency, or energy. Think beyond existing tools like Trello, Todoist, or Notion—what should task management look like if we started from scratch?"}
-            imageUrl="https://placehold.co/1080x1920.png"
-            requirements={[
-              "Full-stack implementation (frontend, backend, database)",
-              "Support for creating, editing, and managing tasks",
-              "Some form of prioritization or workflow structure",
-              "A clearly explained “rethinking” approach: what makes your app different",
-            ]}
-            tags={["React","UI Design","Management","Web",]}
-            onSignup={function (): void {
-              throw new Error("Function not implemented.");
-            }}
-          />
           <div>
             <div className="flex flex-row flex-nowrap">
               <div className="w-3/4 flex flex-col">
