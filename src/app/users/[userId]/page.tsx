@@ -35,13 +35,13 @@ export default async function Page({ params }: Props) {
               height={100}
               width={100}
             />
-            <h1 className="mt-2">{user.name}</h1>
-            <p>{user.candidate?.bio}</p>
+            {/* <h1 className="mt-2">{user.name}</h1> */}
+            {/* <p>{user.candidate?.bio}</p> */}
           </div>
           <div>
             <h2>Jams</h2>
             <div className="grid">
-              {user.candidate?.candidatesToProjects.map((p) => p.project.title)}
+              {/* {user.candidate?.candidatesToProjects.map((p) => p.project.title)} */}
             </div>
           </div>
         </div>
