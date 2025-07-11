@@ -1,8 +1,9 @@
 import { z } from "zod";
 import { eq } from "drizzle-orm";
-import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
-import { candidates } from "@/server/db/schemas/users";
+import { createTRPCRouter, publicProcedure, adminProcedure, protectedProcedure } from "@/server/api/trpc";
+import { candidates, candidateProfiles } from "@/server/db/schemas/users";
 import { projects } from "@/server/db/schemas/projects";
+import { TRPCError } from "@trpc/server";
 
 export const candidateRouter = createTRPCRouter({
 
@@ -22,27 +23,85 @@ export const candidateRouter = createTRPCRouter({
     });
   }),
 
-  updateOne: publicProcedure
+  updateOne: adminProcedure
     .input(
-      z.object({ id: z.string().cuid2(), bio: z.string(), location: z.string(), language: z.string(), experience: z.string(), githubUsername: z.string(), portfolioURL: z.string(), linkedinURL: z.string(), resumeURL: z.string() }),
+      z.object({ id: z.string().cuid2(), location: z.string(), language: z.string(), resumeURL: z.string() }),
     )
     .mutation(async ({ ctx, input }) => {
       return ctx.db
         .update(candidates)
-        .set({ bio: input.bio, location: input.location, language: input.language, experience: input.experience, githubUsername: input.githubUsername, portfolioURL: input.portfolioURL, linkedinURL: input.linkedinURL, resumeURL: input.resumeURL })
+        .set({ location: input.location, language: input.language, resumeURL: input.resumeURL })
         .where(eq(candidates.userId, input.id));
     }),
 
-  deleteOne: publicProcedure
+  deleteOne: adminProcedure
     .input(z.object({ id: z.string().cuid2() }))
     .mutation(async ({ ctx, input }) => {
       return ctx.db.delete(candidates).where(eq(candidates.userId, input.id));
     }),
 
-  deleteAll: publicProcedure.mutation(async ({ ctx }) => {
+  deleteAll: adminProcedure.mutation(async ({ ctx }) => {
     // eslint-disable-next-line drizzle/enforce-delete-with-where
     return ctx.db.delete(candidates);
   }),
+
+  getProfile: publicProcedure
+    .input(z.object({ id: z.string().cuid2() }))
+    .query(async ({ ctx, input }) => {
+      return ctx.db.query.candidateProfiles.findFirst({
+        where: (profile, { eq }) => eq(profile.candidateId, input.id),
+      });
+    }),
+
+  getAllProfiles: publicProcedure.query(async ({ ctx }) => {
+    return ctx.db.query.candidateProfiles.findMany();
+  }),
+
+  updateProfile: protectedProcedure
+    .input(
+      z.object({
+        id: z.string().cuid2(),
+        displayName: z.string(),
+        bio: z.string(),
+        experience: z.string(),
+        githubUsername: z.string(),
+        portfolioURL: z.string(),
+        linkedinURL: z.string(),
+        imageURL: z.string(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const candidate = await ctx.db.query.candidates.findFirst({
+        where: (candidates, { eq }) => eq(candidates.userId, input.id),
+      });
+      if (!candidate || candidate.userId !== ctx.session.user.id) {
+        throw new TRPCError({ code: "FORBIDDEN", message: "Not your profile" });
+      }
+      return ctx.db
+        .update(candidateProfiles)
+        .set({
+          displayName: input.displayName,
+          bio: input.bio,
+          experience: input.experience,
+          githubUsername: input.githubUsername,
+          portfolioURL: input.portfolioURL,
+          linkedinURL: input.linkedinURL,
+          imageURL: input.imageURL,
+        })
+        .where(eq(candidateProfiles.candidateId, input.id));
+    }),
+
+  deleteProfile: protectedProcedure
+    .input(z.object({ id: z.string().cuid2() }))
+    .mutation(async ({ ctx, input }) => {
+      const candidate = await ctx.db.query.candidates.findFirst({
+        where: (candidates, { eq }) => eq(candidates.userId, input.id),
+      });
+      if (!candidate || candidate.userId !== ctx.session.user.id) {
+        throw new TRPCError({ code: "FORBIDDEN", message: "Not your profile" });
+      }
+      return ctx.db.delete(candidateProfiles).where(eq(candidateProfiles.candidateId, input.id));
+    }),
 });
 
 export default candidateRouter;

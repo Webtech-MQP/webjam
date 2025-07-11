@@ -12,16 +12,18 @@ export const userRouter = createTRPCRouter({
   create: publicProcedure
     .input(
       z.object({
-        name: z.string().min(1).max(255),
+        firstName: z.string().min(1).max(255),
+        middleName: z.string().optional(),
+        lastName: z.string().min(1).max(255),
         email: z.string(),
-        image: z.string(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
       return ctx.db.insert(users).values({
-        name: input.name,
+        firstName: input.firstName,
+        middleName: input.middleName,
+        lastName: input.lastName,
         email: input.email,
-        image: input.image,
         createdAt: new Date(),
         updatedAt: new Date(),
       });
@@ -72,15 +74,21 @@ export const userRouter = createTRPCRouter({
     .input(
       z.object({
         id: z.string().cuid2(),
-        name: z.string().min(1).max(255),
+        firstName: z.string().min(1).max(255),
+        middleName: z.string().optional(),
+        lastName: z.string().min(1).max(255),
         email: z.string(),
-        image: z.string(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
       return ctx.db
         .update(users)
-        .set({ name: input.name, email: input.email, image: input.image })
+        .set({
+          firstName: input.firstName,
+          middleName: input.middleName,
+          lastName: input.lastName,
+          email: input.email,
+        })
         .where(eq(users.id, input.id));
     }),
 

@@ -3,7 +3,7 @@ import { createTable } from "../schema-util";
 
 import { createId } from "@paralleldrive/cuid2";
 import { primaryKey } from "drizzle-orm/sqlite-core";
-import { admins, candidates } from "./users";
+import { admins, candidates, candidateProfiles, adminProfiles} from "./users";
 
 export const projects = createTable("project", (d) => ({
   id: d
@@ -11,10 +11,11 @@ export const projects = createTable("project", (d) => ({
     .$defaultFn(() => createId())
     .primaryKey(),
   title: d.text({ length: 256 }),
+  subTitle: d.text({ length: 256 }),
   description: d.text({ length: 256 }),
   instructions: d.text({ length: 256 }),
   requirements: d.text({ length: 256 }),
-  img: d.text({ length: 256 }),
+  imageURL: d.text({ length: 256 }),
   status: d.text({ enum: ["in-progress", "completed", "upcoming"]}).default("in-progress"),
   deadline: d.integer({ mode: "timestamp" }),
   startDateTime: d.integer({ mode: "timestamp" }),
@@ -23,8 +24,8 @@ export const projects = createTable("project", (d) => ({
   updatedAt: d.integer({ mode: "timestamp" }).default(sql`(unixepoch())`),
   //TODO: Should this be set null on delete? Should users be deletable?
   createdBy: d
-    .text({ length: 255 })
-    .references(() => admins.userId, { onDelete: "set null" }),
+  .text({ length: 255 })
+  .references(() => adminProfiles.adminId, { onDelete: "set null" }),
 }));
 
 export const projectsRelations = relations(projects, ({ one, many }) => ({
@@ -33,10 +34,11 @@ export const projectsRelations = relations(projects, ({ one, many }) => ({
     references: [projectSubmissions.projectId],
   }),
   candidatesToProjects: many(candidatesToProjects),
+  candidateProfilesToProjects: many(candidateProfilesToProjects),
   tags: many(projectsTags),
-  creator: one(admins, {
+  creator: one(adminProfiles, {
     fields: [projects.createdBy],
-    references: [admins.userId],
+    references: [adminProfiles.adminId],
   }),
 }));
 
@@ -68,6 +70,7 @@ export const tags = createTable("tag", (d) => ({
   name: d.text({ length: 256 }).unique(),
 }));
 
+//TODO: Should we replace this?(It exposes entities with private data)
 export const candidatesToProjects = createTable(
   "candidates_to_projects",
   (d) => ({
@@ -92,6 +95,36 @@ export const candidatesToProjectsRelations = relations(
     }),
     project: one(projects, {
       fields: [candidatesToProjects.projectId],
+      references: [projects.id],
+    }),
+  }),
+);
+
+//TODO: maybe change to this?
+export const candidateProfilesToProjects = createTable(
+  "candidate_profiles_to_projects",
+  (d) => ({
+    candidateId: d
+      .text("candidate_id")
+      .notNull()
+      .references(() => candidateProfiles.candidateId, { onDelete: "cascade" }),
+    projectId: d
+      .text("project_id")
+      .notNull()
+      .references(() => projects.id, { onDelete: "cascade" }),
+  }),
+  (t) => [primaryKey({ columns: [t.candidateId, t.projectId] })],
+);
+
+export const candidateProfilesToProjectsRelations = relations(
+  candidateProfilesToProjects,
+  ({ one }) => ({
+    candidateProfile: one(candidateProfiles, {
+      fields: [candidateProfilesToProjects.candidateId],
+      references: [candidateProfiles.candidateId],
+    }),
+    project: one(projects, {
+      fields: [candidateProfilesToProjects.projectId],
       references: [projects.id],
     }),
   }),
