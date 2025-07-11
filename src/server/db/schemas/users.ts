@@ -14,9 +14,8 @@ export const users = createTable(
       .notNull()
       .primaryKey()
       .$defaultFn(() => createId()),
-    firstName: d.text({ length: 255 }).notNull(),
-    middleName: d.text({ length: 255 }),
-    lastName: d.text({ length: 255 }).notNull(),
+    name: d.text({ length: 255 }),
+    image: d.text({ length: 255 }),
     email: d.text({ length: 255 }).notNull(),
     emailVerified: d.integer({ mode: "timestamp" }).default(sql`(unixepoch())`),
     phoneNumber: d.text({ length: 255 }),
