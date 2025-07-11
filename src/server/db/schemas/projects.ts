@@ -15,7 +15,7 @@ export const projects = createTable("project", (d) => ({
   instructions: d.text({ length: 256 }),
   requirements: d.text({ length: 256 }),
   img: d.text({ length: 256 }),
-  // status: d.enum(["in-progress", "completed", "upcoming"]).default("in-progress"),
+  status: d.text({ enum: ["in-progress", "completed", "upcoming"]}).default("in-progress"),
   deadline: d.integer({ mode: "timestamp" }),
   startDateTime: d.integer({ mode: "timestamp" }),
   endDateTime: d.integer({ mode: "timestamp" }),
@@ -50,7 +50,7 @@ export const projectSubmissions = createTable("projectSubmission", (d) => ({
     .notNull()
     .references(() => projects.id),
   submittedOn: d.integer({ mode: "timestamp" }).default(sql`(unixepoch())`),
-  // status: d.enum(["submitted", "under-review", "approved"]).default("submitted");
+  status: d.text({ enum: ["submitted", "under-review", "approved"]}).default("submitted"),
   reviewedOn: d.integer({ mode: "timestamp" }),
   reviewedBy: d
     .text({ length: 255 })

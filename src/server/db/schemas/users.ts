@@ -16,7 +16,7 @@ export const users = createTable("user", (d) => ({
   email: d.text({ length: 255 }).notNull(),
   emailVerified: d.integer({ mode: "timestamp" }).default(sql`(unixepoch())`),
   image: d.text({ length: 255 }),
-  // role: d.enum(["candidate", "recruiter", "admin"]).default("candidate"),
+  role: d.text({ enum: ["candidate", "recruiter", "admin"]}).default("candidate"),
   createdAt: d.integer({ mode: "timestamp" }).default(sql`(unixepoch())`),
   updatedAt: d.integer({ mode: "timestamp" }).default(sql`(unixepoch())`),
   githubUsername: d.text({ length: 255 }),
@@ -35,7 +35,7 @@ export const admins = createTable("admin", (d) => ({
     .notNull()
     .primaryKey()
     .references(() => users.id, { onDelete: "cascade" }),
-  // role: d.enum(["Reg", "Mod", "Super", "idk"]).default("Reg"),
+  role: d.text({ enum: ["Reg", "Mod", "Super", "idk"]}).default("Reg"),
 }));
 
 export const adminsRelations = relations(admins, ({ one }) => ({
