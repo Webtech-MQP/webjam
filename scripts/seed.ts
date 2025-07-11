@@ -1,60 +1,56 @@
 import { drizzle } from "drizzle-orm/libsql";
-import { createClient } from "@libsql/client";
 import { createId } from "@paralleldrive/cuid2";
-import {
-  admins,
-  candidates,
-  recruiters,
-  recruitersToCandidates,
-  users,
-} from "@/server/db/schemas/users";
+import * as schema1 from "@/server/db/schemas/users";
+import * as schema2 from "@/server/db/schemas/projects";
 import {
   projects,
   tags,
   projectsTags,
   candidatesToProjects,
 } from "@/server/db/schemas/projects";
-import { env } from "../src/env";
+import { reset, seed } from "drizzle-seed";
+import { admins, candidates, recruiters, recruitersToCandidates, users } from "@/server/db/schemas/users";
 
-const client = createClient({
-  url: env.DATABASE_URL,
-});
-
-export const db = drizzle(client);
-
-async function seed() {
+async function main() {
+  const db = drizzle(process.env.DATABASE_URL!);
+  await reset(db, schema1);
+  await reset(db, schema2);
+  type userRoles = 'candidate' | 'recruiter' | 'admin';
   console.log("Seeding users...");
-  // eslint-disable-next-line drizzle/enforce-delete-with-where
-  await db.delete(users);
   const userBrian = {
     id: createId(),
     name: "Brian",
     email: "brian@example.com",
     image: "",
+    role: "candidate" as userRoles,
   };
   const userTyler = {
     id: createId(),
     name: "Tyler",
     email: "tyler@example.com",
     image: "",
+    role: "candidate" as userRoles,
   };
   const userJohnny = {
     id: createId(),
     name: "Johnny",
     email: "johnny@example.com",
     image: "",
+    role: "candidate" as userRoles,
   };
   const userSally = {
     id: createId(),
     name: "Sally",
     email: "sally@recruit.com",
     image: "",
+    role: "recruiter" as userRoles,
   };
   const userAce = {
     id: createId(),
     name: "Ace",
     email: "ace@admin.com",
     image: "",
+    role: "admin" as userRoles,
   };
   await db
     .insert(users)
@@ -62,8 +58,6 @@ async function seed() {
   console.log("Users seeded!");
 
   console.log("Seeding candidates...");
-  // eslint-disable-next-line drizzle/enforce-delete-with-where
-  await db.delete(candidates);
   await db.insert(candidates).values([
     {
       userId: userBrian.id,
@@ -102,8 +96,6 @@ async function seed() {
   console.log("Candidates seeded!");
 
   console.log("Seeding recruiters...");
-  // eslint-disable-next-line drizzle/enforce-delete-with-where
-  await db.delete(recruiters);
   await db.insert(recruiters).values([
     {
       userId: userSally.id,
@@ -113,8 +105,6 @@ async function seed() {
   console.log("Recruiters seeded!");
 
   console.log("Seeding admin...");
-  // eslint-disable-next-line drizzle/enforce-delete-with-where
-  await db.delete(admins);
   await db.insert(admins).values([
     {
       userId: userAce.id,
@@ -124,8 +114,6 @@ async function seed() {
   console.log("Admin seeded!");
 
   console.log("Seeding recruiter list...");
-  // eslint-disable-next-line drizzle/enforce-delete-with-where
-  await db.delete(recruitersToCandidates);
   await db.insert(recruitersToCandidates).values([
     {
       recruiterId: userSally.id,
@@ -141,8 +129,6 @@ async function seed() {
   console.log("Recruiter candidate lists seeded!");
 
   console.log("Seeding projects...");
-  // eslint-disable-next-line drizzle/enforce-delete-with-where
-  await db.delete(projects);
   const projectId = createId();
   const project1 = {
     id: projectId,
@@ -158,6 +144,7 @@ async function seed() {
       "Some form of prioritization or workflow structure\n" +
       "A clearly explained “rethinking” approach: what makes your app different",
     img: "https://placehold.co/600x400?text=Reinvent+To-do+List",
+    status: "upcoming" as  "in-progress" | "completed" | "upcoming",
     deadline: new Date("2025-11-17T00:00:00Z"),
     startDateTime: new Date("2025-08-17T00:00:00Z"),
     endDateTime: new Date("2025-11-24T00:00:00Z"),
@@ -169,8 +156,6 @@ async function seed() {
   console.log("Project seeded!");
 
   console.log("Seeding tags...");
-  // eslint-disable-next-line drizzle/enforce-delete-with-where
-  await db.delete(tags);
   const tagReact = { id: createId(), name: "React" };
   const tagUIDesign = { id: createId(), name: "UI Design" };
   const tagManagement = { id: createId(), name: "Management" };
@@ -179,8 +164,6 @@ async function seed() {
   console.log("Tags seeded!");
 
   console.log("Seeding Project-tag links...");
-  // eslint-disable-next-line drizzle/enforce-delete-with-where
-  await db.delete(projectsTags);
   await db.insert(projectsTags).values([
     { projectId: projectId, tagId: tagReact.id },
     { projectId: projectId, tagId: tagUIDesign.id },
@@ -198,7 +181,8 @@ async function seed() {
   ]);
   console.log("Project candidates seeded!");
 }
+await main().then(() => console.log("done"));
 
-seed().catch((err) => {
+main().catch((err) => {
   console.error("Error while seeding:", err);
 });
