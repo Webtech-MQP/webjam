@@ -5,7 +5,7 @@ import {
   protectedProcedure,
   publicProcedure,
 } from "@/server/api/trpc";
-import { candidatesToProjects, projects } from "@/server/db/schemas/projects";
+import { candidatesToProjects, projects, candidateProfilesToProjects, tags } from "@/server/db/schemas/projects";
 
 export const projectRouter = createTRPCRouter({
   create: protectedProcedure
@@ -32,6 +32,12 @@ export const projectRouter = createTRPCRouter({
               },
             },
           },
+          candidateProfilesToProjects: {
+            with: {
+              candidateProfile: true,
+            },
+          },
+          creator: true,
         },
       });
     }),
@@ -46,6 +52,12 @@ export const projectRouter = createTRPCRouter({
             },
           },
         },
+        candidateProfilesToProjects: {
+          with: {
+            candidateProfile: true,
+          },
+        },
+        creator: true,
       },
     });
   }),
@@ -71,4 +83,39 @@ export const projectRouter = createTRPCRouter({
     // eslint-disable-next-line drizzle/enforce-delete-with-where
     return ctx.db.delete(projects);
   }),
+
+  //Tag CRUD
+  createTag: protectedProcedure
+    .input(z.object({ name: z.string().min(1).max(256) }))
+    .mutation(async ({ ctx, input }) => {
+      return ctx.db.insert(tags).values({ name: input.name });
+    }),
+
+  getTag: publicProcedure
+    .input(z.object({ id: z.string() }))
+    .query(async ({ ctx, input }) => {
+      return ctx.db.query.tags.findFirst({
+        where: (tags, { eq }) => eq(tags.id, input.id),
+      });
+    }),
+
+  getAllTags: publicProcedure.query(async ({ ctx }) => {
+    return ctx.db.query.tags.findMany();
+  }),
+
+  updateTag: protectedProcedure
+    .input(z.object({ id: z.string(), name: z.string().min(1).max(256) }))
+    .mutation(async ({ ctx, input }) => {
+      return ctx.db
+        .update(tags)
+        .set({ name: input.name })
+        .where(eq(tags.id, input.id));
+    }),
+
+  deleteTag: protectedProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      return ctx.db.delete(tags).where(eq(tags.id, input.id));
+    }),
+
 });
