@@ -1,10 +1,10 @@
 'use client';
 import { useEffect, useRef, useState } from "react"
-import type { CSSProperties } from "react";
-import ReactRough, { Rectangle } from 'rough-react-wrapper'
+import type { CSSProperties, ReactNode } from "react";
+import ReactRough, { Circle, Rectangle } from 'rough-react-wrapper'
 
 interface MessyButtonProps {
-    children: string;
+    children: string | ReactNode;
     color?: string;
     style?: CSSProperties;
     className?: string;
@@ -12,6 +12,7 @@ interface MessyButtonProps {
     textStyles?: CSSProperties;
 
     variant?: "fill" | "outline";
+    shape?: "rectangle" | "circle";
 
     onClick?: ()=>void;
     onMouseOver?: ()=>void;
@@ -19,7 +20,7 @@ interface MessyButtonProps {
 }
 export const MessyButton = (props:MessyButtonProps)=>{
     const labelRef = useRef<HTMLParagraphElement>(null);
-    const [dim, setDim] = useState<{x:number, y:number}>({x:props.children.length * 8, y:20});
+    const [dim, setDim] = useState<{x:number, y:number}>({x:( typeof props.children === "string" ? props.children.length * 8 : 20), y:20});
     const [hovered, setHovered] = useState<boolean>(false);
     
     useEffect(()=>{
@@ -27,7 +28,7 @@ export const MessyButton = (props:MessyButtonProps)=>{
         if(boxModel){
             setDim({x:boxModel.width, y:boxModel.height})
         }
-    }, [props.children])
+    }, [props.children, props.textClassName, props.textStyles])
 
     const onHover = () => {
         setHovered(true);
@@ -46,7 +47,6 @@ export const MessyButton = (props:MessyButtonProps)=>{
     return (
         <div
             style={{
-                padding: 8,
                 color: props.color,
                 width: "fit-content",
                 transform:`translate(5px, 5px)`,
@@ -83,7 +83,7 @@ export const MessyButton = (props:MessyButtonProps)=>{
                 onMouseOver={onHover}
                 onMouseLeave={onDehover}
                 onClick={onClick}
-                aria-label={props.children}
+                aria-label={typeof props.children === "string" ? props.children : "button"}
             >
                 {/* @ts-expect-error this can have children.. weird type issue */}
                 <ReactRough
@@ -91,19 +91,31 @@ export const MessyButton = (props:MessyButtonProps)=>{
                     width={dim.x + 10}
                     height={dim.y + 10}
                 >
-                    <Rectangle
+                    {(props.shape === "rectangle" || props.shape === undefined) && <Rectangle
                         width={dim.x}
                         height={dim.y}
                         x={5}
                         y={5}
-                        stroke={props.variant==="fill" || hovered ? "white" : "none"}
+                        stroke={props.variant==="fill" || hovered ? (props.color || "white") : "none"}
                         strokeWidth={.8}
                         roughness={3}
                         simplification={.5}
                         maxRandomnessOffset={1.75}
                         fillStyle="cross-hatch"
                         fill={hovered && props.variant==="fill" ? "#ffffff60" : "none"}
-                    />
+                    />}
+                    {props.shape === "circle" && <Circle
+                        diameter={Math.max(dim.x, dim.y)}
+                        x={Math.max(dim.x, dim.y)/2 + 5}
+                        y={Math.max(dim.x, dim.y)/2 + 5}
+                        stroke={props.variant==="fill" || hovered ? (props.color || "white") : "none"}
+                        strokeWidth={.8}
+                        roughness={2}
+                        simplification={.5}
+                        maxRandomnessOffset={1.75}
+                        fillStyle="cross-hatch"
+                        fill={hovered && props.variant==="fill" ? "#ffffff60" : "none"}
+                    />}
                 </ReactRough>
             </button>
         </div>
