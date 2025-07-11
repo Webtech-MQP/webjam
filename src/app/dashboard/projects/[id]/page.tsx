@@ -108,27 +108,26 @@ export default async function Page({
       <DashboardCard>
         <h1>Teammates</h1>
         <div className="relative flex w-full flex-col gap-4">
-          {project.candidatesToProjects.map((projectCandidate, index) => (
-            <div key={index} className="flex items-center gap-2">
-              <div className="relative aspect-square w-8">
-                <Image
-                  src={projectCandidate.candidate.user.image ?? ""}
-                  alt={
-                    projectCandidate.candidate.user.name ??
-                    projectCandidate.candidate.user.email
-                  }
-                  fill
-                  objectFit="cover"
-                  className="rounded-full"
-                />
+          {project.candidateProfilesToProjects.map(
+            (projectCandidate, index) => (
+              <div key={index} className="flex items-center gap-2">
+                <div className="relative aspect-square w-8">
+                  <Image
+                    src={projectCandidate.candidateProfile.imageURL ?? ""}
+                    alt={projectCandidate.candidateProfile.displayName}
+                    fill
+                    objectFit="cover"
+                    className="rounded-full"
+                  />
+                </div>
+                <p className="font-semibold">
+                  {projectCandidate.candidateProfile.displayName ??
+                    projectCandidate.candidateProfile.displayName}
+                </p>
+                <p className="text-sm text-gray-500">Placeholder</p>
               </div>
-              <p className="font-semibold">
-                {projectCandidate.candidate.user.name ??
-                  projectCandidate.candidate.user.email}
-              </p>
-              <p className="text-sm text-gray-500">Placeholder</p>
-            </div>
-          ))}
+            ),
+          )}
         </div>
       </DashboardCard>
       <div className="flex w-full gap-2">
