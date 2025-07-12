@@ -9,7 +9,7 @@ import { tagRouter } from "@/server/api/routers/tag";
  */
 export const appRouter = createTRPCRouter({
   projects: projectRouter,
-  tags: tagRouter
+  tags: tagRouter,
 });
 
 // export type definition of API

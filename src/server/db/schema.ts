@@ -108,9 +108,11 @@ export const projects = createTable("project", (d) => ({
     .text()
     .$defaultFn(() => createId())
     .primaryKey(),
-  title: d.text({ length: 256 }),
-  description: d.text(),
-  deadline: d.integer({ mode: "timestamp" }),
+  title: d.text({ length: 256 }).notNull(),
+  description: d.text().notNull(),
+  startDate: d.integer({ mode: "timestamp" }).notNull(),
+  endDate: d.integer({ mode: "timestamp" }).notNull(),
+  groupSize: d.integer().notNull(),
 }));
 
 export const projectsRelations = relations(projects, ({ many }) => ({

@@ -13,7 +13,7 @@ interface JamCardProps {
   name: string;
   startDate?: Date;
   endDate?: Date;
-  numberOfTeammates: number;
+  numberOfTeammates?: number;
   imageUrl: string;
   rating?: number;
   numberOfRatings?: number;

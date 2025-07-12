@@ -34,7 +34,7 @@ export default async function Page({
             <Users /> {teammates.usersToProjects.length} members
           </Badge>
           <Badge className="bg-indigo-500">
-            <Clock /> {teammates.deadline?.toLocaleDateString()}
+            <Clock /> {teammates.endDate?.toLocaleDateString()}
           </Badge>
         </div>
         <div className="relative flex w-full gap-4">
