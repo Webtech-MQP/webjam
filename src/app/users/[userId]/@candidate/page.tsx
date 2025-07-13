@@ -14,7 +14,7 @@ export default async function Page({ params }: Props) {
 
   console.log(userId);
 
-  const candidate = await api.candidates.getProfile(
+  const candidate = await api.candidates.getOne(
     userId.startsWith("@")
       ? { githubUsername: userId.slice(1) }
       : { id: userId },

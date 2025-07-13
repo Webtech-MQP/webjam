@@ -1,16 +1,21 @@
 import { z } from "zod";
 import { eq } from "drizzle-orm";
-import { createTRPCRouter, publicProcedure, adminProcedure, protectedProcedure } from "@/server/api/trpc";
+import {
+  createTRPCRouter,
+  publicProcedure,
+  adminProcedure,
+  protectedProcedure,
+} from "@/server/api/trpc";
 import { recruiterProfiles } from "@/server/db/schemas/users";
 import { TRPCError } from "@trpc/server";
 
 export const recruiterRouter = createTRPCRouter({
-
   getOne: publicProcedure
     .input(z.object({ id: z.string().cuid2() }))
     .query(async ({ ctx, input }) => {
       return ctx.db.query.recruiterProfiles.findFirst({
-        where: (recruiterProfiles, { eq }) => eq(recruiterProfiles.userId, input.id),
+        where: (recruiterProfiles, { eq }) =>
+          eq(recruiterProfiles.userId, input.id),
         with: {
           user: true,
         },
@@ -51,37 +56,7 @@ export const recruiterRouter = createTRPCRouter({
         .where(eq(recruiterProfiles.userId, input.id));
     }),
 
-  deleteOne: adminProcedure
-    .input(z.object({ id: z.string().cuid2() }))
-    .mutation(async ({ ctx, input }) => {
-      return ctx.db.delete(recruiterProfiles).where(eq(recruiterProfiles.userId, input.id));
-    }),
-
-  deleteAll: adminProcedure.mutation(async ({ ctx }) => {
-    // eslint-disable-next-line drizzle/enforce-delete-with-where
-    return ctx.db.delete(recruiterProfiles);
-  }),
-
-  getProfile: publicProcedure
-    .input(z.object({ id: z.string().cuid2() }))
-    .query(async ({ ctx, input }) => {
-      return ctx.db.query.recruiterProfiles.findFirst({
-        where: (recruiterProfiles, { eq }) => eq(recruiterProfiles.userId, input.id),
-        with: {
-          user: true,
-        },
-      });
-    }),
-
-  getAllProfiles: publicProcedure.query(async ({ ctx }) => {
-    return ctx.db.query.recruiterProfiles.findMany({
-      with: {
-        user: true,
-      },
-    });
-  }),
-
-  updateProfile: protectedProcedure
+  updateMe: protectedProcedure
     .input(
       z.object({
         id: z.string().cuid2(),
@@ -93,19 +68,23 @@ export const recruiterRouter = createTRPCRouter({
         linkedinURL: z.string().optional(),
         imageURL: z.string().optional(),
         publicEmail: z.string().optional(),
-      })
+      }),
     )
     .mutation(async ({ ctx, input }) => {
       const recruiterProfile = await ctx.db.query.recruiterProfiles.findFirst({
-        where: (recruiterProfiles, { eq }) => eq(recruiterProfiles.userId, input.id),
+        where: (recruiterProfiles, { eq }) =>
+          eq(recruiterProfiles.userId, input.id),
       });
-      if (!recruiterProfile || recruiterProfile.userId !== ctx.session.user.id) {
+      if (
+        !recruiterProfile ||
+        recruiterProfile.userId !== ctx.session.user.id
+      ) {
         throw new TRPCError({ code: "FORBIDDEN", message: "Not your profile" });
       }
       const updatedData = Object.fromEntries(
         Object.entries(input).filter(
-          ([key, value]) => key !== "id" && value !== undefined
-        )
+          ([key, value]) => key !== "id" && value !== undefined,
+        ),
       );
       return ctx.db
         .update(recruiterProfiles)
@@ -113,16 +92,35 @@ export const recruiterRouter = createTRPCRouter({
         .where(eq(recruiterProfiles.userId, input.id));
     }),
 
+  deleteOne: adminProcedure
+    .input(z.object({ id: z.string().cuid2() }))
+    .mutation(async ({ ctx, input }) => {
+      return ctx.db
+        .delete(recruiterProfiles)
+        .where(eq(recruiterProfiles.userId, input.id));
+    }),
+
+  deleteAll: adminProcedure.mutation(async ({ ctx }) => {
+    // eslint-disable-next-line drizzle/enforce-delete-with-where
+    return ctx.db.delete(recruiterProfiles);
+  }),
+
   deleteMe: protectedProcedure
     .input(z.object({ id: z.string().cuid2() }))
     .mutation(async ({ ctx, input }) => {
       const recruiterProfile = await ctx.db.query.recruiterProfiles.findFirst({
-        where: (recruiterProfiles, { eq }) => eq(recruiterProfiles.userId, input.id),
+        where: (recruiterProfiles, { eq }) =>
+          eq(recruiterProfiles.userId, input.id),
       });
-      if (!recruiterProfile || recruiterProfile.userId !== ctx.session.user.id) {
+      if (
+        !recruiterProfile ||
+        recruiterProfile.userId !== ctx.session.user.id
+      ) {
         throw new TRPCError({ code: "FORBIDDEN", message: "Not your profile" });
       }
-      return ctx.db.delete(recruiterProfiles).where(eq(recruiterProfiles.userId, input.id));
+      return ctx.db
+        .delete(recruiterProfiles)
+        .where(eq(recruiterProfiles.userId, input.id));
     }),
 });
 

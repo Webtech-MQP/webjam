@@ -11,7 +11,7 @@ type Props = {
 
 export default async function Layout({ candidate, params }: Props) {
   const userId = decodeURIComponent((await params).userId);
-  const c = await api.candidates.getProfile(
+  const c = await api.candidates.getOne(
     userId.startsWith("@")
       ? { githubUsername: userId.slice(1) }
       : { id: userId },

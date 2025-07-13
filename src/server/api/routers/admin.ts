@@ -1,12 +1,15 @@
 import { z } from "zod";
 import { eq } from "drizzle-orm";
-import { createTRPCRouter, protectedProcedure, publicProcedure } from "@/server/api/trpc";
+import {
+  createTRPCRouter,
+  protectedProcedure,
+  publicProcedure,
+} from "@/server/api/trpc";
 import { adminProfiles } from "@/server/db/schemas/users";
 import { adminProcedure } from "@/server/api/trpc";
 import { TRPCError } from "@trpc/server";
 
 export const adminRouter = createTRPCRouter({
-
   getOne: adminProcedure
     .input(z.object({ id: z.string().cuid2() }))
     .query(async ({ ctx, input }) => {
@@ -49,37 +52,7 @@ export const adminRouter = createTRPCRouter({
         .where(eq(adminProfiles.userId, input.id));
     }),
 
-  deleteOne: adminProcedure
-    .input(z.object({ id: z.string().cuid2() }))
-    .mutation(async ({ ctx, input }) => {
-      return ctx.db.delete(adminProfiles).where(eq(adminProfiles.userId, input.id));
-    }),
-
-  deleteAll: adminProcedure.mutation(async ({ ctx }) => {
-    // eslint-disable-next-line drizzle/enforce-delete-with-where
-    return ctx.db.delete(adminProfiles);
-  }),
-
-  getProfile: publicProcedure
-    .input(z.object({ id: z.string().cuid2() }))
-    .query(async ({ ctx, input }) => {
-      return ctx.db.query.adminProfiles.findFirst({
-        where: (adminProfiles, { eq }) => eq(adminProfiles.userId, input.id),
-        with: {
-          user: true,
-        },
-      });
-    }),
-
-  getAllProfiles: publicProcedure.query(async ({ ctx }) => {
-    return ctx.db.query.adminProfiles.findMany({
-      with: {
-        user: true,
-      },
-    });
-  }),
-
-  updateProfile: protectedProcedure
+  updateMe: adminProcedure
     .input(
       z.object({
         id: z.string().cuid2(),
@@ -88,7 +61,7 @@ export const adminRouter = createTRPCRouter({
         imageURL: z.string().optional(),
         contactEmail: z.string().optional(),
         adminRole: z.enum(["Reg", "Mod", "Super", "idk"]).optional(),
-      })
+      }),
     )
     .mutation(async ({ ctx, input }) => {
       const adminProfile = await ctx.db.query.adminProfiles.findFirst({
@@ -99,8 +72,8 @@ export const adminRouter = createTRPCRouter({
       }
       const updatedData = Object.fromEntries(
         Object.entries(input).filter(
-          ([key, value]) => key !== "id" && value !== undefined
-        )
+          ([key, value]) => key !== "id" && value !== undefined,
+        ),
       );
       return ctx.db
         .update(adminProfiles)
@@ -108,10 +81,25 @@ export const adminRouter = createTRPCRouter({
         .where(eq(adminProfiles.userId, input.id));
     }),
 
-  deleteProfile: adminProcedure
+  deleteOne: adminProcedure
     .input(z.object({ id: z.string().cuid2() }))
     .mutation(async ({ ctx, input }) => {
-      return ctx.db.delete(adminProfiles).where(eq(adminProfiles.userId, input.id));
+      return ctx.db
+        .delete(adminProfiles)
+        .where(eq(adminProfiles.userId, input.id));
+    }),
+
+  deleteAll: adminProcedure.mutation(async ({ ctx }) => {
+    // eslint-disable-next-line drizzle/enforce-delete-with-where
+    return ctx.db.delete(adminProfiles);
+  }),
+
+  deleteMe: adminProcedure
+    .input(z.object({ id: z.string().cuid2() }))
+    .mutation(async ({ ctx, input }) => {
+      return ctx.db
+        .delete(adminProfiles)
+        .where(eq(adminProfiles.userId, input.id));
     }),
 });
 
