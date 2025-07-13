@@ -29,14 +29,13 @@ import { zodResolver } from "@hookform/resolvers/zod";
 
 const formSchema = z.object({
   jamName: z.string().min(1, "Jam name is required"),
-  numberOfTeammates: z
-    .array(z.number())
-    .min(1)
-    .max(10),
-  dateRange: z.object({
-    from: z.date(),
-    to: z.date(),
-  }),
+  numberOfTeammates: z.array(z.number()).min(1).max(10).optional(),
+  dateRange: z
+    .object({
+      from: z.date().optional(),
+      to: z.date().optional(),
+    })
+    .optional(),
   tags: z.array(z.string()).optional(),
 });
 
@@ -54,11 +53,8 @@ export default function JamFinderClient() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       jamName: "",
-      numberOfTeammates: [0],
-      dateRange: {
-        from: undefined,
-        to: undefined,
-      },
+      numberOfTeammates: undefined,
+      dateRange: undefined,
       tags: [],
     },
   });
@@ -74,7 +70,7 @@ export default function JamFinderClient() {
   const filteredProjectsQuery = api.projects.findProjects.useQuery(
     {
       title: searchParams?.jamName ?? "",
-      groupSize: searchParams?.numberOfTeammates[0],
+      groupSize: searchParams?.numberOfTeammates?.[0],
       from: searchParams?.dateRange?.from,
       to: searchParams?.dateRange?.to,
       tags: searchParams?.tags,
@@ -117,12 +113,12 @@ export default function JamFinderClient() {
                     <PopoverTrigger asChild>
                       <Button
                         variant="outline"
-                        className="w-40 truncate flex justify-between items-center"
+                        className="w-52 truncate flex justify-between items-center"
                       >
                         <span className="truncate">
-                          {field.value
+                          {Array.isArray(field.value)
                             ? `Group size: ${field.value[0]}`
-                            : "Group size"}
+                            : "Select group size"}
                         </span>
                         {isSliderOpen ? <ChevronUp /> : <ChevronDown />}
                       </Button>
@@ -157,7 +153,7 @@ export default function JamFinderClient() {
                         className="w-58 truncate flex justify-between items-center"
                       >
                         <span className="truncate">
-                          {field.value?.to && field.value.from
+                          {field.value?.from && field.value?.to
                             ? `${format(field.value.from, "MMM dd, yyyy")} – ${format(field.value.to, "MMM dd, yyyy")}`
                             : "Select start date range"}
                         </span>
@@ -170,12 +166,15 @@ export default function JamFinderClient() {
                     >
                       <Calendar
                         mode="range"
-                        selected={field.value}
+                        selected={{
+                          from: field.value?.from,
+                          to: field.value?.to,
+                        }}
                         onSelect={(range) => {
                           if (range?.from && range?.to) {
                             field.onChange({ from: range.from, to: range.to });
                           } else {
-                            field.onChange({ from: undefined, to: undefined });
+                            field.onChange(undefined);
                           }
                         }}
                         numberOfMonths={2}
