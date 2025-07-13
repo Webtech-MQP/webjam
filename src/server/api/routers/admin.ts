@@ -61,10 +61,10 @@ export const adminRouter = createTRPCRouter({
     .input(
       z.object({
         id: z.string().cuid2(),
-        displayName: z.string(),
-        bio: z.string(),
-        imageURL: z.string(),
-        contactEmail: z.string(),
+        displayName: z.string().optional(),
+        bio: z.string().optional(),
+        imageURL: z.string().optional(),
+        contactEmail: z.string().optional(),
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -74,14 +74,14 @@ export const adminRouter = createTRPCRouter({
       if (!admin || admin.userId !== ctx.session.user.id) {
         throw new TRPCError({ code: "FORBIDDEN", message: "Not your profile" });
       }
+      const updatedData = Object.fromEntries(
+        Object.entries(input).filter(
+          ([key, value]) => key !== "id" && value !== undefined
+        )
+      );
       return ctx.db
         .update(adminProfiles)
-        .set({
-          displayName: input.displayName,
-          bio: input.bio,
-          imageURL: input.imageURL,
-          contactEmail: input.contactEmail,
-        })
+        .set(updatedData)
         .where(eq(adminProfiles.adminId, input.id));
     }),
 

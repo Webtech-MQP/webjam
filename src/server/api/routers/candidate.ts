@@ -61,13 +61,13 @@ export const candidateRouter = createTRPCRouter({
     .input(
       z.object({
         id: z.string().cuid2(),
-        displayName: z.string(),
-        bio: z.string(),
-        experience: z.string(),
-        githubUsername: z.string(),
-        portfolioURL: z.string(),
-        linkedinURL: z.string(),
-        imageURL: z.string(),
+        displayName: z.string().optional(),
+        bio: z.string().optional(),
+        experience: z.string().optional(),
+        githubUsername: z.string().optional(),
+        portfolioURL: z.string().optional(),
+        linkedinURL: z.string().optional(),
+        imageURL: z.string().optional(),
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -77,21 +77,18 @@ export const candidateRouter = createTRPCRouter({
       if (!candidate || candidate.userId !== ctx.session.user.id) {
         throw new TRPCError({ code: "FORBIDDEN", message: "Not your profile" });
       }
+      const updatedData = Object.fromEntries(
+        Object.entries(input).filter(
+          ([key, value]) => key !== "id" && value !== undefined
+        )
+      );
       return ctx.db
         .update(candidateProfiles)
-        .set({
-          displayName: input.displayName,
-          bio: input.bio,
-          experience: input.experience,
-          githubUsername: input.githubUsername,
-          portfolioURL: input.portfolioURL,
-          linkedinURL: input.linkedinURL,
-          imageURL: input.imageURL,
-        })
+        .set(updatedData)
         .where(eq(candidateProfiles.candidateId, input.id));
     }),
 
-  deleteProfile: protectedProcedure
+  deleteMe: protectedProcedure
     .input(z.object({ id: z.string().cuid2() }))
     .mutation(async ({ ctx, input }) => {
       const candidate = await ctx.db.query.candidates.findFirst({
