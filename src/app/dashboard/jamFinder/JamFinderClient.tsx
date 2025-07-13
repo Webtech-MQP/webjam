@@ -19,21 +19,25 @@ import {
 import { Calendar } from "@/components/ui/calendar";
 import { Slider } from "@/components/ui/slider";
 import { useState } from "react";
-import { api, type RouterOutputs } from "@/trpc/react";
+import { api } from "@/trpc/react";
 import { JamCard } from "@/components/jam-card";
-import { format, set } from "date-fns";
+import { SkeletonCard } from "@/components/skeleton-card";
+import { format } from "date-fns";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 const formSchema = z.object({
-  jamName: z.string(),
-  numberOfTeammates: z.array(z.number()).min(1).max(10),
+  jamName: z.string().min(1, "Jam name is required"),
+  numberOfTeammates: z
+    .array(z.number())
+    .min(1, "Number of teammates is required")
+    .max(10),
   dateRange: z.object({
-    from: z.date(),
-    to: z.date(),
+    from: z.date({ required_error: "Date range is required" }),
+    to: z.date({ required_error: "Date range is required" }),
   }),
-  tags: z.set(z.string()).optional(),
+  tags: z.array(z.string()).optional(),
 });
 
 type JamFinderForm = z.infer<typeof formSchema>;
@@ -52,10 +56,10 @@ export default function JamFinderClient() {
       jamName: "",
       numberOfTeammates: [5],
       dateRange: {
-        from: new Date(),
-        to: new Date(),
+        from: undefined,
+        to: undefined,
       },
-      tags: new Set(),
+      tags: [],
     },
   });
 
@@ -69,13 +73,13 @@ export default function JamFinderClient() {
     {
       title: searchParams?.jamName ?? "",
       groupSize: searchParams?.numberOfTeammates[0],
-      startDate: searchParams?.dateRange.from,
-      endDate: searchParams?.dateRange.to,
+      from: searchParams?.dateRange.from,
+      to: searchParams?.dateRange.to,
       tags: searchParams?.tags,
     },
     {
-      enabled: !!searchParams
-    }
+      enabled: !!searchParams,
+    },
   );
 
   const [isSliderOpen, setIsSliderOpen] = useState(false);
@@ -111,7 +115,7 @@ export default function JamFinderClient() {
                     <PopoverTrigger asChild>
                       <Button variant="outline">
                         {field.value
-                          ? `Group size: ${field.value}`
+                          ? `Group size: ${field.value[0]}`
                           : "Group size"}
                         {isSliderOpen ? <ChevronUp /> : <ChevronDown />}
                       </Button>
@@ -145,7 +149,7 @@ export default function JamFinderClient() {
                   >
                     <PopoverTrigger asChild>
                       <Button variant="outline" className="justify-between">
-                        {field.value.to || field.value.from
+                        {field.value.to && field.value.from
                           ? `${format(field.value.from, "MMM dd, yyyy")} – ${format(field.value.to, "MMM dd, yyyy")}`
                           : "Select date range"}
                         {isDatePickerOpen ? <ChevronUp /> : <ChevronDown />}
@@ -188,26 +192,29 @@ export default function JamFinderClient() {
                     </PopoverTrigger>
                     <PopoverContent className="max-h-60 overflow-y-auto">
                       <h5 className="mb-2">Select Tags</h5>
-                      {tagsQuery.map((tag) => (
-                        <Badge
-                          className="mx-0.5 cursor-pointer"
-                          variant={
-                            field.value?.has(tag.id) ? "default" : "outline"
-                          }
-                          key={tag.id}
-                          onClick={() => {
-                            const newTags = new Set(field.value);
-                            if (newTags.has(tag.id)) {
-                              newTags.delete(tag.id);
-                            } else {
-                              newTags.add(tag.id);
-                            }
-                            field.onChange(newTags);
-                          }}
-                        >
-                          {tag.name}
-                        </Badge>
-                      ))}
+                      {tagsQuery.map((tag) => {
+                        const isSelected = field.value?.includes(tag.id);
+                        return (
+                          <Badge
+                            className="mx-0.5 cursor-pointer"
+                            variant={isSelected ? "default" : "outline"}
+                            key={tag.id}
+                            onClick={() => {
+                              let newTags: string[] = [];
+                              if (isSelected) {
+                                newTags = (field.value ?? []).filter(
+                                  (id: string) => id !== tag.id,
+                                );
+                              } else {
+                                newTags = [...(field.value ?? []), tag.id];
+                              }
+                              field.onChange(newTags);
+                            }}
+                          >
+                            {tag.name}
+                          </Badge>
+                        );
+                      })}
                     </PopoverContent>
                   </Popover>
                 </FormControl>
@@ -219,19 +226,30 @@ export default function JamFinderClient() {
         </form>
       </Form>
       <div>
-        {filteredProjectsQuery.isLoading && <div>Loading...</div>}
+        {filteredProjectsQuery.isLoading && (
+          <>
+            <div className="mt-4">Searching for jams...</div>
+            <div className="mt-4 grid grid-cols-1 gap-4 overflow-y-auto md:grid-cols-2 lg:grid-cols-3">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <SkeletonCard key={i} />
+              ))}
+            </div>
+          </>
+        )}
         {filteredProjectsQuery.data && filteredProjectsQuery.data.length > 0 ? (
           <>
-            <div>
+            <div className="mt-4">
               Found {filteredProjectsQuery.data.length}{" "}
               {filteredProjectsQuery.data.length === 1 ? "jam" : "jams"}
             </div>
-            <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+            <div className="mt-4 grid grid-cols-1 gap-4 overflow-y-auto md:grid-cols-2 lg:grid-cols-3">
               {filteredProjectsQuery.data.map((project) => (
                 <JamCard
                   key={project.id}
-                  name={project.title ?? "Untitled Jam"}
-                  numberOfTeammates={project.usersToProjects?.length ?? 0}
+                  name={project.title}
+                  startDate={project.startDate}
+                  endDate={project.endDate}
+                  numberOfTeammates={project.usersToProjects?.length}
                   imageUrl="https://placehold.co/150/png"
                   tags={project.tagsToProjects?.map((tag) => tag.tag) ?? []}
                 />

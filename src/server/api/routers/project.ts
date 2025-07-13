@@ -1,12 +1,11 @@
 import { z } from "zod";
-import { eq, gte, lte } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import {
   createTRPCRouter,
   protectedProcedure,
   publicProcedure,
 } from "@/server/api/trpc";
 import { projects } from "@/server/db/schema";
-import { start } from "repl";
 
 export const projectRouter = createTRPCRouter({
   create: publicProcedure
@@ -92,59 +91,50 @@ export const projectRouter = createTRPCRouter({
     .input(
       z.object({
         title: z.string().min(1).max(255),
-        startDate: z.date().optional(),
-        endDate: z.date().optional(),
+        from: z.date().optional(),
+        to: z.date().optional(),
         groupSize: z.number().optional(),
-        tags: z.set(z.string()).optional(),
+        tags: z.array(z.string()).optional(),
       }),
     )
     .query(async ({ ctx, input }) => {
-      return ctx.db.query.projects
-        .findMany({
-          where: (projects, { and, gte, lte, eq, like }) => {
-            const conditions = [like(projects.title, `%${input.title}%`)];
-            if (input.startDate) {
-              conditions.push(gte(projects.startDate, input.startDate));
-            }
-            if (input.endDate) {
-              conditions.push(lte(projects.endDate, input.endDate));
-            }
-            if (input.groupSize) {
-              conditions.push(eq(projects.groupSize, input.groupSize));
-            }
-            return and(...conditions);
-          },
-          with: {
-            usersToProjects: {
-              with: {
-                user: true,
-              },
-            },
-            tagsToProjects: {
-              with: {
-                tag: true,
-              },
-            },
-            ratings: {
-              with: {
-                user: true,
-              },
-            },
-          },
-        })
-        .then((projects) => {
-          if (input.tags && input.tags.size > 0) {
-            // Only return projects that have all selected tags
-            return projects.filter((project) => {
-              const projectTagIds = new Set(
-                project.tagsToProjects?.map((t) => t.tag.id) ?? [],
-              );
-              return Array.from(input.tags!).every((tagId) =>
-                projectTagIds.has(tagId),
-              );
-            });
+      const q = await ctx.db.query.projects.findMany({
+        where: (projects, { and, gte, lte, eq, like }) => {
+          const conditions = [like(projects.title, `%${input.title}%`)];
+          if (input.from) {
+            conditions.push(gte(projects.startDate, input.from));
           }
-          return projects;
-        });
+          if (input.to) {
+            conditions.push(lte(projects.startDate, input.to));
+          }
+          if (input.groupSize) {
+            conditions.push(eq(projects.groupSize, input.groupSize));
+          }
+          return and(...conditions);
+        },
+        with: {
+          usersToProjects: {
+            with: {
+              user: true,
+            },
+          },
+          tagsToProjects: {
+            with: {
+              tag: true,
+            },
+          },
+          ratings: {
+            with: {
+              user: true,
+            },
+          },
+        },
+      });
+
+      return q.filter((p) => {
+        if (!input.tags || input.tags.length === 0) return true;
+        const projectTagIds = p.tagsToProjects.map((tp) => tp.tag.id);
+        return input.tags.every((tagId) => projectTagIds.includes(tagId));
+      });
     }),
 });

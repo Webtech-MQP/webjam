@@ -40,8 +40,6 @@ export function Sidebar() {
   const { data: session, status } = useSession();
   const [profileOpen, setProfileOpen] = useState(false);
 
-  console.log(session?.user.image);
-
   const closestMatch = useCallback(() => {
     return ROUTES.reduce(
       (a, b) => {
