@@ -10,11 +10,17 @@ type Props = {
 };
 
 export default async function Page({ params }: Props) {
-  const userId = (await params).userId;
+  const userId = decodeURIComponent((await params).userId);
 
-  const user = await api.users.getOne({ id: userId });
+  console.log(userId);
 
-  if (!user) {
+  const candidate = await api.candidates.getOne(
+    userId.startsWith("@")
+      ? { githubUsername: userId.slice(1) }
+      : { id: userId },
+  );
+
+  if (!candidate) {
     return <div>User not found</div>;
   }
 
@@ -29,19 +35,19 @@ export default async function Page({ params }: Props) {
           <div className="z-30 -mt-30">
             {/* Profile Picture */}
             <Image
-              src="https://placehold.co/100.png"
+              src={candidate.imageURL ?? "https://placehold.co/100.png"}
               className="relative z-20 box-content rounded-xl border-6 border-(--color-background)"
               alt="Profile picture"
               height={100}
               width={100}
             />
-            {/* <h1 className="mt-2">{user.name}</h1> */}
-            {/* <p>{user.candidate?.bio}</p> */}
+            <h1 className="mt-2">{candidate.displayName}</h1>
+            <p>{candidate.bio}</p>
           </div>
           <div>
             <h2>Jams</h2>
             <div className="grid">
-              {/* {user.candidate?.candidatesToProjects.map((p) => p.project.title)} */}
+              {candidate.projects.map((p) => p.project.title)}
             </div>
           </div>
         </div>

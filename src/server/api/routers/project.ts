@@ -5,7 +5,7 @@ import {
   protectedProcedure,
   publicProcedure,
 } from "@/server/api/trpc";
-import { candidatesToProjects, projects, candidateProfilesToProjects, tags } from "@/server/db/schemas/projects";
+import { projects, tags } from "@/server/db/schemas/projects";
 
 export const projectRouter = createTRPCRouter({
   create: protectedProcedure
@@ -23,15 +23,6 @@ export const projectRouter = createTRPCRouter({
       return ctx.db.query.projects.findFirst({
         where: (projects, { eq }) => eq(projects.id, input.id),
         with: {
-          candidatesToProjects: {
-            with: {
-              candidate: {
-                with: {
-                  user: true,
-                },
-              },
-            },
-          },
           candidateProfilesToProjects: {
             with: {
               candidateProfile: true,
@@ -45,13 +36,6 @@ export const projectRouter = createTRPCRouter({
   getAll: publicProcedure.query(async ({ ctx }) => {
     return ctx.db.query.projects.findMany({
       with: {
-        candidatesToProjects: {
-          with: {
-            candidate: {
-              with: { user: true },
-            },
-          },
-        },
         candidateProfilesToProjects: {
           with: {
             candidateProfile: true,
@@ -117,5 +101,4 @@ export const projectRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       return ctx.db.delete(tags).where(eq(tags.id, input.id));
     }),
-
 });

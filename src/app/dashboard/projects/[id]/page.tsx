@@ -31,7 +31,7 @@ export default async function Page({
         <h1>{project.title}</h1>
         <div className="flex gap-2">
           <Badge className="bg-indigo-500">
-            <Users /> {project.candidatesToProjects.length} members
+            <Users /> {project.candidateProfilesToProjects.length} members
           </Badge>
           <Badge className="bg-indigo-500">
             <Clock /> {project.deadline?.toLocaleDateString()}
