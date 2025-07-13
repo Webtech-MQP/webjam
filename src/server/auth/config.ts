@@ -3,7 +3,7 @@ import { type DefaultSession, type NextAuthConfig } from "next-auth";
 import GithubProvider from "next-auth/providers/github";
 
 import { db } from "@/server/db";
-import { admins, users } from "@/server/db/schemas/users";
+import { users } from "@/server/db/schemas/users";
 import {
   accounts,
   sessions,
@@ -25,10 +25,6 @@ declare module "next-auth" {
       // ...other properties
       // role: UserRole;
     } & DefaultSession["user"];
-  }
-
-  interface User {
-    isAdmin: boolean;
   }
 }
 
@@ -71,18 +67,11 @@ export const authConfig = {
   }),
   callbacks: {
     session: async ({ session, user }) => {
-      const isAdmin = await db
-        .select()
-        .from(users)
-        .where(eq(users.id, user.id))
-        .innerJoin(admins, eq(users.id, admins.userId));
-
       return {
         ...session,
         user: {
           ...session.user,
           id: user.id,
-          isAdmin: isAdmin.length > 0,
         },
       };
     },

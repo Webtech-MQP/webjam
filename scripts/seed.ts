@@ -12,57 +12,46 @@ async function main() {
   console.log("Seeding users...");
   const userBrian = {
     id: createId(),
-    firstName: "Brian",
-    middleName: "",
-    lastName: "Smith",
+    name: "Brian Smith",
     email: "brian@example.com",
     role: "candidate" as userRoles,
+    githubUsername: "brianhub",
   };
   const userTyler = {
     id: createId(),
-    firstName: "Tyler",
-    middleName: "",
-    lastName: "Jones",
+    name: "Tyler Jones",
     email: "tyler@example.com",
     role: "candidate" as userRoles,
+    githubUsername: "laidofftyler",
   };
   const userJohnny = {
     id: createId(),
-    firstName: "Johnny",
-    middleName: "",
-    lastName: "Lee",
+    name: "Johnny Lee",
     email: "johnny@example.com",
     role: "candidate" as userRoles,
+    githubUsername: "johnnycodes",
   };
   const userSally = {
     id: createId(),
-    firstName: "Sally",
-    middleName: "",
-    lastName: "Sushi",
+    name: "Sally Sushi",
     email: "sally@recruit.com",
     role: "recruiter" as userRoles,
   };
   const userAce = {
     id: createId(),
-    firstName: "Ace",
-    middleName: "",
-    lastName: "Beattie",
+    name: "Ace Beattie",
     email: "ace@admin.com",
     role: "admin" as userRoles,
   };
   const userMattH = {
     id: createId(),
-    firstName: "Matt",
-    middleName: "",
-    lastName: "Hagger",
+    name: "Matt Hagger",
     email: "matt@admin.com",
     role: "admin" as userRoles,
   };
   const userMatthew = {
     id: createId(),
-    firstName: "Matthew",
-    middleName: "",
-    lastName: "Franco",
+    name: "Matthew Franco",
     email: "matthewF@admin.com",
     role: "admin" as userRoles,
   };
@@ -71,53 +60,39 @@ async function main() {
     .values([userBrian, userTyler, userJohnny, userSally, userAce, userMattH, userMatthew]);
   console.log("Users seeded!");
 
-  console.log("Seeding candidates...");
-  await db.insert(schema1.candidates).values([
-    {
-      userId: userBrian.id,
-      location: "Boston",
-      resumeURL: "https://brian.dev/resume.pdf",
-    },
-    {
-      userId: userTyler.id,
-      location: "San Francisco",
-      resumeURL: "https://tyler.dev/resume.pdf",
-    },
-    {
-      userId: userJohnny.id,
-      location: "An Avg College",
-      resumeURL: "https://johnny.dev/resume.pdf",
-    },
-  ]);
-  console.log("Candidates seeded!");
-
   console.log("Seeding candidate profiles...");
   await db.insert(schema1.candidateProfiles).values([
     {
-      candidateId: userBrian.id,
+      userId: userBrian.id,
       displayName: "Brian Smith",
-      bio: "Brian is a newly graduated computer science major who is struggling to find a job. He applies to many big tech companies and is actively on linkedin. He doesn’t have any commitments going on except for applying for jobs, though his parents are getting tired of him living in the basement.",
+      bio: "Brian is a newly graduated computer science major who is struggling to find a job. He applies to many big tech companies and is actively on linkedin. He doesn't have any commitments going on except for applying for jobs, though his parents are getting tired of him living in the basement.",
       experience: "0 years",
+      location: "Boston",
+      resumeURL: "https://brian.dev/resume.pdf",
       githubUsername: "brianhub",
       portfolioURL: "https://brian.dev",
       linkedinURL: "https://linkedin.com/in/brian",
       imageURL: "https://placehold.co/100.png",
     },
     {
-      candidateId: userTyler.id,
+      userId: userTyler.id,
       displayName: "Tyler Jones",
       bio: "Tyler got a cushy high-paying tech job fresh out of school. They were running smooth in their career, working on mid-size web projects with a high-performing team. A year ago, Tyler lost his job when the mass-layoffs hit. He took it as a good opportunity to travel for a few months, but its now time to get back to the real-world. He has 1 young kid to take care of during the day while his SO is at work.",
       experience: "5 years",
+      location: "San Francisco",
+      resumeURL: "https://tyler.dev/resume.pdf",
       githubUsername: "laidofftyler",
       portfolioURL: "https://tyler.dev",
       linkedinURL: "https://linkedin.com/in/tyler",
       imageURL: "https://placehold.co/100.png",
     },
     {
-      candidateId: userJohnny.id,
+      userId: userJohnny.id,
       displayName: "Johnny Lee",
-      bio: "Johnny is a Junior at Wong Institute of Technology. He is very passionate about coding and is hopeful for a successful career post-graduation, though is sometimes worried about the job market from what he sees online. He is taking a full-time course load and only has a couple hours in the evening or on weekends to work on personal projects. He isn’t very confident in his coding ability, despite being a high academic performer",
+      bio: "Johnny is a Junior at Wong Institute of Technology. He is very passionate about coding and is hopeful for a successful career post-graduation, though is sometimes worried about the job market from what he sees online. He is taking a full-time course load and only has a couple hours in the evening or on weekends to work on personal projects. He isn't very confident in his coding ability, despite being a high academic performer",
       experience: "0 years",
+      location: "An Avg College",
+      resumeURL: "https://johnny.dev/resume.pdf",
       githubUsername: "johnnycodes",
       portfolioURL: "https://johnny.dev",
       linkedinURL: "https://linkedin.com/in/johnny",
@@ -126,21 +101,13 @@ async function main() {
   ]);
   console.log("Candidate profiles seeded!");
 
-  console.log("Seeding recruiters...");
-  await db.insert(schema1.recruiters).values([
-    {
-      userId: userSally.id,
-      companyName: "SushiRecruit Inc.",
-    },
-  ]);
-  console.log("Recruiters seeded!");
-
   console.log("Seeding recruiter profiles...");
   await db.insert(schema1.recruiterProfiles).values([
     {
-      recruiterId: userSally.id,
+      userId: userSally.id,
       displayName: "Sally Sushi",
       companyName: "SushiRecruit Inc.",
+      location: "New York",
       bio: "Connecting top tech talent with innovative companies.",
       companyWebsite: "https://sushiInc.com",
       linkedinURL: "https://linkedin.com/in/sallysushi",
@@ -150,49 +117,35 @@ async function main() {
   ]);
   console.log("Recruiter profiles seeded!");
 
-  console.log("Seeding admin...");
+  console.log("Seeding admin profiles...");
   type adminRoles = 'Reg' | 'Mod' | 'Super' | 'idk';
-  await db.insert(schema1.admins).values([
+  await db.insert(schema1.adminProfiles).values([
     {
       userId: userAce.id,
-      role: "super" as adminRoles,
+      displayName: "Ace Beattie",
+      adminRole: "Super" as adminRoles,
+      bio: "",
+      imageURL: "https://placehold.co/100.png",
+      contactEmail: "ace@contactadmin.com",
     },
     {
       userId: userMattH.id,
-      role: "super" as adminRoles,
+      displayName: "Matt Hagger",
+      adminRole: "Super" as adminRoles,
+      bio: "",
+      imageURL: "https://placehold.co/100.png",
+      contactEmail: "matt@contactadmin.com",
     },
     {
       userId: userMatthew.id,
-      role: "super" as adminRoles,
+      displayName: "Matthew Franco",
+      adminRole: "Super" as adminRoles,
+      bio: "",
+      imageURL: "https://placehold.co/100.png",
+      contactEmail: "matthewF@contactadmin.com",
     },
   ]);
-  console.log("Admin seeded!");
-
-  console.log("Seeding admin profiles...");
-await db.insert(schema1.adminProfiles).values([
-  {
-    adminId: userAce.id,
-    displayName: "Ace Beattie",
-    bio: "",
-    imageURL: "https://placehold.co/100.png",
-    contactEmail: "ace@contactadmin.com",
-  },
-  {
-    adminId: userMattH.id,
-    displayName: "Matt Hagger",
-    bio: "",
-    imageURL: "https://placehold.co/100.png",
-    contactEmail: "matt@contactadmin.com",
-  },
-  {
-    adminId: userMatthew.id,
-    displayName: "Matthew Franco",
-    bio: "",
-    imageURL: "https://placehold.co/100.png",
-    contactEmail: "matthewF@contactadmin.com",
-  },
-]);
-console.log("Admin profiles seeded!");
+  console.log("Admin profiles seeded!");
 
   console.log("Seeding recruiter list...");
   await db.insert(schema1.recruitersToCandidates).values([
@@ -223,7 +176,7 @@ console.log("Admin profiles seeded!");
       "Full-stack implementation (frontend, backend, database)\n" +
       "Support for creating, editing, and managing tasks\n" +
       "Some form of prioritization or workflow structure\n" +
-      "A clearly explained “rethinking” approach: what makes your app different",
+      "A clearly explained \"rethinking\" approach: what makes your app different",
     imageURL: "https://placehold.co/1080x1920.png",
     status: "upcoming" as  "in-progress" | "completed" | "upcoming",
     deadline: new Date("2025-11-17T00:00:00Z"),
@@ -253,13 +206,6 @@ console.log("Admin profiles seeded!");
   ]);
   console.log("Project-tag links seeded!");
 
-  // console.log("Seeding project candidates...");
-  // await db.insert(schema2.candidatesToProjects).values([
-  //   { projectId, candidateId: userBrian.id },
-  //   { projectId, candidateId: userTyler.id },
-  // ]);
-  // console.log("Project candidates seeded!");
-
   console.log("Seeding project candidate profiles...");
   await db.insert(schema2.candidateProfilesToProjects).values([
     { projectId, candidateId: userBrian.id },
@@ -267,8 +213,9 @@ console.log("Admin profiles seeded!");
   ]);
   console.log("Project candidate profiles seeded!");
 }
-await main().then(() => console.log("DB successfully seeded!"));
 
-main().catch((err) => {
-  console.error("Error while seeding:", err);
-});
+main()
+  .then(() => console.log("DB successfully seeded!"))
+  .catch((err) => {
+    console.error("Error while seeding:", err);
+  });

@@ -1,22 +1,31 @@
 import { z } from "zod";
 import { eq } from "drizzle-orm";
-import { createTRPCRouter, publicProcedure, adminProcedure, protectedProcedure } from "@/server/api/trpc";
-import { candidates, candidateProfiles } from "@/server/db/schemas/users";
-import { projects } from "@/server/db/schemas/projects";
+import {
+  createTRPCRouter,
+  publicProcedure,
+  adminProcedure,
+  protectedProcedure,
+} from "@/server/api/trpc";
+import {
+  candidateProfiles,
+  users,
+} from "@/server/db/schemas/users";
 import { TRPCError } from "@trpc/server";
 
 export const candidateRouter = createTRPCRouter({
-
   getOne: publicProcedure
     .input(z.object({ id: z.string().cuid2() }))
     .query(async ({ ctx, input }) => {
-      return ctx.db.query.candidates.findFirst({
-        where: (candidates, { eq }) => eq(candidates.userId, input.id),
+      return ctx.db.query.candidateProfiles.findFirst({
+        where: (candidateProfiles, { eq }) => eq(candidateProfiles.userId, input.id),
+        with: {
+          user: true,
+        },
       });
     }),
 
   getAll: publicProcedure.query(async ({ ctx }) => {
-    return ctx.db.query.candidates.findMany({
+    return ctx.db.query.candidateProfiles.findMany({
       with: {
         user: true,
       },
@@ -25,36 +34,91 @@ export const candidateRouter = createTRPCRouter({
 
   updateOne: adminProcedure
     .input(
-      z.object({ id: z.string().cuid2(), location: z.string(), language: z.string(), resumeURL: z.string() }),
+      z.object({
+        id: z.string().cuid2(),
+        location: z.string().optional(),
+        language: z.string().optional(),
+        resumeURL: z.string().optional(),
+        displayName: z.string().optional(),
+        bio: z.string().optional(),
+        experience: z.string().optional(),
+        githubUsername: z.string().optional(),
+        portfolioURL: z.string().optional(),
+        linkedinURL: z.string().optional(),
+        imageURL: z.string().optional(),
+      }),
     )
     .mutation(async ({ ctx, input }) => {
+      const updatedData = Object.fromEntries(
+        Object.entries(input).filter(
+          ([key, value]) => key !== "id" && value !== undefined,
+        ),
+      );
       return ctx.db
-        .update(candidates)
-        .set({ location: input.location, language: input.language, resumeURL: input.resumeURL })
-        .where(eq(candidates.userId, input.id));
+        .update(candidateProfiles)
+        .set(updatedData)
+        .where(eq(candidateProfiles.userId, input.id));
     }),
 
   deleteOne: adminProcedure
     .input(z.object({ id: z.string().cuid2() }))
     .mutation(async ({ ctx, input }) => {
-      return ctx.db.delete(candidates).where(eq(candidates.userId, input.id));
+      return ctx.db.delete(candidateProfiles).where(eq(candidateProfiles.userId, input.id));
     }),
 
   deleteAll: adminProcedure.mutation(async ({ ctx }) => {
     // eslint-disable-next-line drizzle/enforce-delete-with-where
-    return ctx.db.delete(candidates);
+    return ctx.db.delete(candidateProfiles);
   }),
 
   getProfile: publicProcedure
-    .input(z.object({ id: z.string().cuid2() }))
+    .input(
+      z.union([
+        z.object({ id: z.string().cuid2() }),
+        z.object({ githubUsername: z.string() }),
+      ]),
+    )
     .query(async ({ ctx, input }) => {
-      return ctx.db.query.candidateProfiles.findFirst({
-        where: (profile, { eq }) => eq(profile.candidateId, input.id),
-      });
+      if ("id" in input) {
+        return ctx.db.query.candidateProfiles.findFirst({
+          where: (candidateProfiles, { eq }) => eq(candidateProfiles.userId, input.id),
+          with: {
+            user: true,
+            projects: {
+              with: {
+                project: true,
+              },
+            },
+          },
+        });
+      } else {
+        // Search by githubUsername - first find user, then get their profile
+        const user = await ctx.db.query.users.findFirst({
+          where: (users, { eq }) => eq(users.githubUsername, input.githubUsername),
+        });
+
+        if (!user) return null;
+
+        return ctx.db.query.candidateProfiles.findFirst({
+          where: (candidateProfiles, { eq }) => eq(candidateProfiles.userId, user.id),
+          with: {
+            user: true,
+            projects: {
+              with: {
+                project: true,
+              },
+            },
+          },
+        });
+      }
     }),
 
   getAllProfiles: publicProcedure.query(async ({ ctx }) => {
-    return ctx.db.query.candidateProfiles.findMany();
+    return ctx.db.query.candidateProfiles.findMany({
+      with: {
+        user: true,
+      },
+    });
   }),
 
   updateProfile: protectedProcedure
@@ -64,40 +128,45 @@ export const candidateRouter = createTRPCRouter({
         displayName: z.string().optional(),
         bio: z.string().optional(),
         experience: z.string().optional(),
+        location: z.string().optional(),
+        language: z.string().optional(),
+        resumeURL: z.string().optional(),
         githubUsername: z.string().optional(),
         portfolioURL: z.string().optional(),
         linkedinURL: z.string().optional(),
         imageURL: z.string().optional(),
-      })
+      }),
     )
     .mutation(async ({ ctx, input }) => {
-      const candidate = await ctx.db.query.candidates.findFirst({
-        where: (candidates, { eq }) => eq(candidates.userId, input.id),
+      const candidateProfile = await ctx.db.query.candidateProfiles.findFirst({
+        where: (candidateProfiles, { eq }) => eq(candidateProfiles.userId, input.id),
       });
-      if (!candidate || candidate.userId !== ctx.session.user.id) {
+      if (!candidateProfile || candidateProfile.userId !== ctx.session.user.id) {
         throw new TRPCError({ code: "FORBIDDEN", message: "Not your profile" });
       }
       const updatedData = Object.fromEntries(
         Object.entries(input).filter(
-          ([key, value]) => key !== "id" && value !== undefined
-        )
+          ([key, value]) => key !== "id" && value !== undefined,
+        ),
       );
       return ctx.db
         .update(candidateProfiles)
         .set(updatedData)
-        .where(eq(candidateProfiles.candidateId, input.id));
+        .where(eq(candidateProfiles.userId, input.id));
     }),
 
   deleteMe: protectedProcedure
     .input(z.object({ id: z.string().cuid2() }))
     .mutation(async ({ ctx, input }) => {
-      const candidate = await ctx.db.query.candidates.findFirst({
-        where: (candidates, { eq }) => eq(candidates.userId, input.id),
+      const candidateProfile = await ctx.db.query.candidateProfiles.findFirst({
+        where: (candidateProfiles, { eq }) => eq(candidateProfiles.userId, input.id),
       });
-      if (!candidate || candidate.userId !== ctx.session.user.id) {
+      if (!candidateProfile || candidateProfile.userId !== ctx.session.user.id) {
         throw new TRPCError({ code: "FORBIDDEN", message: "Not your profile" });
       }
-      return ctx.db.delete(candidateProfiles).where(eq(candidateProfiles.candidateId, input.id));
+      return ctx.db
+        .delete(candidateProfiles)
+        .where(eq(candidateProfiles.userId, input.id));
     }),
 });
 

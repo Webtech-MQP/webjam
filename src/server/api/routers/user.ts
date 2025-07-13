@@ -6,7 +6,7 @@ import {
   protectedProcedure,
   publicProcedure,
 } from "@/server/api/trpc";
-import { users } from "@/server/db/schemas/users";
+import { adminProfiles, users } from "@/server/db/schemas/users";
 
 export const userRouter = createTRPCRouter({
   create: publicProcedure
@@ -39,31 +39,19 @@ export const userRouter = createTRPCRouter({
             ? (users, { eq }) => eq(users.id, input.id)
             : (users, { eq }) => eq(users.githubUsername, input.githubUsername),
         with: {
-          candidate: {
+          candidateProfile: {
             with: {
-              candidatesToProjects: {
-                with: {
-                  project: true,
-                },
-              },
+              projects: true,
             },
           },
-          admin: true,
-          recruiter: true,
+          adminProfile: true,
+          recruiterProfile: true,
         },
       });
     }),
 
   getUsers: publicProcedure.query(async ({ ctx }) => {
     return ctx.db.query.users.findMany({});
-  }),
-
-  getCandidates: publicProcedure.query(async ({ ctx }) => {
-    return ctx.db.query.candidates.findMany({
-      with: {
-        user: true,
-      },
-    });
   }),
 
   updateOne: adminProcedure
@@ -93,6 +81,18 @@ export const userRouter = createTRPCRouter({
   deleteAll: adminProcedure.mutation(async ({ ctx }) => {
     // eslint-disable-next-line drizzle/enforce-delete-with-where
     return ctx.db.delete(users);
+  }),
+
+  isAdmin: protectedProcedure.query(async ({ ctx }) => {
+    const isAdmin = !!(
+      await ctx.db
+        .select()
+        .from(users)
+        .innerJoin(adminProfiles, eq(users.id, adminProfiles.userId))
+        .where(eq(users.id, ctx.session.user.id))
+        .limit(1)
+    )[0];
+    return isAdmin;
   }),
 });
 
