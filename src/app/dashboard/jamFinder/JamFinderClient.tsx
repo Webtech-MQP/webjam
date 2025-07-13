@@ -3,7 +3,7 @@
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Sliders, ChevronDown, ChevronUp } from "lucide-react";
+import { Sliders, ChevronDown, ChevronUp, Search } from "lucide-react";
 import {
   Popover,
   PopoverTrigger,
@@ -31,11 +31,11 @@ const formSchema = z.object({
   jamName: z.string().min(1, "Jam name is required"),
   numberOfTeammates: z
     .array(z.number())
-    .min(1, "Number of teammates is required")
+    .min(1)
     .max(10),
   dateRange: z.object({
-    from: z.date({ required_error: "Date range is required" }),
-    to: z.date({ required_error: "Date range is required" }),
+    from: z.date(),
+    to: z.date(),
   }),
   tags: z.array(z.string()).optional(),
 });
@@ -54,7 +54,7 @@ export default function JamFinderClient() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       jamName: "",
-      numberOfTeammates: [5],
+      numberOfTeammates: [0],
       dateRange: {
         from: undefined,
         to: undefined,
@@ -64,6 +64,8 @@ export default function JamFinderClient() {
   });
 
   const [searchParams, setSearchParams] = useState<JamFinderForm | null>(null);
+  const [isSliderOpen, setIsSliderOpen] = useState(false);
+  const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
 
   function handleSubmit(values: JamFinderForm) {
     setSearchParams(values);
@@ -73,8 +75,8 @@ export default function JamFinderClient() {
     {
       title: searchParams?.jamName ?? "",
       groupSize: searchParams?.numberOfTeammates[0],
-      from: searchParams?.dateRange.from,
-      to: searchParams?.dateRange.to,
+      from: searchParams?.dateRange?.from,
+      to: searchParams?.dateRange?.to,
       tags: searchParams?.tags,
     },
     {
@@ -82,22 +84,22 @@ export default function JamFinderClient() {
     },
   );
 
-  const [isSliderOpen, setIsSliderOpen] = useState(false);
-  const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
+  const projectsQuery = api.projects.getAll.useQuery();
+  const projects = projectsQuery.data;
 
   return (
-    <>
+    <div className="flex h-full flex-col">
       <h1 className="mb-2">WebJam Finder</h1>
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(handleSubmit)}
-          className="flex w-full gap-3"
+          className="flex w-full flex-wrap gap-3"
         >
           <FormField
             control={form.control}
             name="jamName"
             render={({ field }) => (
-              <FormItem>
+              <FormItem className="w-84">
                 <FormControl>
                   <Input placeholder="Enter a jam name" {...field} />
                 </FormControl>
@@ -113,19 +115,21 @@ export default function JamFinderClient() {
                 <FormControl>
                   <Popover open={isSliderOpen} onOpenChange={setIsSliderOpen}>
                     <PopoverTrigger asChild>
-                      <Button variant="outline">
-                        {field.value
-                          ? `Group size: ${field.value[0]}`
-                          : "Group size"}
+                      <Button
+                        variant="outline"
+                        className="w-40 truncate flex justify-between items-center"
+                      >
+                        <span className="truncate">
+                          {field.value
+                            ? `Group size: ${field.value[0]}`
+                            : "Group size"}
+                        </span>
                         {isSliderOpen ? <ChevronUp /> : <ChevronDown />}
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent>
-                      <div className="mb-2">
-                        Number of teammates: {field.value}
-                      </div>
                       <Slider
-                        defaultValue={field.value ?? [5]}
+                        defaultValue={field.value}
                         max={10}
                         step={1}
                         onValueChange={field.onChange}
@@ -148,10 +152,15 @@ export default function JamFinderClient() {
                     onOpenChange={setIsDatePickerOpen}
                   >
                     <PopoverTrigger asChild>
-                      <Button variant="outline" className="justify-between">
-                        {field.value.to && field.value.from
-                          ? `${format(field.value.from, "MMM dd, yyyy")} – ${format(field.value.to, "MMM dd, yyyy")}`
-                          : "Select date range"}
+                      <Button
+                        variant="outline"
+                        className="w-58 truncate flex justify-between items-center"
+                      >
+                        <span className="truncate">
+                          {field.value?.to && field.value.from
+                            ? `${format(field.value.from, "MMM dd, yyyy")} – ${format(field.value.to, "MMM dd, yyyy")}`
+                            : "Select start date range"}
+                        </span>
                         {isDatePickerOpen ? <ChevronUp /> : <ChevronDown />}
                       </Button>
                     </PopoverTrigger>
@@ -222,47 +231,79 @@ export default function JamFinderClient() {
               </FormItem>
             )}
           />
-          <Button type="submit">Search</Button>
+          <Button type="submit">Search <Search /></Button>
         </form>
       </Form>
-      <div>
-        {filteredProjectsQuery.isLoading && (
-          <>
-            <div className="mt-4">Searching for jams...</div>
-            <div className="mt-4 grid grid-cols-1 gap-4 overflow-y-auto md:grid-cols-2 lg:grid-cols-3">
-              {Array.from({ length: 6 }).map((_, i) => (
-                <SkeletonCard key={i} />
-              ))}
+      <div className="mt-4 -mb-6 flex-1">
+        {projectsQuery.isLoading && !searchParams && (
+          <div className="relative h-full">
+            <div className="absolute inset-0 overflow-y-auto pb-6">
+              <div className="grid grid-cols-1 gap-4 overflow-y-auto md:grid-cols-2 lg:grid-cols-3">
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <SkeletonCard key={i} />
+                ))}
+              </div>
             </div>
-          </>
+          </div>
+        )}
+        {!searchParams &&  (
+          <div className="relative h-full">
+            <div className="absolute inset-0 overflow-y-auto pb-6">
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+                {projects?.map((project) => (
+                  <JamCard
+                    key={project.id}
+                    name={project.title}
+                    startDate={project.startDate}
+                    endDate={project.endDate}
+                    numberOfTeammates={project.usersToProjects?.length}
+                    imageUrl="https://placehold.co/150/png"
+                    tags={project.tagsToProjects?.map((tag) => tag.tag) ?? []}
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+        {filteredProjectsQuery.isLoading && (
+          <div className="relative h-full">
+            <div className="absolute inset-0 overflow-y-auto pb-6">
+              <div>Searching for jams...</div>
+              <div className="mt-4 grid grid-cols-1 gap-4 overflow-y-auto md:grid-cols-2 lg:grid-cols-3">
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <SkeletonCard key={i} />
+                ))}
+              </div>
+            </div>
+          </div>
         )}
         {filteredProjectsQuery.data && filteredProjectsQuery.data.length > 0 ? (
-          <>
-            <div className="mt-4">
-              Found {filteredProjectsQuery.data.length}{" "}
-              {filteredProjectsQuery.data.length === 1 ? "jam" : "jams"}
+          <div className="relative h-full">
+            <div className="absolute inset-0 overflow-y-auto pb-6">
+              <div>
+                Found {filteredProjectsQuery.data.length}{" "}
+                {filteredProjectsQuery.data.length === 1 ? "jam" : "jams"}
+              </div>
+              <div className="mt-4 grid grid-cols-1 gap-4 overflow-y-auto md:grid-cols-2 lg:grid-cols-3">
+                {filteredProjectsQuery.data.map((project) => (
+                  <JamCard
+                    key={project.id}
+                    name={project.title}
+                    startDate={project.startDate}
+                    endDate={project.endDate}
+                    numberOfTeammates={project.usersToProjects?.length}
+                    imageUrl="https://placehold.co/150/png"
+                    tags={project.tagsToProjects?.map((tag) => tag.tag) ?? []}
+                  />
+                ))}
+              </div>
             </div>
-            <div className="mt-4 grid grid-cols-1 gap-4 overflow-y-auto md:grid-cols-2 lg:grid-cols-3">
-              {filteredProjectsQuery.data.map((project) => (
-                <JamCard
-                  key={project.id}
-                  name={project.title}
-                  startDate={project.startDate}
-                  endDate={project.endDate}
-                  numberOfTeammates={project.usersToProjects?.length}
-                  imageUrl="https://placehold.co/150/png"
-                  tags={project.tagsToProjects?.map((tag) => tag.tag) ?? []}
-                />
-              ))}
-            </div>
-          </>
+          </div>
         ) : (
           searchParams &&
-          !filteredProjectsQuery.isLoading && (
-            <div className="mt-4">No matching jams found.</div>
-          )
+          !filteredProjectsQuery.isLoading && <div>No matching jams found.</div>
         )}
       </div>
-    </>
+    </div>
   );
 }
