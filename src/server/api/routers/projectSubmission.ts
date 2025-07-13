@@ -4,7 +4,7 @@ import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
 import { projectSubmissions } from "@/server/db/schemas/projects";
 
 
-export const projsubRouter = createTRPCRouter({
+export const projectSubmissionRouter = createTRPCRouter({
 
   getOne: publicProcedure
     .input(z.object({ id: z.string().uuid() }))
@@ -45,4 +45,4 @@ export const projsubRouter = createTRPCRouter({
   }),
 });
 
-export default projsubRouter;
+export default projectSubmissionRouter;
