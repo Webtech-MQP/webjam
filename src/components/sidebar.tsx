@@ -1,7 +1,15 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { Home, Folders, ChevronUp, ChevronDown, LogOut } from "lucide-react";
+import {
+  Home,
+  Folders,
+  ChevronUp,
+  ChevronDown,
+  Settings,
+  LogOut,
+  Search,
+} from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCallback } from "react";
@@ -22,14 +30,17 @@ const ROUTES = [
     href: "/dashboard/projects",
     icon: Folders,
   },
+  {
+    name: "Find a Jam",
+    href: "/dashboard/jamFinder",
+    icon: Search,
+  },
 ];
 
 export function Sidebar() {
   const path = usePathname();
   const { data: session, status } = useSession();
   const [profileOpen, setProfileOpen] = useState(false);
-
-  console.log(session?.user.image);
 
   const closestMatch = useCallback(() => {
     return ROUTES.reduce(

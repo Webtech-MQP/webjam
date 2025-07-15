@@ -2,13 +2,13 @@ import { drizzle } from "drizzle-orm/libsql";
 import { createId } from "@paralleldrive/cuid2";
 import * as schema1 from "@/server/db/schemas/users";
 import * as schema2 from "@/server/db/schemas/projects";
-import { reset} from "drizzle-seed";
+import { reset } from "drizzle-seed";
 
 async function main() {
   const db = drizzle(process.env.DATABASE_URL!);
   await reset(db, schema1);
   await reset(db, schema2);
-  type userRoles = 'candidate' | 'recruiter' | 'admin';
+  type userRoles = "candidate" | "recruiter" | "admin";
   console.log("Seeding users...");
   const userBrian = {
     id: createId(),
@@ -57,7 +57,15 @@ async function main() {
   };
   await db
     .insert(schema1.users)
-    .values([userBrian, userTyler, userJohnny, userSally, userAce, userMattH, userMatthew]);
+    .values([
+      userBrian,
+      userTyler,
+      userJohnny,
+      userSally,
+      userAce,
+      userMattH,
+      userMatthew,
+    ]);
   console.log("Users seeded!");
 
   console.log("Seeding candidate profiles...");
@@ -118,7 +126,7 @@ async function main() {
   console.log("Recruiter profiles seeded!");
 
   console.log("Seeding admin profiles...");
-  type adminRoles = 'Reg' | 'Mod' | 'Super' | 'idk';
+  type adminRoles = "Reg" | "Mod" | "Super" | "idk";
   await db.insert(schema1.adminProfiles).values([
     {
       userId: userAce.id,
@@ -176,9 +184,9 @@ async function main() {
       "Full-stack implementation (frontend, backend, database)\n" +
       "Support for creating, editing, and managing tasks\n" +
       "Some form of prioritization or workflow structure\n" +
-      "A clearly explained \"rethinking\" approach: what makes your app different",
+      'A clearly explained "rethinking" approach: what makes your app different',
     imageURL: "https://placehold.co/1080x1920.png",
-    status: "upcoming" as  "in-progress" | "completed" | "upcoming",
+    status: "upcoming" as "in-progress" | "completed" | "upcoming",
     deadline: new Date("2025-11-17T00:00:00Z"),
     startDateTime: new Date("2025-08-17T00:00:00Z"),
     endDateTime: new Date("2025-11-24T00:00:00Z"),
@@ -194,7 +202,9 @@ async function main() {
   const tagUIDesign = { id: createId(), name: "UI Design" };
   const tagManagement = { id: createId(), name: "Management" };
   const tagWeb = { id: createId(), name: "Web" };
-  await db.insert(schema2.tags).values([tagReact, tagUIDesign, tagManagement, tagWeb]);
+  await db
+    .insert(schema2.tags)
+    .values([tagReact, tagUIDesign, tagManagement, tagWeb]);
   console.log("Tags seeded!");
 
   console.log("Seeding Project-tag links...");
