@@ -15,7 +15,9 @@ import { usePathname } from "next/navigation";
 import { useCallback } from "react";
 import { useSession, signOut } from "next-auth/react";
 import { useState } from "react";
-import Image from "next/image";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { api } from "@/trpc/react";
+import { Badge } from "@/components/ui/badge";
 
 const ROUTES = [
   {
@@ -49,6 +51,8 @@ export function Sidebar() {
     );
   }, [path]);
 
+  const { data: isAdmin } = api.users.isAdmin.useQuery();
+
   return (
     <div className="border-accent flex h-full w-64 flex-col border-r p-4">
       <h1 className="text-primary font-bold">mqp</h1>
@@ -76,12 +80,23 @@ export function Sidebar() {
               : "pointer-events-none translate-y-4 opacity-0",
           )}
         >
-          <div className="items-left flex flex-col gap-4 p-4">
+          <div className="items-left border-accent flex flex-col gap-4 rounded border-2 p-4">
+            {isAdmin && (
+              <Badge className="w-full bg-green-800">LOGGED IN AS ADMIN</Badge>
+            )}
             <div className="hover:text-primary flex items-center gap-3">
-              <Settings className="h-5 w-5" />
-              <button className="cursor-pointer text-left transition-colors">
-                Settings
-              </button>
+              <Avatar className="h-5 w-5">
+                <AvatarImage src={session?.user.image ?? undefined} />
+                <AvatarFallback>
+                  {session?.user?.name?.split(" ")[0]?.charAt(0)}
+                </AvatarFallback>
+              </Avatar>
+              <Link
+                href={`/users/${session?.user.id}`}
+                className="cursor-pointer text-left transition-colors"
+              >
+                View Profile
+              </Link>
             </div>
             <div className="hover:text-primary flex items-center gap-3">
               <LogOut className="h-5 w-5" />
@@ -99,20 +114,13 @@ export function Sidebar() {
           className="border-accent flex w-full cursor-pointer items-center justify-between gap-4 rounded-md border p-2"
         >
           <div className="flex items-center gap-2">
-            <div className="relative h-5 w-5">
-              <Image
-                fill
-                objectFit="contain"
-                src={
-                  status === "loading"
-                    ? "/default-avatar.png"
-                    : (session?.user?.image ?? "/default-avatar.png")
-                }
-                alt="User Avatar"
-                className="h-5 w-5 rounded-full"
-              />
-            </div>
-            <p className="text-sm">My profile</p>
+            <Avatar className="h-5 w-5">
+              <AvatarImage src={session?.user.image ?? undefined} />
+              <AvatarFallback>
+                {session?.user?.name?.split(" ")[0]?.charAt(0)}
+              </AvatarFallback>
+            </Avatar>
+            <p className="">My profile</p>
           </div>
           {profileOpen ? (
             <ChevronUp className="h-5 w-5" />

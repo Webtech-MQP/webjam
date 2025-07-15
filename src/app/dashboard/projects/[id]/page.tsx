@@ -21,20 +21,20 @@ export default async function Page({
   }
   const { id } = await params;
 
-  const teammates = await api.projects.getOne({ id });
+  const project = await api.projects.getOne({ id });
 
-  if (!teammates) return <div>Not found!</div>;
+  if (!project) return <div>Not found!</div>;
 
   return (
     <div className="flex flex-col gap-2 p-4">
       <DashboardCard>
-        <h1>{teammates.title}</h1>
+        <h1>{project.title}</h1>
         <div className="flex gap-2">
           <Badge className="bg-indigo-500">
-            <Users /> {teammates.usersToProjects.length} members
+            <Users /> {project.candidateProfilesToProjects.length} members
           </Badge>
           <Badge className="bg-indigo-500">
-            <Clock /> {teammates.endDate?.toLocaleDateString()}
+            <Clock /> {project.deadline?.toLocaleDateString()}
           </Badge>
         </div>
         <div className="relative flex w-full gap-4">
@@ -108,23 +108,26 @@ export default async function Page({
       <DashboardCard>
         <h1>Teammates</h1>
         <div className="relative flex w-full flex-col gap-4">
-          {teammates.usersToProjects.map((teammate, index) => (
-            <div key={index} className="flex items-center gap-2">
-              <div className="relative aspect-square w-8">
-                <Image
-                  src={teammate.user.image ?? ""}
-                  alt={teammate.user.name ?? teammate.user.email}
-                  fill
-                  objectFit="cover"
-                  className="rounded-full"
-                />
+          {project.candidateProfilesToProjects.map(
+            (projectCandidate, index) => (
+              <div key={index} className="flex items-center gap-2">
+                <div className="relative aspect-square w-8">
+                  <Image
+                    src={projectCandidate.candidateProfile.imageURL ?? ""}
+                    alt={projectCandidate.candidateProfile.displayName}
+                    fill
+                    objectFit="cover"
+                    className="rounded-full"
+                  />
+                </div>
+                <p className="font-semibold">
+                  {projectCandidate.candidateProfile.displayName ??
+                    projectCandidate.candidateProfile.displayName}
+                </p>
+                <p className="text-sm text-gray-500">Placeholder</p>
               </div>
-              <p className="font-semibold">
-                {teammate.user.name ?? teammate.user.email}
-              </p>
-              <p className="text-sm text-gray-500">Placeholder</p>
-            </div>
-          ))}
+            ),
+          )}
         </div>
       </DashboardCard>
       <div className="flex w-full gap-2">
