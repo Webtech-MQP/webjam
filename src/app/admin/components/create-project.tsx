@@ -12,6 +12,9 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import Image from "next/image";
 import { ArrayInput } from "@/components/array-input";
+import { useRouter } from "next/navigation";
+import { createId } from "@paralleldrive/cuid2";
+
 
 interface CreateProjectFormSchema {
     title: string;
@@ -39,10 +42,13 @@ export default function AdminCreateProject() {
     const [dialogueOpen, setDialogueOpen] = useState<boolean>(false);
     const [formState, setFormState] = useState<CreateProjectFormSchema>(defaultForm);
     const createProject = api.projects.create.useMutation();
+    const router = useRouter();
+
     async function onSubmit() {
         setDialogueOpen(false);
-        console.log(formState);
+        const id = createId();
         await createProject.mutateAsync({
+            id: id,
             title: formState.title,
             subtitle: formState.subtitle,
             description: formState.description,
@@ -51,6 +57,7 @@ export default function AdminCreateProject() {
             starts: new Date(formState.start),
             ends: new Date(formState.end)
         });
+        router.push(`/dashboard/projects/${id}`);
     }
 
     function onDiscard() {

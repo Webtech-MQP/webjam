@@ -10,6 +10,7 @@ import { candidatesToProjects, projects, candidateProfilesToProjects, tags } fro
 export const projectRouter = createTRPCRouter({
   create: protectedProcedure
     .input(z.object({
+      id: z.string().cuid2(),
       title: z.string().min(1).max(255),
       subtitle: z.string().min(0).max(255),
       description: z.string().min(0).max(255),
@@ -21,6 +22,7 @@ export const projectRouter = createTRPCRouter({
     }))
     .mutation(async ({ ctx, input }) => {
       return ctx.db.insert(projects).values({
+        id: input.id,
         title: input.title,
         subTitle: input.subtitle,
         description: input.description,
