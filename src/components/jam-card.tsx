@@ -6,8 +6,7 @@ import { Badge } from "./ui/badge";
 import Image from "next/image";
 import { format } from "date-fns";
 
-type Tag =
-  RouterOutputs["projects"]["getAll"][number]["tagsToProjects"][number]["tag"];
+type Tag = RouterOutputs["projects"]["getAll"][number]["tags"][number]["tag"];
 
 interface JamCardProps {
   name: string;
@@ -18,6 +17,7 @@ interface JamCardProps {
   rating?: number;
   numberOfRatings?: number;
   tags?: Tag[];
+  onClick?: () => void;
   className?: string;
 }
 
@@ -30,12 +30,14 @@ export function JamCard({
   rating,
   numberOfRatings,
   tags,
+  onClick,
   className,
 }: JamCardProps) {
   return (
     <DashboardCard
+      onClick={onClick}
       className={cn(
-        "group flex h-96 flex-col items-start overflow-hidden px-0 pb-0",
+        "group flex h-96 cursor-pointer flex-col items-start overflow-hidden px-0 pb-0",
         className,
       )}
     >

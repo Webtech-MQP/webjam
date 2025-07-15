@@ -5,26 +5,15 @@ import {
   protectedProcedure,
   publicProcedure,
 } from "@/server/api/trpc";
-import { projects } from "@/server/db/schema";
+import { projects, tags } from "@/server/db/schemas/projects";
 
 export const projectRouter = createTRPCRouter({
-  create: publicProcedure
-    .input(
-      z.object({
-        title: z.string().min(1).max(255),
-        description: z.string().min(1).max(1000),
-        startDate: z.date(),
-        endDate: z.date(),
-        groupSize: z.number(),
-      }),
-    )
+  create: protectedProcedure
+    .input(z.object({ title: z.string().min(1).max(255) }))
     .mutation(async ({ ctx, input }) => {
       return ctx.db.insert(projects).values({
         title: input.title,
-        description: input.description,
-        startDate: input.startDate,
-        endDate: input.endDate,
-        groupSize: input.groupSize,
+        createdBy: ctx.session.user.id,
       });
     }),
 
@@ -34,11 +23,12 @@ export const projectRouter = createTRPCRouter({
       return ctx.db.query.projects.findFirst({
         where: (projects, { eq }) => eq(projects.id, input.id),
         with: {
-          usersToProjects: {
+          candidateProfilesToProjects: {
             with: {
-              user: true,
+              candidateProfile: true,
             },
           },
+          creator: true,
         },
       });
     }),
@@ -46,21 +36,17 @@ export const projectRouter = createTRPCRouter({
   getAll: publicProcedure.query(async ({ ctx }) => {
     return ctx.db.query.projects.findMany({
       with: {
-        usersToProjects: {
+        candidateProfilesToProjects: {
           with: {
-            user: true,
+            candidateProfile: true,
           },
         },
-        tagsToProjects: {
+        tags: {
           with: {
             tag: true,
           },
         },
-        ratings: {
-          with: {
-            user: true,
-          },
-        },
+        creator: true,
       },
     });
   }),
@@ -102,39 +88,71 @@ export const projectRouter = createTRPCRouter({
         where: (projects, { and, gte, lte, eq, like }) => {
           const conditions = [like(projects.title, `%${input.title}%`)];
           if (input.from) {
-            conditions.push(gte(projects.startDate, input.from));
+            conditions.push(gte(projects.startDateTime, input.from));
           }
           if (input.to) {
-            conditions.push(lte(projects.startDate, input.to));
-          }
-          if (input.groupSize) {
-            conditions.push(eq(projects.groupSize, input.groupSize));
+            conditions.push(lte(projects.startDateTime, input.to));
           }
           return and(...conditions);
         },
         with: {
-          usersToProjects: {
+          candidateProfilesToProjects: {
             with: {
-              user: true,
+              candidateProfile: true,
             },
           },
-          tagsToProjects: {
+          tags: {
             with: {
               tag: true,
-            },
-          },
-          ratings: {
-            with: {
-              user: true,
             },
           },
         },
       });
 
       return q.filter((p) => {
+        if (
+          input.groupSize &&
+          p.candidateProfilesToProjects.length !== input.groupSize
+        ) {
+          return false;
+        }
         if (!input.tags || input.tags.length === 0) return true;
-        const projectTagIds = p.tagsToProjects.map((tp) => tp.tag.id);
+        const projectTagIds = p.tags.map((tp) => tp.tag.id);
         return input.tags.every((tagId) => projectTagIds.includes(tagId));
       });
+    }),
+
+  //Tag CRUD
+  createTag: protectedProcedure
+    .input(z.object({ name: z.string().min(1).max(256) }))
+    .mutation(async ({ ctx, input }) => {
+      return ctx.db.insert(tags).values({ name: input.name });
+    }),
+
+  getTag: publicProcedure
+    .input(z.object({ id: z.string() }))
+    .query(async ({ ctx, input }) => {
+      return ctx.db.query.tags.findFirst({
+        where: (tags, { eq }) => eq(tags.id, input.id),
+      });
+    }),
+
+  getAllTags: publicProcedure.query(async ({ ctx }) => {
+    return ctx.db.query.tags.findMany();
+  }),
+
+  updateTag: protectedProcedure
+    .input(z.object({ id: z.string(), name: z.string().min(1).max(256) }))
+    .mutation(async ({ ctx, input }) => {
+      return ctx.db
+        .update(tags)
+        .set({ name: input.name })
+        .where(eq(tags.id, input.id));
+    }),
+
+  deleteTag: protectedProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      return ctx.db.delete(tags).where(eq(tags.id, input.id));
     }),
 });

@@ -22,10 +22,12 @@ import { useState } from "react";
 import { api } from "@/trpc/react";
 import { JamCard } from "@/components/jam-card";
 import { SkeletonCard } from "@/components/skeleton-card";
-import { format } from "date-fns";
+import { format, set } from "date-fns";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { ProjectModal } from "@/components/project-modal";
+import { on } from "events";
 
 const formSchema = z.object({
   jamName: z.string().min(1, "Jam name is required"),
@@ -42,9 +44,11 @@ const formSchema = z.object({
 type JamFinderForm = z.infer<typeof formSchema>;
 
 export default function JamFinderClient() {
-  const unsortedTagsQuery = api.tags.getAll.useQuery();
+  const unsortedTagsQuery = api.projects.getAllTags.useQuery();
   const tagsQuery = unsortedTagsQuery.data
-    ? unsortedTagsQuery.data.sort(function (a, b) {
+    ? unsortedTagsQuery.data.sort((a, b) => {
+        if (!a.name) return 1;
+        if (!b.name) return -1;
         return a.name.localeCompare(b.name);
       })
     : [];
@@ -62,6 +66,8 @@ export default function JamFinderClient() {
   const [searchParams, setSearchParams] = useState<JamFinderForm | null>(null);
   const [isSliderOpen, setIsSliderOpen] = useState(false);
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
+  const [selectedProject, setSelectedProject] = useState<string | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   function handleSubmit(values: JamFinderForm) {
     setSearchParams(values);
@@ -113,7 +119,7 @@ export default function JamFinderClient() {
                     <PopoverTrigger asChild>
                       <Button
                         variant="outline"
-                        className="w-52 truncate flex justify-between items-center"
+                        className="flex w-52 items-center justify-between truncate"
                       >
                         <span className="truncate">
                           {Array.isArray(field.value)
@@ -150,7 +156,7 @@ export default function JamFinderClient() {
                     <PopoverTrigger asChild>
                       <Button
                         variant="outline"
-                        className="w-58 truncate flex justify-between items-center"
+                        className="flex w-58 items-center justify-between truncate"
                       >
                         <span className="truncate">
                           {field.value?.from && field.value?.to
@@ -230,7 +236,9 @@ export default function JamFinderClient() {
               </FormItem>
             )}
           />
-          <Button type="submit">Search <Search /></Button>
+          <Button type="submit">
+            Search <Search />
+          </Button>
         </form>
       </Form>
       <div className="mt-4 -mb-6 flex-1">
@@ -245,20 +253,65 @@ export default function JamFinderClient() {
             </div>
           </div>
         )}
-        {!searchParams &&  (
+        {!searchParams && (
           <div className="relative h-full">
             <div className="absolute inset-0 overflow-y-auto pb-6">
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {projects?.map((project) => (
-                  <JamCard
-                    key={project.id}
-                    name={project.title}
-                    startDate={project.startDate}
-                    endDate={project.endDate}
-                    numberOfTeammates={project.usersToProjects?.length}
-                    imageUrl="https://placehold.co/150/png"
-                    tags={project.tagsToProjects?.map((tag) => tag.tag) ?? []}
-                  />
+                  <div key={project.id}>
+                    <JamCard
+                      key={project.id}
+                      name={project.title ?? "Untitled Jam"}
+                      startDate={project.startDateTime ?? new Date()}
+                      endDate={project.endDateTime ?? new Date()}
+                      numberOfTeammates={
+                        project.candidateProfilesToProjects?.length
+                      }
+                      imageUrl={
+                        project.imageURL ?? "https://placehold.co/150/png"
+                      }
+                      tags={project.tags?.map((tag) => tag.tag) ?? []}
+                      onClick={() => {
+                        setSelectedProject(project.id);
+                        setIsModalOpen(true);
+                      }}
+                    />
+                    {isModalOpen && selectedProject === project.id && (
+                      <ProjectModal
+                        title={project.title ?? "Untitled Jam"}
+                        subtitle={project.subTitle ?? ""}
+                        starts={format(
+                          project.startDateTime ?? new Date(),
+                          "MMM dd, yyyy",
+                        )}
+                        ends={
+                          project.endDateTime
+                            ? format(project.endDateTime, "MMM dd, yyyy")
+                            : "Present"
+                        }
+                        signups={123}
+                        description={
+                          project.description ?? "No description available"
+                        }
+                        imageUrl={
+                          project.imageURL ??
+                          "https://placehold.co/1080x1920.png"
+                        }
+                        requirements={
+                          project.requirements ?? "No requirements specified"
+                        }
+                        tags={
+                          project.tags?.map((tag) => tag.tag.name ?? "") ?? []
+                        }
+                        onSignup={function (): void {
+                          throw new Error("Function not implemented.");
+                        }}
+                        onClose={() => {
+                          setIsModalOpen(false);
+                        }}
+                      />
+                    )}
+                  </div>
                 ))}
               </div>
             </div>
@@ -285,15 +338,60 @@ export default function JamFinderClient() {
               </div>
               <div className="mt-4 grid grid-cols-1 gap-4 overflow-y-auto md:grid-cols-2 lg:grid-cols-3">
                 {filteredProjectsQuery.data.map((project) => (
-                  <JamCard
-                    key={project.id}
-                    name={project.title}
-                    startDate={project.startDate}
-                    endDate={project.endDate}
-                    numberOfTeammates={project.usersToProjects?.length}
-                    imageUrl="https://placehold.co/150/png"
-                    tags={project.tagsToProjects?.map((tag) => tag.tag) ?? []}
-                  />
+                  <div key={project.id}>
+                    <JamCard
+                      key={project.id}
+                      name={project.title ?? "Untitled Jam"}
+                      startDate={project.startDateTime ?? new Date()}
+                      endDate={project.endDateTime ?? new Date()}
+                      numberOfTeammates={
+                        project.candidateProfilesToProjects?.length
+                      }
+                      imageUrl={
+                        project.imageURL ?? "https://placehold.co/150/png"
+                      }
+                      tags={project.tags?.map((tag) => tag.tag) ?? []}
+                      onClick={() => {
+                        setSelectedProject(project.id);
+                        setIsModalOpen(true);
+                      }}
+                    />
+                    {isModalOpen && selectedProject === project.id && (
+                      <ProjectModal
+                        title={project.title ?? "Untitled Jam"}
+                        subtitle={project.subTitle ?? ""}
+                        starts={format(
+                          project.startDateTime ?? new Date(),
+                          "MMM dd, yyyy",
+                        )}
+                        ends={
+                          project.endDateTime
+                            ? format(project.endDateTime, "MMM dd, yyyy")
+                            : "Present"
+                        }
+                        signups={123}
+                        description={
+                          project.description ?? "No description available"
+                        }
+                        imageUrl={
+                          project.imageURL ??
+                          "https://placehold.co/1080x1920.png"
+                        }
+                        requirements={
+                          project.requirements ?? "No requirements specified"
+                        }
+                        tags={
+                          project.tags?.map((tag) => tag.tag.name ?? "") ?? []
+                        }
+                        onSignup={function (): void {
+                          throw new Error("Function not implemented.");
+                        }}
+                        onClose={() => {
+                          setIsModalOpen(false);
+                        }}
+                      />
+                    )}
+                  </div>
                 ))}
               </div>
             </div>
