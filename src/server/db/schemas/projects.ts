@@ -3,7 +3,7 @@ import { createTable } from "../schema-util";
 
 import { createId } from "@paralleldrive/cuid2";
 import { primaryKey } from "drizzle-orm/sqlite-core";
-import { admins, candidates, candidateProfiles, adminProfiles } from "./users";
+import { candidateProfiles, adminProfiles } from "./users";
 
 export const projects = createTable("project", (d) => ({
   id: d
@@ -26,7 +26,7 @@ export const projects = createTable("project", (d) => ({
   updatedAt: d.integer({ mode: "timestamp" }).default(sql`(unixepoch())`),
   createdBy: d
     .text({ length: 255 })
-    .references(() => adminProfiles.adminId, { onDelete: "set null" }),
+    .references(() => adminProfiles.userId, { onDelete: "set null" }),
 }));
 
 export const projectsRelations = relations(projects, ({ one, many }) => ({
@@ -34,12 +34,11 @@ export const projectsRelations = relations(projects, ({ one, many }) => ({
     fields: [projects.id],
     references: [projectSubmissions.projectId],
   }),
-  candidatesToProjects: many(candidatesToProjects),
   candidateProfilesToProjects: many(candidateProfilesToProjects),
   tags: many(projectsTags),
   creator: one(adminProfiles, {
     fields: [projects.createdBy],
-    references: [adminProfiles.adminId],
+    references: [adminProfiles.userId],
   }),
 }));
 
@@ -60,7 +59,7 @@ export const projectSubmissions = createTable("projectSubmission", (d) => ({
   reviewedBy: d
     .text({ length: 255 })
     .notNull()
-    .references(() => admins.userId),
+    .references(() => adminProfiles.userId),
   repoURL: d.text({ length: 255 }),
   notes: d.text({ length: 255 }),
 }));
@@ -73,44 +72,13 @@ export const tags = createTable("tag", (d) => ({
   name: d.text({ length: 256 }).unique(),
 }));
 
-//TODO: Should we replace this?(It exposes entities with private data)
-export const candidatesToProjects = createTable(
-  "candidates_to_projects",
-  (d) => ({
-    candidateId: d
-      .text("candidate_id")
-      .notNull()
-      .references(() => candidates.userId, { onDelete: "cascade" }),
-    projectId: d
-      .text("project_id")
-      .notNull()
-      .references(() => projects.id, { onDelete: "cascade" }),
-  }),
-  (t) => [primaryKey({ columns: [t.candidateId, t.projectId] })],
-);
-
-export const candidatesToProjectsRelations = relations(
-  candidatesToProjects,
-  ({ one }) => ({
-    candidate: one(candidates, {
-      fields: [candidatesToProjects.candidateId],
-      references: [candidates.userId],
-    }),
-    project: one(projects, {
-      fields: [candidatesToProjects.projectId],
-      references: [projects.id],
-    }),
-  }),
-);
-
-//TODO: maybe change to this?
 export const candidateProfilesToProjects = createTable(
   "candidate_profiles_to_projects",
   (d) => ({
     candidateId: d
       .text("candidate_id")
       .notNull()
-      .references(() => candidateProfiles.candidateId, { onDelete: "cascade" }),
+      .references(() => candidateProfiles.userId, { onDelete: "cascade" }),
     projectId: d
       .text("project_id")
       .notNull()
@@ -124,7 +92,7 @@ export const candidateProfilesToProjectsRelations = relations(
   ({ one }) => ({
     candidateProfile: one(candidateProfiles, {
       fields: [candidateProfilesToProjects.candidateId],
-      references: [candidateProfiles.candidateId],
+      references: [candidateProfiles.userId],
     }),
     project: one(projects, {
       fields: [candidateProfilesToProjects.projectId],
@@ -140,10 +108,13 @@ export const projectSubmissionsRelations = relations(
       fields: [projectSubmissions.projectId],
       references: [projects.id],
     }),
+    reviewedByAdmin: one(adminProfiles, {
+      fields: [projectSubmissions.reviewedBy],
+      references: [adminProfiles.userId],
+    }),
   }),
 );
 
-//m-m project and tags
 export const projectsTags = createTable("projects_tags", (d) => ({
   projectId: d
     .text("project_id")

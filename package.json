@@ -20,12 +20,14 @@
         "typecheck": "tsc --noEmit",
         "prepare": "husky",
         "seed": "dotenv -e .env -- tsx scripts/seed.ts",
+        "dev:setup": "pnpm install && drizzle-kit push --force && pnpm run seed",
         "pretty": "prettier --write \"./**/*.{js,jsx,mjs,cjs,ts,tsx,json}\""
     },
     "dependencies": {
         "@auth/drizzle-adapter": "^1.10.0",
         "@libsql/client": "^0.14.0",
         "@radix-ui/react-dialog": "^1.1.14",
+        "@radix-ui/react-avatar": "^1.1.10",
         "@radix-ui/react-label": "^2.1.7",
         "@radix-ui/react-slot": "^1.2.3",
         "@radix-ui/react-tooltip": "^1.2.7",

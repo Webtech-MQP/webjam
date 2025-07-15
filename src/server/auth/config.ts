@@ -3,7 +3,7 @@ import { type DefaultSession, type NextAuthConfig } from "next-auth";
 import GithubProvider from "next-auth/providers/github";
 
 import { db } from "@/server/db";
-import { admins, users } from "@/server/db/schemas/users";
+import { users } from "@/server/db/schemas/users";
 import {
   accounts,
   sessions,
@@ -11,8 +11,6 @@ import {
 } from "@/server/db/schemas/auth";
 import { type SqlFlavorOptions } from "node_modules/@auth/drizzle-adapter/lib/utils";
 import { env } from "@/env";
-import { eq } from "drizzle-orm";
-import { TRPCError } from "@trpc/server";
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
@@ -28,10 +26,6 @@ declare module "next-auth" {
       // role: UserRole;
     } & DefaultSession["user"];
   }
-
-  interface User {
-    isAdmin: boolean;
-  }
 }
 
 /**
@@ -45,6 +39,15 @@ export const authConfig = {
     GithubProvider({
       clientId: env.AUTH_GITHUB_ID,
       clientSecret: env.AUTH_GITHUB_SECRET,
+      profile(profile) {
+        return {
+          id: profile.id.toString(),
+          name: profile.name ?? profile.login,
+          email: profile.email,
+          image: profile.avatar_url,
+          githubUsername: profile.login,
+        };
+      },
     }),
     /**
      * ...add more providers here.
@@ -64,18 +67,11 @@ export const authConfig = {
   }),
   callbacks: {
     session: async ({ session, user }) => {
-      const isAdmin = await db
-        .select()
-        .from(users)
-        .where(eq(users.id, user.id))
-        .innerJoin(admins, eq(users.id, admins.userId));
-
       return {
         ...session,
         user: {
           ...session.user,
           id: user.id,
-          isAdmin: isAdmin.length > 0,
         },
       };
     },
