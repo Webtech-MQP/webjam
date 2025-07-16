@@ -6,7 +6,7 @@ import AdminCreateProject from "./components/create-project";
 export default async function AdminDashboardPage() {
     const session = await auth();
     
-    if (!session?.user || !session.user.isAdmin) {
+    if (!session?.user || !session.user.) {
         redirect("/"); 
     }
 
