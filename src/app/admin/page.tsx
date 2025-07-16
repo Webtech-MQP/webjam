@@ -1,11 +1,12 @@
 import { auth } from '@/server/auth';
+import { api } from '@/trpc/server';
 import { redirect } from 'next/navigation';
 import AdminCreateProject from './components/create-project';
 
 export default async function AdminDashboardPage() {
     const session = await auth();
-
-    if (!session?.user || !session.user) {
+    const isAdmin = await api.users.isAdmin();
+    if (!session?.user || !isAdmin) {
         redirect('/');
     }
 

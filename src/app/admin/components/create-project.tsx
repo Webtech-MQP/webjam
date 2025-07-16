@@ -1,20 +1,18 @@
-"use client"
+'use client';
 
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { redirect } from "next/navigation";
-import {api} from "@/trpc/react";
-import { Dialog, DialogClose, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { DialogOverlay, DialogPortal } from "@radix-ui/react-dialog";
-import { Plus, PlusCircle, Trash, X } from "lucide-react";
-import { useState, type ChangeEvent } from "react";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import Image from "next/image";
-import { ArrayInput } from "@/components/array-input";
-import { useRouter } from "next/navigation";
-import { createId } from "@paralleldrive/cuid2";
-
+import { ArrayInput } from '@/components/array-input';
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { api } from '@/trpc/react';
+import { createId } from '@paralleldrive/cuid2';
+import { DialogOverlay, DialogPortal } from '@radix-ui/react-dialog';
+import { PlusCircle, X } from 'lucide-react';
+import Image from 'next/image';
+import { useRouter } from 'next/navigation';
+import { useState, type ChangeEvent } from 'react';
 
 interface CreateProjectFormSchema {
     title: string;
@@ -27,16 +25,16 @@ interface CreateProjectFormSchema {
     tags: string[];
 }
 
-const defaultForm:CreateProjectFormSchema = {
-    title: "",
-    subtitle: "",
-    description: "",
-    requirements: [""],
-    start: "",
-    end: "",
-    imageURL: "",
-    tags: [""],
-}
+const defaultForm: CreateProjectFormSchema = {
+    title: '',
+    subtitle: '',
+    description: '',
+    requirements: [''],
+    start: '',
+    end: '',
+    imageURL: '',
+    tags: [''],
+};
 
 export default function AdminCreateProject() {
     const [dialogueOpen, setDialogueOpen] = useState<boolean>(false);
@@ -45,18 +43,23 @@ export default function AdminCreateProject() {
     const router = useRouter();
 
     async function onSubmit() {
-        setDialogueOpen(false);
         const id = createId();
+        const title = formState.title.length > 0 ? formState.title : 'Untitled Project';
+        const start = new Date(formState.start.length > 0 ? formState.start : Date.now());
+        const end = new Date(formState.end.length > 0 ? formState.end : Date.now());
+        console.log(end);
+
         await createProject.mutateAsync({
             id: id,
-            title: formState.title,
+            title: title,
             subtitle: formState.subtitle,
             description: formState.description,
             requirements: getReqsString(),
             imageURL: formState.imageURL,
-            starts: new Date(formState.start),
-            ends: new Date(formState.end)
+            starts: start,
+            ends: end,
         });
+        onDiscard();
         router.push(`/dashboard/projects/${id}`);
     }
 
@@ -66,78 +69,124 @@ export default function AdminCreateProject() {
     }
 
     function getReqsString() {
-        if(!formState.requirements || formState.requirements.length === 0){
-            return "";
+        if (!formState.requirements || formState.requirements.length === 0) {
+            return '';
         }
-        return "Requirements:\n"+formState.requirements.map(req=>"• "+req).join("\n");
+        return 'Requirements:\n' + formState.requirements.map((req) => '• ' + req).join('\n');
     }
 
     return (
         <Dialog open={dialogueOpen}>
-            <DialogTrigger onClick={()=>{
-                setDialogueOpen(true)
-            }}>
-                <PlusCircle/> Create Project
+            <DialogTrigger
+                onClick={() => {
+                    setDialogueOpen(true);
+                }}
+            >
+                <PlusCircle /> Create Project
             </DialogTrigger>
             <DialogPortal>
                 <DialogOverlay />
-                <DialogContent className="h-full overflow-y-scroll" showCloseButton={false}>
-                    <DialogHeader >
+                <DialogContent
+                    className="h-full overflow-y-scroll"
+                    showCloseButton={false}
+                >
+                    <DialogHeader>
                         <div className="w-full flex justify-between">
                             <DialogTitle>Create New Project</DialogTitle>
-                            <DialogClose onClick={()=>{
-                                setDialogueOpen(false);
-                            }}><X/></DialogClose>
+                            <DialogClose
+                                onClick={() => {
+                                    setDialogueOpen(false);
+                                }}
+                            >
+                                <X />
+                            </DialogClose>
                         </div>
-				        <DialogDescription>
-                            Fill out the information needed to create a new project.
-                        </DialogDescription>
+                        <DialogDescription>Fill out the information needed to create a new project.</DialogDescription>
                     </DialogHeader>
                     <div className="grid w-full max-w-sm items-center gap-3">
                         <Label htmlFor="title">Title</Label>
-                        <Input type="text" id="title" placeholder="Title" value={formState.title} 
-                            onChange={(e: ChangeEvent<HTMLInputElement>)=>setFormState({...formState, title: e.target.value})}
+                        <Input
+                            type="text"
+                            id="title"
+                            placeholder="Title"
+                            required
+                            minLength={1}
+                            value={formState.title}
+                            onChange={(e: ChangeEvent<HTMLInputElement>) => setFormState({ ...formState, title: e.target.value })}
                         />
                         <Label htmlFor="subtitle">Subtitle</Label>
-                        <Input type="text" id="subtitle" placeholder="Subtitle" value={formState.subtitle} 
-                            onChange={(e: ChangeEvent<HTMLInputElement>)=>setFormState({...formState, subtitle: e.target.value})}
+                        <Input
+                            type="text"
+                            id="subtitle"
+                            placeholder="Subtitle"
+                            value={formState.subtitle}
+                            onChange={(e: ChangeEvent<HTMLInputElement>) => setFormState({ ...formState, subtitle: e.target.value })}
                         />
                         <Label htmlFor="description">Description</Label>
-                        <Textarea id="description" placeholder="Description" value={formState.description} 
-                            onChange={(e: ChangeEvent<HTMLTextAreaElement>)=>setFormState({...formState, description: e.target.value})}
+                        <Textarea
+                            id="description"
+                            placeholder="Description"
+                            value={formState.description}
+                            onChange={(e: ChangeEvent<HTMLTextAreaElement>) => setFormState({ ...formState, description: e.target.value })}
                         />
                         <ArrayInput
                             title="Requirements"
                             decoration="numbers-dot"
-                            allowCreate allowDelete
-                            onChange={(v)=>setFormState({...formState, requirements:(v as string[])})}
+                            allowCreate
+                            allowDelete
+                            onChange={(v) => setFormState({ ...formState, requirements: v as string[] })}
                             defaultValues={formState.requirements}
                         />
                         <Label htmlFor="start">Starts At</Label>
-                        <Input type="datetime-local" id="start" placeholder="Starts At" value={formState.start} 
-                            onChange={(e: ChangeEvent<HTMLInputElement>)=>setFormState({...formState, start: e.target.value})}
+                        <Input
+                            type="datetime-local"
+                            id="start"
+                            placeholder="Starts At"
+                            required
+                            value={formState.start}
+                            onChange={(e: ChangeEvent<HTMLInputElement>) => setFormState({ ...formState, start: e.target.value })}
                         />
                         <Label htmlFor="end">Ends At</Label>
-                        <Input type="datetime-local" id="end" placeholder="Ends At" value={formState.end} 
-                            onChange={(e: ChangeEvent<HTMLInputElement>)=>setFormState({...formState, end: e.target.value})}
+                        <Input
+                            type="datetime-local"
+                            id="end"
+                            placeholder="Ends At"
+                            required
+                            value={formState.end}
+                            onChange={(e: ChangeEvent<HTMLInputElement>) => setFormState({ ...formState, end: e.target.value })}
                         />
                         <Label htmlFor="imageURL">Image URL</Label>
-                        <Input type="url" id="imageURL" placeholder="Image URL" value={formState.imageURL} 
-                            onChange={(e: ChangeEvent<HTMLInputElement>)=>setFormState({...formState, imageURL: e.target.value})}
+                        <Input
+                            type="url"
+                            id="imageURL"
+                            placeholder="Image URL"
+                            value={formState.imageURL}
+                            onChange={(e: ChangeEvent<HTMLInputElement>) => setFormState({ ...formState, imageURL: e.target.value })}
                         />
-                        {
-                            formState.imageURL.trim().length > 0 && isValidHttpUrl(formState.imageURL.trim()) &&
-                            <Image src={formState.imageURL.trim()} alt="Image" width={100} height={100} className="object-cover" />
-                        }
+                        {formState.imageURL.trim().length > 0 && isValidHttpUrl(formState.imageURL.trim()) && (
+                            <Image
+                                src={formState.imageURL.trim()}
+                                alt="Image"
+                                width={100}
+                                height={100}
+                                className="object-cover"
+                            />
+                        )}
                         <ArrayInput
                             title="Tags"
                             decoration="bullets"
-                            allowCreate allowDelete
-                            onChange={(v)=>setFormState({...formState, tags:(v as string[])})}
+                            allowCreate
+                            allowDelete
+                            onChange={(v) => setFormState({ ...formState, tags: v as string[] })}
                             defaultValues={formState.tags}
                         />
                         <Button onClick={onSubmit}>Create</Button>
-                        <Button variant="secondary" onClick={onDiscard}>Discard</Button>
+                        <Button
+                            variant="secondary"
+                            onClick={onDiscard}
+                        >
+                            Discard
+                        </Button>
                     </div>
                 </DialogContent>
             </DialogPortal>
@@ -146,13 +195,13 @@ export default function AdminCreateProject() {
 }
 
 function isValidHttpUrl(str: string) {
-  let url;
-  
-  try {
-    url = new URL(str);
-  } catch (_) {
-    return false;  
-  }
+    let url;
 
-  return url.protocol === "http:" || url.protocol === "https:";
+    try {
+        url = new URL(str);
+    } catch (_) {
+        return false;
+    }
+
+    return url.protocol === 'http:' || url.protocol === 'https:';
 }
