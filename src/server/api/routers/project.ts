@@ -61,6 +61,11 @@ export const projectRouter = createTRPCRouter({
             candidateProfile: true,
           },
         },
+        tags: {
+          with: {
+            tag: true,
+          },
+        },
         creator: true,
       },
     });
@@ -77,16 +82,65 @@ export const projectRouter = createTRPCRouter({
         .where(eq(projects.id, input.id));
     }),
 
-  deleteOne: publicProcedure
+  deleteOne: protectedProcedure
     .input(z.object({ id: z.string().cuid2() }))
     .mutation(async ({ ctx, input }) => {
       return ctx.db.delete(projects).where(eq(projects.id, input.id));
     }),
 
-  deleteAll: publicProcedure.mutation(async ({ ctx }) => {
+  deleteAll: protectedProcedure.mutation(async ({ ctx }) => {
     // eslint-disable-next-line drizzle/enforce-delete-with-where
     return ctx.db.delete(projects);
   }),
+
+  findProjects: publicProcedure
+    .input(
+      z.object({
+        title: z.string().min(1).max(255),
+        from: z.date().optional(),
+        to: z.date().optional(),
+        groupSize: z.number().optional(),
+        tags: z.array(z.string()).optional(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const q = await ctx.db.query.projects.findMany({
+        where: (projects, { and, gte, lte, eq, like }) => {
+          const conditions = [like(projects.title, `%${input.title}%`)];
+          if (input.from) {
+            conditions.push(gte(projects.startDateTime, input.from));
+          }
+          if (input.to) {
+            conditions.push(lte(projects.startDateTime, input.to));
+          }
+          return and(...conditions);
+        },
+        with: {
+          candidateProfilesToProjects: {
+            with: {
+              candidateProfile: true,
+            },
+          },
+          tags: {
+            with: {
+              tag: true,
+            },
+          },
+        },
+      });
+
+      return q.filter((p) => {
+        if (
+          input.groupSize &&
+          p.candidateProfilesToProjects.length !== input.groupSize
+        ) {
+          return false;
+        }
+        if (!input.tags || input.tags.length === 0) return true;
+        const projectTagIds = p.tags.map((tp) => tp.tag.id);
+        return input.tags.every((tagId) => projectTagIds.includes(tagId));
+      });
+    }),
 
   //Tag CRUD
   createTag: protectedProcedure
