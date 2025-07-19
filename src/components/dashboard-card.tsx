@@ -11,7 +11,7 @@ export function DashboardCard({
 }) {
   return (
     <div
-      className={cn("border-accent space-y-2 rounded-lg border p-6", className)}
+      className={cn("space-y-2 rounded-lg border p-6", className)}
       onClick={onClick}
     >
       {children}
