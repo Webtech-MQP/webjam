@@ -9,10 +9,11 @@ import { format } from "date-fns";
 type Tag = RouterOutputs["projects"]["getAll"][number]["tags"][number]["tag"];
 
 interface JamCardProps {
-  name: string;
-  startDate?: Date;
-  endDate?: Date;
+  title: string;
+  startDateTime?: Date;
+  endDateTime?: Date;
   numberOfTeammates?: number;
+  //TODO: Change DB schema to mage imageUrl instead of imageURL
   imageUrl: string;
   rating?: number;
   numberOfRatings?: number;
@@ -22,9 +23,9 @@ interface JamCardProps {
 }
 
 export function JamCard({
-  name,
-  startDate,
-  endDate,
+  title,
+  startDateTime,
+  endDateTime,
   numberOfTeammates,
   imageUrl,
   rating,
@@ -44,14 +45,14 @@ export function JamCard({
       <div className="relative -mt-6 mb-0 w-full flex-1 rounded-t-lg">
         <Image
           src={imageUrl}
-          alt={`${name} image`}
+          alt={`${title} image`}
           fill
           className="object-cover"
         />
       </div>
       <div className="group-hover:bg-primary flex w-full flex-0 flex-col items-start rounded-b-lg p-3 transition-colors duration-300">
         <div className="flex w-full items-center justify-between">
-          <h3 className="mb-2">{name}</h3>
+          <h3 className="mb-2">{title}</h3>
           {rating && (
             <div className="flex items-center gap-1">
               <Star className="inline h-4 w-4" />
@@ -59,10 +60,10 @@ export function JamCard({
             </div>
           )}
         </div>
-        {startDate && endDate && (
+        {startDateTime && endDateTime && (
           <p className="text-sm">
-            {format(startDate, "MMM dd, yyyy")} -{" "}
-            {endDate ? format(endDate, "MMM dd, yyyy") : "Present"} •{" "}
+            {format(startDateTime, "MMM dd, yyyy")} -{" "}
+            {endDateTime ? format(endDateTime, "MMM dd, yyyy") : "Present"} •{" "}
             {numberOfTeammates} members
           </p>
         )}
