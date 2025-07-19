@@ -78,11 +78,18 @@ export const candidateProfilesToProjects = createTable(
     candidateId: d
       .text("candidate_id")
       .notNull()
-      .references(() => candidateProfiles.userId, { onDelete: "cascade" }),
+      .references(() => candidateProfiles.userId, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
     projectId: d
       .text("project_id")
       .notNull()
-      .references(() => projects.id, { onDelete: "cascade" }),
+      .references(() => projects.id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+    visible: d.integer("visible", { mode: "boolean" }).notNull().default(true),
   }),
   (t) => [primaryKey({ columns: [t.candidateId, t.projectId] })],
 );

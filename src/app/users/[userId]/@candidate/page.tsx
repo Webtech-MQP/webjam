@@ -1,5 +1,11 @@
+import { Button } from "@/components/ui/button";
+import { JamGrid } from "@/features/profiles/jam-grid";
+import { auth } from "@/server/auth";
 import { api } from "@/trpc/server";
+import { GithubIcon, LinkedinIcon, PencilIcon } from "lucide-react";
+import { useSession } from "next-auth/react";
 import Image from "next/image";
+import Link from "next/link";
 
 type Params = {
   userId: string;
@@ -11,6 +17,8 @@ type Props = {
 
 export default async function Page({ params }: Props) {
   const userId = decodeURIComponent((await params).userId);
+
+  const session = await auth();
 
   console.log(userId);
 
@@ -24,6 +32,10 @@ export default async function Page({ params }: Props) {
     return <div>User not found</div>;
   }
 
+  const projects = await api.candidates.getProjects({
+    userId: candidate.userId,
+  });
+
   return (
     <div>
       <div>
@@ -31,23 +43,55 @@ export default async function Page({ params }: Props) {
           {/* Banner Image */}
           <Image src="https://placehold.co/100.png" alt="Profile banner" fill />
         </div>
-        <div className="space-y-8 p-15">
-          <div className="z-30 -mt-30">
+        <div className="relative space-y-8 p-15">
+          <div className="z-30">
             {/* Profile Picture */}
+            {session?.user.id === candidate.userId && (
+              <Button
+                variant="outline"
+                size="icon"
+                className="absolute top-4 right-4"
+                asChild
+              >
+                <Link href={`/users/${candidate.userId}/edit`}>
+                  <PencilIcon className="h-6 w-6" />
+                </Link>
+              </Button>
+            )}
             <Image
               src={candidate.imageURL ?? "https://placehold.co/100.png"}
-              className="relative z-20 box-content rounded-xl border-6 border-(--color-background)"
+              className="relative z-20 -mt-30 box-content rounded-xl border-6 border-(--color-background)"
               alt="Profile picture"
               height={100}
               width={100}
             />
-            <h1 className="mt-2">{candidate.displayName}</h1>
+            <h1 className="mt-2 font-bold">{candidate.displayName}</h1>
             <p>{candidate.bio}</p>
+            <div className="flex gap-2">
+              {candidate.linkedinURL && (
+                <Link
+                  target="_blank"
+                  href={candidate.linkedinURL}
+                  className="hover:text-primary mt-4 flex items-center gap-2 hover:underline"
+                >
+                  <LinkedinIcon className="h-6 w-6" />{" "}
+                </Link>
+              )}
+              {candidate.user.githubUsername && (
+                <Link
+                  target="_blank"
+                  href={`https://github.com/${candidate.user.githubUsername}`}
+                  className="hover:text-primary mt-4 flex items-center gap-2 hover:underline"
+                >
+                  <GithubIcon className="h-6 w-6" />{" "}
+                </Link>
+              )}
+            </div>
           </div>
           <div>
             <h2>Jams</h2>
             <div className="grid">
-              {candidate.projects.map((p) => p.project.title)}
+              <JamGrid jams={projects} />
             </div>
           </div>
         </div>

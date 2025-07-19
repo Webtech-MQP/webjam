@@ -261,9 +261,9 @@ export default function JamFinderClient() {
                   <div key={project.id}>
                     <JamCard
                       key={project.id}
-                      name={project.title ?? "Untitled Jam"}
-                      startDate={project.startDateTime ?? new Date()}
-                      endDate={project.endDateTime ?? new Date()}
+                      title={project.title ?? "Untitled Jam"}
+                      startDateTime={project.startDateTime ?? new Date()}
+                      endDateTime={project.endDateTime ?? new Date()}
                       numberOfTeammates={
                         project.candidateProfilesToProjects?.length
                       }
@@ -341,9 +341,9 @@ export default function JamFinderClient() {
                   <div key={project.id}>
                     <JamCard
                       key={project.id}
-                      name={project.title ?? "Untitled Jam"}
-                      startDate={project.startDateTime ?? new Date()}
-                      endDate={project.endDateTime ?? new Date()}
+                      title={project.title ?? "Untitled Jam"}
+                      startDateTime={project.startDateTime ?? new Date()}
+                      endDateTime={project.endDateTime ?? new Date()}
                       numberOfTeammates={
                         project.candidateProfilesToProjects?.length
                       }
