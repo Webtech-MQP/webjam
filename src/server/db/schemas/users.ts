@@ -136,11 +136,17 @@ export const recruitersToCandidates = createTable(
     recruiterId: d
       .text("recruiter_id")
       .notNull()
-      .references(() => recruiterProfiles.userId, { onDelete: "cascade" }),
+      .references(() => recruiterProfiles.userId, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
     candidateId: d
       .text("candidate_id")
       .notNull()
-      .references(() => candidateProfiles.userId, { onDelete: "cascade" }),
+      .references(() => candidateProfiles.userId, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
     comments: d.text("comments").notNull().default(""),
   }),
   (t) => [primaryKey({ columns: [t.candidateId, t.recruiterId] })],
