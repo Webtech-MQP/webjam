@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { and, eq } from "drizzle-orm";
+import { and, eq, like, or, sql, inArray } from "drizzle-orm";
 import {
   createTRPCRouter,
   publicProcedure,
@@ -200,6 +200,133 @@ export const candidateRouter = createTRPCRouter({
       const newRow = q[0];
 
       return newRow!;
+    }),
+
+  searchCandidates: publicProcedure
+    .input(
+      z.object({
+        name: z.string().optional(),
+        location: z.string().optional(),
+        language: z.string().optional(),
+        experience: z.string().optional(),
+        githubUsername: z.string().optional(),
+        page: z.number().min(1).default(1),
+        limit: z.number().min(1).max(50).default(12),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const conditions = [];
+
+      if (input.name) {
+        conditions.push(
+          or(
+            like(candidateProfiles.displayName, `%${input.name}%`),
+            like(candidateProfiles.bio, `%${input.name}%`),
+          ),
+        );
+      }
+
+      if (input.location) {
+        conditions.push(
+          like(candidateProfiles.location, `%${input.location}%`),
+        );
+      }
+
+      if (input.language) {
+        conditions.push(
+          like(candidateProfiles.language, `%${input.language}%`),
+        );
+      }
+
+      if (input.experience) {
+        conditions.push(
+          like(candidateProfiles.experience, `%${input.experience}%`),
+        );
+      }
+
+      // Handle GitHub username search separately since it requires joining with users table
+      let githubUsernameCondition = undefined;
+      if (input.githubUsername) {
+        githubUsernameCondition = like(users.githubUsername, `%${input.githubUsername}%`);
+      }
+
+      const offset = (input.page - 1) * input.limit;
+
+      let candidates;
+      let totalCount;
+
+      if (githubUsernameCondition) {
+        // If searching by GitHub username, we need to join with users table
+        const candidateIds = await ctx.db
+          .select({ userId: candidateProfiles.userId })
+          .from(candidateProfiles)
+          .innerJoin(users, eq(candidateProfiles.userId, users.id))
+          .where(and(...conditions, githubUsernameCondition))
+          .limit(input.limit)
+          .offset(offset);
+
+        const userIds = candidateIds.map(c => c.userId);
+
+        candidates = await ctx.db.query.candidateProfiles.findMany({
+          where: inArray(candidateProfiles.userId, userIds),
+          with: {
+            user: {
+              columns: {
+                githubUsername: true,
+              },
+            },
+            projects: {
+              with: {
+                project: true,
+              },
+            },
+          },
+        });
+
+        // Get total count for pagination
+        const countResult = await ctx.db
+          .select({ count: sql<number>`count(*)` })
+          .from(candidateProfiles)
+          .innerJoin(users, eq(candidateProfiles.userId, users.id))
+          .where(and(...conditions, githubUsernameCondition));
+        
+        totalCount = countResult;
+      } else {
+        // Regular search without GitHub username
+        candidates = await ctx.db.query.candidateProfiles.findMany({
+          where: conditions.length > 0 ? and(...conditions) : undefined,
+          with: {
+            user: {
+              columns: {
+                githubUsername: true,
+              },
+            },
+            projects: {
+              with: {
+                project: true,
+              },
+            },
+          },
+          limit: input.limit,
+          offset: offset,
+        });
+
+        // Get total count for pagination
+        totalCount = await ctx.db
+          .select({ count: sql<number>`count(*)` })
+          .from(candidateProfiles)
+          .where(conditions.length > 0 ? and(...conditions) : undefined);
+      }
+
+      return {
+        candidates,
+        pagination: {
+          page: input.page,
+          limit: input.limit,
+          total: totalCount[0]?.count || 0,
+          totalPages: Math.ceil((totalCount[0]?.count || 0) / input.limit),
+        },
+      };
     }),
 });
 

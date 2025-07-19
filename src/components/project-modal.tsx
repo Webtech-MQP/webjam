@@ -58,7 +58,8 @@ export const ProjectModal = (props: ProjectModalProps) => {
           position: "absolute",
           left: "50%",
           top: "50%",
-          transition: "transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1)",
+          transition:
+            "transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1)",
           opacity: visible ? 1 : 0,
           transformOrigin: "center",
           ...(visible
@@ -66,7 +67,7 @@ export const ProjectModal = (props: ProjectModalProps) => {
             : { transform: "translate(-50%, -50%) scale(0.92)" }),
         }}
       >
-        <div className="flex max-h-[90vh] w-[80vw] flex-col items-start gap-4 overflow-x-hidden overflow-y-scroll bg-stone-800 p-6 rounded-lg   ">
+        <div className="flex max-h-[90vh] w-[80vw] flex-col items-start gap-4 overflow-x-hidden overflow-y-scroll rounded-lg bg-stone-800 p-6">
           <div className="flex w-full flex-row flex-nowrap justify-between">
             <div className="flex flex-row flex-nowrap justify-start">
               {props.tags.map((tag, index) => {

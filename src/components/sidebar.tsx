@@ -6,9 +6,9 @@ import {
   Folders,
   ChevronUp,
   ChevronDown,
-  Settings,
   LogOut,
   Search,
+  Users,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -35,11 +35,16 @@ const ROUTES = [
     href: "/dashboard/jamFinder",
     icon: Search,
   },
+	{
+		name: "Candidates",
+		href: "/users/search",
+		icon: Users
+	}
 ];
 
 export function Sidebar() {
   const path = usePathname();
-  const { data: session, status } = useSession();
+  const { data: session } = useSession();
   const [profileOpen, setProfileOpen] = useState(false);
 
   const closestMatch = useCallback(() => {
