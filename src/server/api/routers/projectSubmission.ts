@@ -18,13 +18,23 @@ export const projectSubmissionRouter = createTRPCRouter({
         });
     }),
 
-    updateOne: publicProcedure.input(z.object({ id: z.string().cuid2(), status: z.string() })).mutation(async ({ ctx, input }) => {
-        return ctx.db
-            .update(projectSubmissions)
-            .set({
-                status: input.status as 'submitted' | 'under-review' | 'approved',
-            })
-            .where(eq(projectSubmissions.id, input.id));
+  updateOne: publicProcedure
+    .input(z.object({ id: z.string().cuid2(), status: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      return ctx.db
+        .update(projectSubmissions)
+        .set({
+          status: input.status as "submitted" | "under-review" | "approved",
+        })
+        .where(eq(projectSubmissions.id, input.id));
+    }),
+
+  deleteOne: publicProcedure
+    .input(z.object({ id: z.string().cuid2() }))
+    .mutation(async ({ ctx, input }) => {
+      return ctx.db
+        .delete(projectSubmissions)
+        .where(eq(projectSubmissions.id, input.id));
     }),
 
     deleteOne: publicProcedure.input(z.object({ id: z.string().cuid2() })).mutation(async ({ ctx, input }) => {
