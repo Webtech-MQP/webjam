@@ -46,7 +46,7 @@ export const ArrayInput = (props:ArrayInputProps) => {
                             <p className="w-4">{getDecoration(i)}</p>
                             <Input 
                                 type={type}
-                                autoFocus = {i === list.length-1}
+                                // autoFocus = {i === list.length-1}
                                 id={"item"+i}
                                 placeholder={props.placeholder}
                                 value={item}

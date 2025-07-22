@@ -6,9 +6,9 @@ import {
   Folders,
   ChevronUp,
   ChevronDown,
-  Settings,
   LogOut,
   Search,
+  LayoutDashboard,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -35,6 +35,11 @@ const ROUTES = [
     href: "/dashboard/jamFinder",
     icon: Search,
   },
+  {
+    name: "Admin Panel",
+    href: "/admin",
+    icon: LayoutDashboard,
+  }
 ];
 
 export function Sidebar() {
