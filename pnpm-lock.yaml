@@ -5,174 +5,172 @@ settings:
     excludeLinksFromLockfile: false
 
 importers:
-    .:
-        dependencies:
-            '@auth/drizzle-adapter':
-                specifier: ^1.10.0
-                version: 1.10.0
-            '@hookform/resolvers':
-                specifier: ^5.1.1
-                version: 5.1.1(react-hook-form@7.60.0(react@19.1.0))
-            '@libsql/client':
-                specifier: ^0.14.0
-                version: 0.14.0
-            '@radix-ui/react-avatar':
-                specifier: ^1.1.10
-                version: 1.1.10(@types/react-dom@19.1.6(@types/react@19.1.8))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-            '@radix-ui/react-dialog':
-                specifier: ^1.1.14
-                version: 1.1.14(@types/react-dom@19.1.6(@types/react@19.1.8))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-            '@radix-ui/react-label':
-                specifier: ^2.1.7
-                version: 2.1.7(@types/react-dom@19.1.6(@types/react@19.1.8))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-            '@radix-ui/react-popover':
-                specifier: ^1.1.14
-                version: 1.1.14(@types/react-dom@19.1.6(@types/react@19.1.8))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-            '@radix-ui/react-slider':
-                specifier: ^1.3.5
-                version: 1.3.5(@types/react-dom@19.1.6(@types/react@19.1.8))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-            '@radix-ui/react-slot':
-                specifier: ^1.2.3
-                version: 1.2.3(@types/react@19.1.8)(react@19.1.0)
-            '@radix-ui/react-tooltip':
-                specifier: ^1.2.7
-                version: 1.2.7(@types/react-dom@19.1.6(@types/react@19.1.8))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-            '@t3-oss/env-nextjs':
-                specifier: ^0.12.0
-                version: 0.12.0(typescript@5.8.3)(zod@3.25.67)
-            '@tanstack/react-query':
-                specifier: ^5.69.0
-                version: 5.81.0(react@19.1.0)
-            '@trpc/client':
-                specifier: ^11.0.0
-                version: 11.4.2(@trpc/server@11.4.2(typescript@5.8.3))(typescript@5.8.3)
-            '@trpc/react-query':
-                specifier: ^11.0.0
-                version: 11.4.2(@tanstack/react-query@5.81.0(react@19.1.0))(@trpc/client@11.4.2(@trpc/server@11.4.2(typescript@5.8.3))(typescript@5.8.3))(@trpc/server@11.4.2(typescript@5.8.3))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(typescript@5.8.3)
-            '@trpc/server':
-                specifier: ^11.0.0
-                version: 11.4.2(typescript@5.8.3)
-            class-variance-authority:
-                specifier: ^0.7.1
-                version: 0.7.1
-            clsx:
-                specifier: ^2.1.1
-                version: 2.1.1
-            date-fns:
-                specifier: ^4.1.0
-                version: 4.1.0
-            drizzle-orm:
-                specifier: ^0.41.0
-                version: 0.41.0(@libsql/client@0.14.0)(gel@2.1.0)
-            drizzle-seed:
-                specifier: ^0.3.1
-                version: 0.3.1(drizzle-orm@0.41.0(@libsql/client@0.14.0)(gel@2.1.0))
-            lucide-react:
-                specifier: ^0.522.0
-                version: 0.522.0(react@19.1.0)
-            next:
-                specifier: ^15.2.3
-                version: 15.3.4(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-            next-auth:
-                specifier: 5.0.0-beta.29
-                version: 5.0.0-beta.29(next@15.3.4(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react@19.1.0)
-            prettier-plugin-organize-imports:
-                specifier: ^4.1.0
-                version: 4.1.0(prettier@3.5.3)(typescript@5.8.3)
-            react:
-                specifier: ^19.0.0
-                version: 19.1.0
-            react-day-picker:
-                specifier: ^9.8.0
-                version: 9.8.0(react@19.1.0)
-            react-dom:
-                specifier: ^19.0.0
-                version: 19.1.0(react@19.1.0)
-            react-hook-form:
-                specifier: ^7.60.0
-                version: 7.60.0(react@19.1.0)
-            react-roughviz:
-                specifier: ^0.1.10
-                version: 0.1.10(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-            recharts:
-                specifier: ^2.15.4
-                version: 2.15.4(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-            rough-react-wrapper:
-                specifier: ^1.0.2
-                version: 1.0.2(react@19.1.0)(roughjs@4.6.6)
-            server-only:
-                specifier: ^0.0.1
-                version: 0.0.1
-            superjson:
-                specifier: ^2.2.1
-                version: 2.2.2
-            tailwind-merge:
-                specifier: ^3.3.1
-                version: 3.3.1
-            zod:
-                specifier: ^3.25.67
-                version: 3.25.67
-        devDependencies:
-            '@eslint/eslintrc':
-                specifier: ^3.3.1
-                version: 3.3.1
-            '@paralleldrive/cuid2':
-                specifier: ^2.2.2
-                version: 2.2.2
-            '@tailwindcss/postcss':
-                specifier: ^4.0.15
-                version: 4.1.10
-            '@types/node':
-                specifier: ^20.14.10
-                version: 20.19.1
-            '@types/react':
-                specifier: ^19.0.0
-                version: 19.1.8
-            '@types/react-dom':
-                specifier: ^19.0.0
-                version: 19.1.6(@types/react@19.1.8)
-            dotenv-cli:
-                specifier: ^8.0.0
-                version: 8.0.0
-            drizzle-kit:
-                specifier: ^0.31.1
-                version: 0.31.1
-            eslint:
-                specifier: ^9.23.0
-                version: 9.29.0(jiti@2.4.2)
-            eslint-config-next:
-                specifier: ^15.2.3
-                version: 15.3.4(eslint@9.29.0(jiti@2.4.2))(typescript@5.8.3)
-            eslint-plugin-drizzle:
-                specifier: ^0.2.3
-                version: 0.2.3(eslint@9.29.0(jiti@2.4.2))
-            husky:
-                specifier: ^9.1.7
-                version: 9.1.7
-            postcss:
-                specifier: ^8.5.3
-                version: 8.5.6
-            prettier:
-                specifier: ^3.5.3
-                version: 3.5.3
-            prettier-plugin-tailwindcss:
-                specifier: ^0.6.11
-                version: 0.6.13(prettier-plugin-organize-imports@4.1.0(prettier@3.5.3)(typescript@5.8.3))(prettier@3.5.3)
-            tailwindcss:
-                specifier: ^4.0.15
-                version: 4.1.10
-            tsx:
-                specifier: ^4.20.3
-                version: 4.20.3
-            tw-animate-css:
-                specifier: ^1.3.4
-                version: 1.3.4
-            typescript:
-                specifier: ^5.8.2
-                version: 5.8.3
-            typescript-eslint:
-                specifier: ^8.27.0
-                version: 8.34.1(eslint@9.29.0(jiti@2.4.2))(typescript@5.8.3)
+
+  .:
+    dependencies:
+      '@auth/drizzle-adapter':
+        specifier: ^1.10.0
+        version: 1.10.0
+      '@hookform/resolvers':
+        specifier: ^5.1.1
+        version: 5.1.1(react-hook-form@7.60.0(react@19.1.0))
+      '@libsql/client':
+        specifier: ^0.14.0
+        version: 0.14.0
+      '@radix-ui/react-avatar':
+        specifier: ^1.1.10
+        version: 1.1.10(@types/react-dom@19.1.6(@types/react@19.1.8))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@radix-ui/react-dialog':
+        specifier: ^1.1.14
+        version: 1.1.14(@types/react-dom@19.1.6(@types/react@19.1.8))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@radix-ui/react-label':
+        specifier: ^2.1.7
+        version: 2.1.7(@types/react-dom@19.1.6(@types/react@19.1.8))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@radix-ui/react-popover':
+        specifier: ^1.1.14
+        version: 1.1.14(@types/react-dom@19.1.6(@types/react@19.1.8))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@radix-ui/react-slider':
+        specifier: ^1.3.5
+        version: 1.3.5(@types/react-dom@19.1.6(@types/react@19.1.8))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@radix-ui/react-slot':
+        specifier: ^1.2.3
+        version: 1.2.3(@types/react@19.1.8)(react@19.1.0)
+      '@radix-ui/react-tooltip':
+        specifier: ^1.2.7
+        version: 1.2.7(@types/react-dom@19.1.6(@types/react@19.1.8))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@t3-oss/env-nextjs':
+        specifier: ^0.12.0
+        version: 0.12.0(typescript@5.8.3)(zod@3.25.67)
+      '@tanstack/react-query':
+        specifier: ^5.69.0
+        version: 5.81.0(react@19.1.0)
+      '@trpc/client':
+        specifier: ^11.0.0
+        version: 11.4.2(@trpc/server@11.4.2(typescript@5.8.3))(typescript@5.8.3)
+      '@trpc/react-query':
+        specifier: ^11.0.0
+        version: 11.4.2(@tanstack/react-query@5.81.0(react@19.1.0))(@trpc/client@11.4.2(@trpc/server@11.4.2(typescript@5.8.3))(typescript@5.8.3))(@trpc/server@11.4.2(typescript@5.8.3))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(typescript@5.8.3)
+      '@trpc/server':
+        specifier: ^11.0.0
+        version: 11.4.2(typescript@5.8.3)
+      class-variance-authority:
+        specifier: ^0.7.1
+        version: 0.7.1
+      clsx:
+        specifier: ^2.1.1
+        version: 2.1.1
+      date-fns:
+        specifier: ^4.1.0
+        version: 4.1.0
+      drizzle-orm:
+        specifier: ^0.41.0
+        version: 0.41.0(@libsql/client@0.14.0)(gel@2.1.0)
+      drizzle-seed:
+        specifier: ^0.3.1
+        version: 0.3.1(drizzle-orm@0.41.0(@libsql/client@0.14.0)(gel@2.1.0))
+      lucide-react:
+        specifier: ^0.522.0
+        version: 0.522.0(react@19.1.0)
+      next:
+        specifier: ^15.2.3
+        version: 15.3.4(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      next-auth:
+        specifier: 5.0.0-beta.29
+        version: 5.0.0-beta.29(next@15.3.4(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react@19.1.0)
+      react:
+        specifier: ^19.0.0
+        version: 19.1.0
+      react-day-picker:
+        specifier: ^9.8.0
+        version: 9.8.0(react@19.1.0)
+      react-dom:
+        specifier: ^19.0.0
+        version: 19.1.0(react@19.1.0)
+      react-hook-form:
+        specifier: ^7.60.0
+        version: 7.60.0(react@19.1.0)
+      react-roughviz:
+        specifier: ^0.1.10
+        version: 0.1.10(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      recharts:
+        specifier: ^2.15.4
+        version: 2.15.4(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      rough-react-wrapper:
+        specifier: ^1.0.2
+        version: 1.0.2(react@19.1.0)(roughjs@4.6.6)
+      server-only:
+        specifier: ^0.0.1
+        version: 0.0.1
+      superjson:
+        specifier: ^2.2.1
+        version: 2.2.2
+      tailwind-merge:
+        specifier: ^3.3.1
+        version: 3.3.1
+      zod:
+        specifier: ^3.25.67
+        version: 3.25.67
+    devDependencies:
+      '@eslint/eslintrc':
+        specifier: ^3.3.1
+        version: 3.3.1
+      '@paralleldrive/cuid2':
+        specifier: ^2.2.2
+        version: 2.2.2
+      '@tailwindcss/postcss':
+        specifier: ^4.0.15
+        version: 4.1.10
+      '@types/node':
+        specifier: ^20.14.10
+        version: 20.19.1
+      '@types/react':
+        specifier: ^19.0.0
+        version: 19.1.8
+      '@types/react-dom':
+        specifier: ^19.0.0
+        version: 19.1.6(@types/react@19.1.8)
+      dotenv-cli:
+        specifier: ^8.0.0
+        version: 8.0.0
+      drizzle-kit:
+        specifier: ^0.31.1
+        version: 0.31.1
+      eslint:
+        specifier: ^9.23.0
+        version: 9.29.0(jiti@2.4.2)
+      eslint-config-next:
+        specifier: ^15.2.3
+        version: 15.3.4(eslint@9.29.0(jiti@2.4.2))(typescript@5.8.3)
+      eslint-plugin-drizzle:
+        specifier: ^0.2.3
+        version: 0.2.3(eslint@9.29.0(jiti@2.4.2))
+      husky:
+        specifier: ^9.1.7
+        version: 9.1.7
+      postcss:
+        specifier: ^8.5.3
+        version: 8.5.6
+      prettier:
+        specifier: ^3.5.3
+        version: 3.5.3
+      prettier-plugin-tailwindcss:
+        specifier: ^0.6.11
+        version: 0.6.13(prettier@3.5.3)
+      tailwindcss:
+        specifier: ^4.0.15
+        version: 4.1.10
+      tsx:
+        specifier: ^4.20.3
+        version: 4.20.3
+      tw-animate-css:
+        specifier: ^1.3.4
+        version: 1.3.4
+      typescript:
+        specifier: ^5.8.2
+        version: 5.8.3
+      typescript-eslint:
+        specifier: ^8.27.0
+        version: 8.34.1(eslint@9.29.0(jiti@2.4.2))(typescript@5.8.3)
 
 packages:
     '@alloc/quick-lru@5.2.0':
@@ -1339,19 +1337,19 @@ packages:
     '@tailwindcss/postcss@4.1.10':
         resolution: { integrity: sha512-B+7r7ABZbkXJwpvt2VMnS6ujcDoR2OOcFaqrLIo1xbcdxje4Vf+VgJdBzNNbrAjBj/rLZ66/tlQ1knIGNLKOBQ== }
 
-    '@tanstack/query-core@5.81.0':
-        resolution: { integrity: sha512-lFsd8NBhkh26vzaq8uOOM2o3r4NtJros7kASI+TTMBmKT8C43HVN/2mOI9PFX9kzmxLThBzOLa4NI8ORhX8N9g== }
+  '@tanstack/query-core@5.81.0':
+    resolution: {integrity: sha512-lFsd8NBhkh26vzaq8uOOM2o3r4NtJros7kASI+TTMBmKT8C43HVN/2mOI9PFX9kzmxLThBzOLa4NI8ORhX8N9g==}
 
-    '@tanstack/react-query@5.81.0':
-        resolution: { integrity: sha512-nutU/X1xrgMJXui61oi5j0gXKs2ZlHnI9f/C128CNha/MRi9i/E5tN3pcUIjvQZzNQnOxp1Uv90SZs3kmcecgw== }
-        peerDependencies:
-            react: ^18 || ^19
+  '@tanstack/react-query@5.81.0':
+    resolution: {integrity: sha512-nutU/X1xrgMJXui61oi5j0gXKs2ZlHnI9f/C128CNha/MRi9i/E5tN3pcUIjvQZzNQnOxp1Uv90SZs3kmcecgw==}
+    peerDependencies:
+      react: ^18 || ^19
 
-    '@trpc/client@11.4.2':
-        resolution: { integrity: sha512-Eep1rorAsATs9bxgaXf+BV34CRs4lAKQmwumUL4CNdNDkJItyfuWUr3xWx0np1w3EzUDVA0YDMK93iKDBBA0KQ== }
-        peerDependencies:
-            '@trpc/server': 11.4.2
-            typescript: '>=5.7.2'
+  '@trpc/client@11.4.2':
+    resolution: {integrity: sha512-Eep1rorAsATs9bxgaXf+BV34CRs4lAKQmwumUL4CNdNDkJItyfuWUr3xWx0np1w3EzUDVA0YDMK93iKDBBA0KQ==}
+    peerDependencies:
+      '@trpc/server': 11.4.2
+      typescript: '>=5.7.2'
 
     '@trpc/react-query@11.4.2':
         resolution: { integrity: sha512-tm2y9asG3PmdyZqgE92hQEauxls/2ZlEMpA6y/hLizdhjLiKCEtYCQ38pU+n4vUYczffZ90aTaSFm7zf+tnz/g== }
@@ -1868,8 +1866,8 @@ packages:
     decimal.js-light@2.5.1:
         resolution: { integrity: sha512-qIMFpTMZmny+MMIitAB6D7iVPEorVw6YQRWkvarTkT4tBeSLLiHzcwj6q0MmYSFCiVpiqPJTJEYIrpcPzVEIvg== }
 
-    deep-is@0.1.4:
-        resolution: { integrity: sha512-oIPzksmTg4/MriiaYGO+okXDT7ztn/w3Eptv/+gSIdMdKsJo0u4CfYNFJPy+4SKMuCqGw2wxnA+URMg3t8a/bQ== }
+  deep-is@0.1.4:
+    resolution: {integrity: sha512-oIPzksmTg4/MriiaYGO+okXDT7ztn/w3Eptv/+gSIdMdKsJo0u4CfYNFJPy+4SKMuCqGw2wxnA+URMg3t8a/bQ==}
 
     define-data-property@1.1.4:
         resolution: { integrity: sha512-rBMvIzlpA8v6E+SJZoo++HAYqsLrkg7MSfIinMPFhmkorw7X+dOXVJQs+QT69zGkzMyfDnIMN2Wid1+NbL3T+A== }
@@ -1894,9 +1892,9 @@ packages:
     detect-node-es@1.1.0:
         resolution: { integrity: sha512-ypdmJU/TbBby2Dxibuv7ZLW3Bs1QEmM7nHjEANfohJLvE0XVujisn1qPJcZxg+qDucsr+bP6fLD1rPS3AhJ7EQ== }
 
-    doctrine@2.1.0:
-        resolution: { integrity: sha512-35mSku4ZXK0vfCuHEDAwt55dg2jNajHZ1odvF+8SSr82EsZY4QmXfuWso8oEd8zRhVObSN18aM0CjSdoBX7zIw== }
-        engines: { node: '>=0.10.0' }
+  doctrine@2.1.0:
+    resolution: {integrity: sha512-35mSku4ZXK0vfCuHEDAwt55dg2jNajHZ1odvF+8SSr82EsZY4QmXfuWso8oEd8zRhVObSN18aM0CjSdoBX7zIw==}
+    engines: {node: '>=0.10.0'}
 
     dom-helpers@5.2.1:
         resolution: { integrity: sha512-nRCa7CK3VTrM2NmGkIy4cbK7IZlgBE/PYMn55rrXefr5xXDP0LdtfPnblFDoVdcAfslJ7or6iqAUnx0CCGIWQA== }
@@ -4329,17 +4327,17 @@ snapshots:
             postcss: 8.5.6
             tailwindcss: 4.1.10
 
-    '@tanstack/query-core@5.81.0': {}
+  '@tanstack/query-core@5.81.0': {}
 
-    '@tanstack/react-query@5.81.0(react@19.1.0)':
-        dependencies:
-            '@tanstack/query-core': 5.81.0
-            react: 19.1.0
+  '@tanstack/react-query@5.81.0(react@19.1.0)':
+    dependencies:
+      '@tanstack/query-core': 5.81.0
+      react: 19.1.0
 
-    '@trpc/client@11.4.2(@trpc/server@11.4.2(typescript@5.8.3))(typescript@5.8.3)':
-        dependencies:
-            '@trpc/server': 11.4.2(typescript@5.8.3)
-            typescript: 5.8.3
+  '@trpc/client@11.4.2(@trpc/server@11.4.2(typescript@5.8.3))(typescript@5.8.3)':
+    dependencies:
+      '@trpc/server': 11.4.2(typescript@5.8.3)
+      typescript: 5.8.3
 
     '@trpc/react-query@11.4.2(@tanstack/react-query@5.81.0(react@19.1.0))(@trpc/client@11.4.2(@trpc/server@11.4.2(typescript@5.8.3))(typescript@5.8.3))(@trpc/server@11.4.2(typescript@5.8.3))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(typescript@5.8.3)':
         dependencies:
@@ -4874,7 +4872,7 @@ snapshots:
         dependencies:
             ms: 2.1.3
 
-    decimal.js-light@2.5.1: {}
+  decimal.js-light@2.5.1: {}
 
     deep-is@0.1.4: {}
 
@@ -4896,7 +4894,7 @@ snapshots:
 
     detect-libc@2.0.4: {}
 
-    detect-node-es@1.1.0: {}
+  detect-node-es@1.1.0: {}
 
     doctrine@2.1.0:
         dependencies:
