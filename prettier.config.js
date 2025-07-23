@@ -8,7 +8,7 @@ const PrettierConfig = {
     semi: true,
     tabWidth: 4,
     useTabs: false,
-    endOfLine: 'lf',
+    endOfLine: 'auto',
     singleAttributePerLine: true,
     printWidth: 999999,
 };
