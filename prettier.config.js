@@ -1,14 +1,14 @@
 /** @type {import('prettier').Config & import('prettier-plugin-tailwindcss').PluginOptions} */
 const PrettierConfig = {
-    plugins: ["prettier-plugin-tailwindcss", "prettier-plugin-organize-imports"],
-    trailingComma: "es5",
+    plugins: ['prettier-plugin-tailwindcss', 'prettier-plugin-organize-imports'],
+    trailingComma: 'es5',
     bracketSpacing: true,
-    objectWrap: "preserve",
+    objectWrap: 'preserve',
     singleQuote: true,
     semi: true,
     tabWidth: 4,
     useTabs: false,
-    endOfLine: "lf",
+    endOfLine: 'lf',
     singleAttributePerLine: true,
     printWidth: 999999,
 };

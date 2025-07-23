@@ -1,149 +1,137 @@
-import { relations, sql } from "drizzle-orm";
-import { createTable } from "../schema-util";
+import { relations, sql } from 'drizzle-orm';
+import { createTable } from '../schema-util';
 
-import { createId } from "@paralleldrive/cuid2";
-import { primaryKey } from "drizzle-orm/sqlite-core";
-import { candidateProfiles, adminProfiles } from "./users";
+import { createId } from '@paralleldrive/cuid2';
+import { primaryKey } from 'drizzle-orm/sqlite-core';
+import { adminProfiles, candidateProfiles } from './users';
 
-export const projects = createTable("project", (d) => ({
-  id: d
-    .text()
-    .$defaultFn(() => createId())
-    .primaryKey(),
-  title: d.text({ length: 256 }),
-  subTitle: d.text({ length: 256 }),
-  description: d.text({ length: 256 }),
-  instructions: d.text({ length: 256 }),
-  requirements: d.text({ length: 256 }),
-  imageURL: d.text({ length: 256 }),
-  status: d
-    .text({ enum: ["in-progress", "completed", "upcoming"] })
-    .default("in-progress"),
-  deadline: d.integer({ mode: "timestamp" }),
-  startDateTime: d.integer({ mode: "timestamp" }),
-  endDateTime: d.integer({ mode: "timestamp" }),
-  createdAt: d.integer({ mode: "timestamp" }).default(sql`(unixepoch())`),
-  updatedAt: d.integer({ mode: "timestamp" }).default(sql`(unixepoch())`),
-  createdBy: d
-    .text({ length: 255 })
-    .references(() => adminProfiles.userId, { onDelete: "set null" }),
+export const projects = createTable('project', (d) => ({
+    id: d
+        .text()
+        .$defaultFn(() => createId())
+        .primaryKey(),
+    title: d.text({ length: 256 }),
+    subTitle: d.text({ length: 256 }),
+    description: d.text({ length: 256 }),
+    instructions: d.text({ length: 256 }),
+    requirements: d.text({ length: 256 }),
+    imageURL: d.text({ length: 256 }),
+    status: d.text({ enum: ['in-progress', 'completed', 'upcoming'] }).default('in-progress'),
+    deadline: d.integer({ mode: 'timestamp' }),
+    startDateTime: d.integer({ mode: 'timestamp' }),
+    endDateTime: d.integer({ mode: 'timestamp' }),
+    createdAt: d.integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
+    updatedAt: d.integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
+    createdBy: d.text({ length: 255 }).references(() => adminProfiles.userId, { onDelete: 'set null' }),
 }));
 
 export const projectsRelations = relations(projects, ({ one, many }) => ({
-  submission: one(projectSubmissions, {
-    fields: [projects.id],
-    references: [projectSubmissions.projectId],
-  }),
-  candidateProfilesToProjects: many(candidateProfilesToProjects),
-  tags: many(projectsTags),
-  creator: one(adminProfiles, {
-    fields: [projects.createdBy],
-    references: [adminProfiles.userId],
-  }),
+    submission: one(projectSubmissions, {
+        fields: [projects.id],
+        references: [projectSubmissions.projectId],
+    }),
+    candidateProfilesToProjects: many(candidateProfilesToProjects),
+    tags: many(projectsTags),
+    creator: one(adminProfiles, {
+        fields: [projects.createdBy],
+        references: [adminProfiles.userId],
+    }),
 }));
 
-export const projectSubmissions = createTable("projectSubmission", (d) => ({
-  id: d
-    .text()
-    .$defaultFn(() => createId())
-    .primaryKey(),
-  projectId: d
-    .text()
-    .notNull()
-    .references(() => projects.id),
-  submittedOn: d.integer({ mode: "timestamp" }).default(sql`(unixepoch())`),
-  status: d
-    .text({ enum: ["submitted", "under-review", "approved"] })
-    .default("submitted"),
-  reviewedOn: d.integer({ mode: "timestamp" }),
-  reviewedBy: d
-    .text({ length: 255 })
-    .notNull()
-    .references(() => adminProfiles.userId),
-  repoURL: d.text({ length: 255 }),
-  notes: d.text({ length: 255 }),
+export const projectSubmissions = createTable('projectSubmission', (d) => ({
+    id: d
+        .text()
+        .$defaultFn(() => createId())
+        .primaryKey(),
+    projectId: d
+        .text()
+        .notNull()
+        .references(() => projects.id),
+    submittedOn: d.integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
+    status: d.text({ enum: ['submitted', 'under-review', 'approved'] }).default('submitted'),
+    reviewedOn: d.integer({ mode: 'timestamp' }),
+    reviewedBy: d
+        .text({ length: 255 })
+        .notNull()
+        .references(() => adminProfiles.userId),
+    repoURL: d.text({ length: 255 }),
+    notes: d.text({ length: 255 }),
 }));
 
-export const tags = createTable("tag", (d) => ({
-  id: d
-    .text()
-    .$defaultFn(() => createId())
-    .primaryKey(),
-  name: d.text({ length: 256 }).unique(),
+export const tags = createTable('tag', (d) => ({
+    id: d
+        .text()
+        .$defaultFn(() => createId())
+        .primaryKey(),
+    name: d.text({ length: 256 }).unique(),
 }));
 
 export const candidateProfilesToProjects = createTable(
-  "candidate_profiles_to_projects",
-  (d) => ({
-    candidateId: d
-      .text("candidate_id")
-      .notNull()
-      .references(() => candidateProfiles.userId, {
-        onDelete: "cascade",
-        onUpdate: "cascade",
-      }),
-    projectId: d
-      .text("project_id")
-      .notNull()
-      .references(() => projects.id, {
-        onDelete: "cascade",
-        onUpdate: "cascade",
-      }),
-    visible: d.integer("visible", { mode: "boolean" }).notNull().default(true),
-  }),
-  (t) => [primaryKey({ columns: [t.candidateId, t.projectId] })],
+    'candidate_profiles_to_projects',
+    (d) => ({
+        candidateId: d
+            .text('candidate_id')
+            .notNull()
+            .references(() => candidateProfiles.userId, {
+                onDelete: 'cascade',
+                onUpdate: 'cascade',
+            }),
+        projectId: d
+            .text('project_id')
+            .notNull()
+            .references(() => projects.id, {
+                onDelete: 'cascade',
+                onUpdate: 'cascade',
+            }),
+        visible: d.integer('visible', { mode: 'boolean' }).notNull().default(true),
+    }),
+    (t) => [primaryKey({ columns: [t.candidateId, t.projectId] })]
 );
 
-export const candidateProfilesToProjectsRelations = relations(
-  candidateProfilesToProjects,
-  ({ one }) => ({
+export const candidateProfilesToProjectsRelations = relations(candidateProfilesToProjects, ({ one }) => ({
     candidateProfile: one(candidateProfiles, {
-      fields: [candidateProfilesToProjects.candidateId],
-      references: [candidateProfiles.userId],
+        fields: [candidateProfilesToProjects.candidateId],
+        references: [candidateProfiles.userId],
     }),
     project: one(projects, {
-      fields: [candidateProfilesToProjects.projectId],
-      references: [projects.id],
+        fields: [candidateProfilesToProjects.projectId],
+        references: [projects.id],
     }),
-  }),
-);
+}));
 
-export const projectSubmissionsRelations = relations(
-  projectSubmissions,
-  ({ one }) => ({
+export const projectSubmissionsRelations = relations(projectSubmissions, ({ one }) => ({
     project: one(projects, {
-      fields: [projectSubmissions.projectId],
-      references: [projects.id],
+        fields: [projectSubmissions.projectId],
+        references: [projects.id],
     }),
     reviewedByAdmin: one(adminProfiles, {
-      fields: [projectSubmissions.reviewedBy],
-      references: [adminProfiles.userId],
+        fields: [projectSubmissions.reviewedBy],
+        references: [adminProfiles.userId],
     }),
-  }),
-);
+}));
 
-export const projectsTags = createTable("projects_tags", (d) => ({
-  projectId: d
-    .text("project_id")
-    .notNull()
-    .references(() => projects.id, { onDelete: "cascade" }),
-  tagId: d
-    .text("tag_id")
-    .notNull()
-    .references(() => tags.id, { onDelete: "cascade" }),
+export const projectsTags = createTable('projects_tags', (d) => ({
+    projectId: d
+        .text('project_id')
+        .notNull()
+        .references(() => projects.id, { onDelete: 'cascade' }),
+    tagId: d
+        .text('tag_id')
+        .notNull()
+        .references(() => tags.id, { onDelete: 'cascade' }),
 }));
 
 export const tagRelations = relations(tags, ({ many }) => ({
-  projects: many(projectsTags),
+    projects: many(projectsTags),
 }));
 
 export const projectsTagsRelations = relations(projectsTags, ({ one }) => ({
-  project: one(projects, {
-    fields: [projectsTags.projectId],
-    references: [projects.id],
-  }),
-  tag: one(tags, {
-    fields: [projectsTags.tagId],
-    references: [tags.id],
-  }),
+    project: one(projects, {
+        fields: [projectsTags.projectId],
+        references: [projects.id],
+    }),
+    tag: one(tags, {
+        fields: [projectsTags.tagId],
+        references: [tags.id],
+    }),
 }));
