@@ -9,10 +9,30 @@ import { projects, tags } from "@/server/db/schemas/projects";
 
 export const projectRouter = createTRPCRouter({
   create: protectedProcedure
-    .input(z.object({ title: z.string().min(1).max(255) }))
+    .input(z.object({
+      id: z.string().cuid2(),
+      title: z.string().min(1).max(255),
+      subtitle: z.string().min(0).max(255),
+      description: z.string().min(0).max(255),
+      requirements: z.string().min(0).max(255),
+      imageURL: z.string().min(0).max(255),
+      starts: z.date(),
+      ends: z.date(),
+
+    }))
     .mutation(async ({ ctx, input }) => {
       return ctx.db.insert(projects).values({
+        id: input.id,
         title: input.title,
+        subTitle: input.subtitle,
+        description: input.description,
+        instructions: "",
+        requirements: input.requirements,
+        imageURL: input.imageURL,
+        status: "upcoming",
+        deadline: new Date(0),
+        startDateTime: input.starts,
+        endDateTime: input.ends,
         createdBy: ctx.session.user.id,
       });
     }),

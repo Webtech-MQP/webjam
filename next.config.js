@@ -17,6 +17,7 @@ const config = {
         hostname: "avatars.githubusercontent.com",
       },
     ],
+    unoptimized: true
   },
   devIndicators: false,
 };

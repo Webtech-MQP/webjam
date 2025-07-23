@@ -80,6 +80,9 @@ importers:
       next-auth:
         specifier: 5.0.0-beta.29
         version: 5.0.0-beta.29(next@15.3.4(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react@19.1.0)
+      prettier-plugin-organize-imports:
+        specifier: ^4.1.0
+        version: 4.2.0(prettier@3.5.3)(typescript@5.8.3)
       react:
         specifier: ^19.0.0
         version: 19.1.0
@@ -158,7 +161,7 @@ importers:
         version: 3.5.3
       prettier-plugin-tailwindcss:
         specifier: ^0.6.11
-        version: 0.6.13(prettier@3.5.3)
+        version: 0.6.13(prettier-plugin-organize-imports@4.2.0(prettier@3.5.3)(typescript@5.8.3))(prettier@3.5.3)
       tailwindcss:
         specifier: ^4.0.15
         version: 4.1.10
@@ -2898,6 +2901,16 @@ packages:
   prelude-ls@1.2.1:
     resolution: {integrity: sha512-vkcDPrRZo1QZLbn5RLGPpg/WmIQ65qoWWhcGKf/b5eplkkarX0m9z8ppCat4mlOqUsWpyNuYgO3VRyrYHSzX5g==}
     engines: {node: '>= 0.8.0'}
+
+  prettier-plugin-organize-imports@4.2.0:
+    resolution: {integrity: sha512-Zdy27UhlmyvATZi67BTnLcKTo8fm6Oik59Sz6H64PgZJVs6NJpPD1mT240mmJn62c98/QaL+r3kx9Q3gRpDajg==}
+    peerDependencies:
+      prettier: '>=2.0'
+      typescript: '>=2.9'
+      vue-tsc: ^2.1.0 || 3
+    peerDependenciesMeta:
+      vue-tsc:
+        optional: true
 
   prettier-plugin-tailwindcss@0.6.13:
     resolution: {integrity: sha512-uQ0asli1+ic8xrrSmIOaElDu0FacR4x69GynTh2oZjFY10JUt6EEumTQl5tB4fMeD6I1naKd+4rXQQ7esT2i1g==}
@@ -6007,9 +6020,16 @@ snapshots:
 
   prelude-ls@1.2.1: {}
 
-  prettier-plugin-tailwindcss@0.6.13(prettier@3.5.3):
+  prettier-plugin-organize-imports@4.2.0(prettier@3.5.3)(typescript@5.8.3):
     dependencies:
       prettier: 3.5.3
+      typescript: 5.8.3
+
+  prettier-plugin-tailwindcss@0.6.13(prettier-plugin-organize-imports@4.2.0(prettier@3.5.3)(typescript@5.8.3))(prettier@3.5.3):
+    dependencies:
+      prettier: 3.5.3
+    optionalDependencies:
+      prettier-plugin-organize-imports: 4.2.0(prettier@3.5.3)(typescript@5.8.3)
 
   prettier@3.5.3: {}
 
