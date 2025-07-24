@@ -1,5 +1,5 @@
 import { Label } from "@/components/ui/label";
-import { useEffect, useRef, useState, type ChangeEvent } from "react";
+import { useState, type ChangeEvent } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "./ui/button";
 import { Plus, Trash } from "lucide-react";

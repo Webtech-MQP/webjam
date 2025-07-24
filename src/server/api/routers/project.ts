@@ -93,7 +93,7 @@ export const projectRouter = createTRPCRouter({
         )
         .query(async ({ ctx, input }) => {
             const q = await ctx.db.query.projects.findMany({
-                where: (projects, { and, gte, lte, eq, like }) => {
+                where: (projects, { and, gte, lte, like }) => {
                     const conditions = [like(projects.title, `%${input.title}%`)];
                     if (input.from) {
                         conditions.push(gte(projects.startDateTime, input.from));
@@ -132,12 +132,6 @@ export const projectRouter = createTRPCRouter({
         const inserted = await ctx.db.insert(tags).values({ name: input.name }).returning();
         return inserted[0];
     }),
-
-    // createManyTags: protectedProcedure
-    // .input(z.array(z.object({ name: z.string().min(1).max(256) })))
-    // .mutation(async ({ ctx, input }) => {
-    //   return ctx.db.insert(tags).values(input);
-    // }),
 
     getTag: publicProcedure.input(z.object({ id: z.string() })).query(async ({ ctx, input }) => {
         return ctx.db.query.tags.findFirst({

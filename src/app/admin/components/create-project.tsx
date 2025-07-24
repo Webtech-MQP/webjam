@@ -3,7 +3,7 @@
 import { ArrayInput } from '@/components/array-input';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
+import { Command, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -44,9 +44,7 @@ export default function AdminCreateProject() {
     const [dialogueOpen, setDialogueOpen] = useState<boolean>(false);
     const [formState, setFormState] = useState<CreateProjectFormSchema>(defaultForm);
     const [open, setOpen] = useState(false);
-    const [value, setValue] = useState('');
     const [tagInput, setTagInput] = useState('');
-    const [formTags, setFormTags] = useState<string[]>([]);
     const createTag = api.projects.createTag.useMutation();
     const createProject = api.projects.create.useMutation();
     const tags = api.projects.getAllTags.useQuery();
@@ -57,8 +55,8 @@ export default function AdminCreateProject() {
         const title = formState.title.length > 0 ? formState.title : 'Untitled Project';
         const start = new Date(formState.start.length > 0 ? formState.start : Date.now());
         const end = new Date(formState.end.length > 0 ? formState.end : Date.now());
+        const tagIds = tags.data?.filter((tag) => formState.tags.includes(tag.name ?? 'Untitled Tag')).map((tag) => tag.id);
         console.log(end);
-
         await createProject.mutateAsync({
             id: id,
             title: title,
@@ -68,6 +66,7 @@ export default function AdminCreateProject() {
             imageURL: formState.imageURL,
             starts: start,
             ends: end,
+            tags: tagIds,
         });
         onDiscard();
         router.push(`/dashboard/projects/${id}`);
@@ -107,6 +106,7 @@ export default function AdminCreateProject() {
                         <div className="w-full flex justify-between">
                             <DialogTitle>Create New Project</DialogTitle>
                             <DialogClose
+                                className="hover:cursor-pointer"
                                 onClick={() => {
                                     setDialogueOpen(false);
                                 }}
@@ -204,7 +204,7 @@ export default function AdminCreateProject() {
                                     aria-expanded={open}
                                     className="w-full justify-between"
                                 >
-                                    {value ? tags.data?.find((tag) => tag.name === value)?.name : 'Select a tag'}
+                                    Select tags from dropdown
                                     <ChevronsUpDown className="opacity-50" />
                                 </Button>
                             </PopoverTrigger>
@@ -221,61 +221,58 @@ export default function AdminCreateProject() {
                                         onValueChange={setTagInput}
                                     />
                                     <CommandList>
-                                        {(!tags.data || !tags.data.some((tag) => tag.name === tagInput)) && tagInput.trim() !== '' ? (
-                                            <CommandEmpty className="m-1">
-                                                <Button
-                                                    variant="ghost"
-                                                    className="w-full justify-between"
-                                                    onClick={async () => {
-                                                        const promise = createTag.mutateAsync({ name: tagInput });
-                                                        toast.promise(promise, {
-                                                            loading: 'Creating tag...',
-                                                            success: (data) => {
-                                                                return `Tag "${data?.name}" created successfully!`;
-                                                            },
-                                                            error: 'Failed to create tag.',
+                                        {tagInput.trim() !== '' && !tags.data?.some((tag) => tag.name?.toLowerCase() === tagInput.trim().toLowerCase()) && (
+                                            <Button
+                                                variant="ghost"
+                                                className="w-full justify-between whitespace-normal break-words"
+                                                onClick={async () => {
+                                                    const promise = createTag.mutateAsync({ name: tagInput.trim() });
+                                                    toast.promise(promise, {
+                                                        loading: 'Creating tag...',
+                                                        success: (data) => `Tag "${data?.name}" created successfully!`,
+                                                        error: 'Failed to create tag.',
+                                                    });
+                                                    const data = await promise;
+                                                    const newTagId = data?.id;
+                                                    if (newTagId && !formState.tags.includes(newTagId)) {
+                                                        setFormState({
+                                                            ...formState,
+                                                            tags: [...formState.tags, newTagId],
                                                         });
-                                                        const data = await promise;
-                                                        if (typeof data === 'object' && data !== null && 'name' in data) {
-                                                            // setValue(data.name);
-                                                        } else {
-                                                            setValue(tagInput);
-                                                        }
-                                                        setTagInput('');
-                                                        tags.refetch();
-                                                    }}
-                                                >
-                                                    Create "{tagInput}" tag <Plus />
-                                                </Button>
-                                            </CommandEmpty>
-                                        ) : null}
+                                                    }
+                                                    setTagInput('');
+                                                    setOpen(false);
+                                                    await tags.refetch();
+                                                }}
+                                            >
+                                                Create &quot;{tagInput}&quot; tag <Plus />
+                                            </Button>
+                                        )}
                                         <CommandGroup>
                                             {tags.data?.map((tag) => (
                                                 <CommandItem
                                                     key={tag.id}
-                                                    value={tag.name ?? ''}
+                                                    value={tag.name ?? 'Untitled Tag'}
                                                     onSelect={(currentValue) => {
-                                                        setValue(currentValue === value ? '' : currentValue);
-                                                        if (!formTags.includes(currentValue)) {
-                                                            setFormTags([...formTags, currentValue]);
+                                                        if (!formState.tags.includes(currentValue)) {
                                                             setFormState({
                                                                 ...formState,
-                                                                tags: [...formTags, currentValue],
+                                                                tags: [...formState.tags, currentValue],
+                                                            });
+                                                        } else {
+                                                            setFormState({
+                                                                ...formState,
+                                                                tags: formState.tags.filter((t) => t !== currentValue),
                                                             });
                                                         }
+                                                        setTagInput('');
+                                                        console.log('Selected tags:', formState.tags);
                                                     }}
                                                 >
                                                     {tag.name}
-                                                    <Check className={cn('ml-auto', value === tag.id ? 'opacity-100' : 'opacity-0')} />
+                                                    <Check className={cn('ml-auto', formState.tags.includes(tag.name ?? 'Untitled Tag') ? 'opacity-100' : 'opacity-0')} />
                                                 </CommandItem>
                                             ))}
-                                            <CommandItem
-                                                onSelect={() => {
-                                                    setTagInput('');
-                                                }}
-                                            >
-                                                Create "{tagInput}" tag <Plus />
-                                            </CommandItem>
                                         </CommandGroup>
                                     </CommandList>
                                 </Command>
@@ -283,25 +280,28 @@ export default function AdminCreateProject() {
                         </Popover>
                         {formState.tags && formState.tags.length > 0 && (
                             <div className="flex flex-wrap gap-2 my-2">
-                                {formState.tags.map((tag, index) => (
-                                    <Badge
-                                        key={tag + index}
-                                        className="inline-flex items-center px-2 py-1 text-xs font-medium"
-                                    >
-                                        {tag}
-                                        <button
-                                            className="ml-2 text-white hover:text-red-500"
-                                            onClick={() => {
-                                                setFormState({
-                                                    ...formState,
-                                                    tags: formState.tags.filter((t) => t !== tag),
-                                                });
-                                            }}
+                                {formState.tags.map((tagId) => {
+                                    const tagObj = tags.data?.find((t) => t.id === tagId);
+                                    return (
+                                        <Badge
+                                            key={tagId}
+                                            className="inline-flex items-center px-2 py-1 text-xs font-medium"
                                         >
-                                            <X className="h-3 w-3 hover:cursor-pointer" />
-                                        </button>
-                                    </Badge>
-                                ))}
+                                            {tagObj?.name ?? tagId}
+                                            <button
+                                                className="ml-2 text-white hover:text-red-500"
+                                                onClick={() => {
+                                                    setFormState({
+                                                        ...formState,
+                                                        tags: formState.tags.filter((t) => t !== tagId),
+                                                    });
+                                                }}
+                                            >
+                                                <X className="h-3 w-3 hover:cursor-pointer" />
+                                            </button>
+                                        </Badge>
+                                    );
+                                })}
                             </div>
                         )}
                         <Button onClick={onSubmit}>Create</Button>
@@ -318,14 +318,14 @@ export default function AdminCreateProject() {
     );
 }
 
-function isValidHttpUrl(str: string) {
-    let url;
+// function isValidHttpUrl(str: string) {
+//     let url;
 
-    try {
-        url = new URL(str);
-    } catch (_) {
-        return false;
-    }
+//     try {
+//         url = new URL(str);
+//     } catch (_) {
+//         return false;
+//     }
 
-    return url.protocol === 'http:' || url.protocol === 'https:';
-}
+//     return url.protocol === 'http:' || url.protocol === 'https:';
+// }

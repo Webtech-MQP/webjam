@@ -6,7 +6,7 @@ import {
   adminProcedure,
   protectedProcedure,
 } from "@/server/api/trpc";
-import { candidateProfiles, users } from "@/server/db/schemas/users";
+import { candidateProfiles } from "@/server/db/schemas/users";
 import { TRPCError } from "@trpc/server";
 
 export const candidateRouter = createTRPCRouter({

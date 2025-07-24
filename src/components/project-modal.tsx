@@ -37,7 +37,7 @@ export const ProjectModal = (props: ProjectModalProps) => {
             document.body.style.overflowY = 'scroll';
             window.removeEventListener('keydown', handleEsc);
         };
-    }, [props.onClose]);
+    }, [props, props.onClose]);
 
     return (
         <div

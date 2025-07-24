@@ -22,12 +22,11 @@ import { useState } from "react";
 import { api } from "@/trpc/react";
 import { JamCard } from "@/components/jam-card";
 import { SkeletonCard } from "@/components/skeleton-card";
-import { format, set } from "date-fns";
+import { format } from "date-fns";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ProjectModal } from "@/components/project-modal";
-import { on } from "events";
 
 const formSchema = z.object({
   jamName: z.string().min(1, "Jam name is required"),

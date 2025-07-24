@@ -44,7 +44,7 @@ const ROUTES = [
 
 export function Sidebar() {
   const path = usePathname();
-  const { data: session, status } = useSession();
+  const { data: session } = useSession();
   const [profileOpen, setProfileOpen] = useState(false);
 
   const closestMatch = useCallback(() => {
