@@ -1,7 +1,7 @@
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Plus, Trash } from 'lucide-react';
-import { useState, type ChangeEvent } from 'react';
+import { type ChangeEvent } from 'react';
 import { Button } from './ui/button';
 
 interface ArrayInputProps {
@@ -9,14 +9,14 @@ interface ArrayInputProps {
     type?: 'string' | 'number';
     decoration?: 'none' | 'bullets' | 'numbers-dot' | 'numbers-paren' | 'letters-dot' | 'letters-paren';
     placeholder?: string;
-    defaultValues?: (string | number)[];
+    list?: (string | number)[];
     onChange?: (values: (string | number)[]) => void;
     allowCreate?: boolean;
     allowDelete?: boolean;
 }
 
 export const ArrayInput = (props: ArrayInputProps) => {
-    const [list, setList] = useState<(string | number)[]>(props.defaultValues ?? []);
+    const list = props.list ?? [];
     const type = props.type ?? 'string';
 
     const getDecoration = (index: number) => {
@@ -33,6 +33,12 @@ export const ArrayInput = (props: ArrayInputProps) => {
                 return String.fromCharCode(97 + index) + ')';
             default:
                 return '';
+        }
+    };
+
+    const setList = (newList: (string | number)[]) => {
+        if (props.onChange) {
+            props.onChange(newList);
         }
     };
 

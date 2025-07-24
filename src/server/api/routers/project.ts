@@ -8,11 +8,11 @@ export const projectRouter = createTRPCRouter({
         .input(
             z.object({
                 id: z.string().cuid2(),
-                title: z.string().min(1).max(255),
-                subtitle: z.string().min(0).max(255),
+                title: z.string().min(1).max(1000),
+                subtitle: z.string().min(0).max(1000),
                 description: z.string().min(0).max(10000),
-                requirements: z.string().min(0).max(255),
-                imageURL: z.string().min(0).max(255),
+                requirements: z.string().min(0).max(10000),
+                imageURL: z.string().min(0).max(1000),
                 starts: z.date(),
                 ends: z.date(),
             })
@@ -70,11 +70,11 @@ export const projectRouter = createTRPCRouter({
         .input(
             z.object({
                 id: z.string().cuid2(),
-                title: z.string().min(1).max(255),
-                subtitle: z.string().min(0).max(255),
+                title: z.string().min(1).max(1000),
+                subtitle: z.string().min(0).max(1000),
                 description: z.string().min(0).max(10000),
-                requirements: z.string().min(0).max(255),
-                imageURL: z.string().min(0).max(255),
+                requirements: z.string().min(0).max(10000),
+                imageURL: z.string().min(0).max(1000),
                 starts: z.date(),
                 ends: z.date(),
             })
