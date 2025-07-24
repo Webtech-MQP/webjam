@@ -45,22 +45,22 @@ export const ArrayInput = (props: ArrayInputProps) => {
     return (
         <div className="flex flex-col gap-3">
             <Label>{props.title}</Label>
-            {list.map((item, i) => {
+            {list.map((item, index) => {
                 return (
                     <span
-                        key={'item' + i}
+                        key={'item' + index}
                         className="flex w-full flex-nowrap gap-2 items-center"
                     >
-                        <p className="w-4">{getDecoration(i)}</p>
+                        <p className="w-4">{getDecoration(index)}</p>
                         <Input
                             type={type}
-                            autoFocus={i === list.length - 1}
-                            id={'item' + i}
+                            autoFocus={index === list.length - 1}
+                            id={'item' + index}
                             placeholder={props.placeholder}
                             value={item}
                             onChange={(e: ChangeEvent<HTMLInputElement>) => {
                                 const _list = [...list];
-                                _list[i] = e.target.value;
+                                _list[index] = e.target.value;
                                 setList(_list);
                                 if (props.onChange) props.onChange(_list);
                             }}
@@ -73,8 +73,9 @@ export const ArrayInput = (props: ArrayInputProps) => {
                         {props.allowDelete && (
                             <Button
                                 size="icon"
+                                variant="outline"
                                 onClick={() => {
-                                    const _list = list.filter((i) => i !== item);
+                                    const _list = list.filter((v, i) => i !== index);
                                     setList(_list);
                                     if (props.onChange) props.onChange(_list);
                                 }}
