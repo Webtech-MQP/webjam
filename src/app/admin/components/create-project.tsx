@@ -56,8 +56,7 @@ export default function AdminCreateProject() {
         const start = new Date(formState.start.length > 0 ? formState.start : Date.now());
         const end = new Date(formState.end.length > 0 ? formState.end : Date.now());
         const tagIds = tags.data?.filter((tag) => formState.tags.includes(tag.name ?? 'Untitled Tag')).map((tag) => tag.id);
-        console.log(end);
-        await createProject.mutateAsync({
+        const promise = createProject.mutateAsync({
             id: id,
             title: title,
             subtitle: formState.subtitle,
@@ -68,8 +67,18 @@ export default function AdminCreateProject() {
             ends: end,
             tags: tagIds,
         });
-        onDiscard();
-        router.push(`/dashboard/projects/${id}`);
+        toast.promise(promise, {
+            loading: 'Creating project...',
+            success: 'Project created successfully!',
+            error: 'Failed to create project.',
+        });
+        try {
+            await promise;
+            onDiscard();
+            // router.push(`/dashboard/projects/${id}`);
+        } catch (err) {
+            // error toast already handled by toast.promise
+        }
     }
 
     function onDiscard() {
