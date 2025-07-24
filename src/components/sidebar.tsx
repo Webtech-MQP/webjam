@@ -67,7 +67,11 @@ export function Sidebar() {
             <div className="mt-auto">
                 <div className={cn('overflow-hidden transition-all duration-300', profileOpen ? 'translate-y-0 opacity-100' : 'pointer-events-none translate-y-4 opacity-0')}>
                     <div className="items-left border-accent flex flex-col gap-4 rounded border-2 p-4">
-                        {isAdmin && <Badge className="w-full bg-green-800">LOGGED IN AS ADMIN</Badge>}
+                        {isAdmin && (
+                            <Link href="/admin">
+                                <Badge className="w-full bg-green-800 hover:bg-green-900">LOGGED IN AS ADMIN</Badge>
+                            </Link>
+                        )}
                         <div className="hover:text-primary flex items-center gap-3">
                             <Avatar className="h-5 w-5">
                                 <AvatarImage src={session?.user.image ?? undefined} />

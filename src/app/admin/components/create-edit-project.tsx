@@ -9,10 +9,11 @@ import { Textarea } from '@/components/ui/textarea';
 import { api } from '@/trpc/react';
 import { createId } from '@paralleldrive/cuid2';
 import { DialogOverlay, DialogPortal } from '@radix-ui/react-dialog';
+import { skipToken } from '@tanstack/react-query';
 import { PlusCircle, X } from 'lucide-react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { useState, type ChangeEvent } from 'react';
+import { useEffect, useState, type ChangeEvent } from 'react';
 
 interface CreateProjectFormSchema {
     title: string;
@@ -36,44 +37,84 @@ const defaultForm: CreateProjectFormSchema = {
     tags: [''],
 };
 
-export default function AdminCreateProject() {
+interface AdminCreateEditProjectProps {
+    projectId?: string;
+}
+
+export default function AdminCreateEditProject(props: AdminCreateEditProjectProps) {
     const [dialogueOpen, setDialogueOpen] = useState<boolean>(false);
     const [formState, setFormState] = useState<CreateProjectFormSchema>(defaultForm);
     const createProject = api.projects.create.useMutation();
+    const editProject = api.projects.updateOne.useMutation();
+    const getProject = api.projects.getOne.useQuery(props.projectId ? { id: props.projectId } : skipToken);
     const router = useRouter();
 
+    useEffect(() => {
+        if (!getProject.data) {
+            return;
+        }
+        setFormState({
+            title: getProject.data.title ?? '',
+            subtitle: getProject.data.subTitle ?? '',
+            description: getProject.data.description ?? '',
+            requirements: (getProject.data.requirements ?? '').split('\n'),
+            start: new Date(getProject.data.startDateTime ?? '').toISOString().split('.')[0]!,
+            end: new Date(getProject.data.endDateTime ?? '').toISOString().split('.')[0]!,
+            imageURL: getProject.data.imageURL ?? '',
+            tags: [''], //TODO implement tag handling
+        });
+    }, [getProject.data]);
+
     async function onSubmit() {
-        const id = createId();
         const title = formState.title.length > 0 ? formState.title : 'Untitled Project';
         const start = new Date(formState.start.length > 0 ? formState.start : Date.now());
         const end = new Date(formState.end.length > 0 ? formState.end : Date.now());
-        console.log(end);
-
-        await createProject.mutateAsync({
-            id: id,
-            title: title,
-            subtitle: formState.subtitle,
-            description: formState.description,
-            requirements: getReqsString(),
-            imageURL: formState.imageURL,
-            starts: start,
-            ends: end,
-        });
-        onDiscard();
-        router.push(`/dashboard/projects/${id}`);
+        console.log(formState.start);
+        if (props.projectId) {
+            await editProject.mutateAsync({
+                id: props.projectId,
+                title: title,
+                subtitle: formState.subtitle,
+                description: formState.description,
+                requirements: getReqsString(),
+                imageURL: formState.imageURL,
+                starts: start,
+                ends: end,
+            });
+            onDiscard();
+            router.push(`/dashboard/projects/${props.projectId}`);
+        } else {
+            const id = createId();
+            await createProject.mutateAsync({
+                id: id,
+                title: title,
+                subtitle: formState.subtitle,
+                description: formState.description,
+                requirements: getReqsString(),
+                imageURL: formState.imageURL,
+                starts: start,
+                ends: end,
+            });
+            onDiscard();
+            router.push(`/dashboard/projects/${id}`);
+        }
     }
 
     function onDiscard() {
         setDialogueOpen(false);
-        setFormState(defaultForm);
+        if (!props.projectId) {
+            setFormState(defaultForm);
+        }
     }
 
     function getReqsString() {
         if (!formState.requirements || formState.requirements.length === 0) {
             return '';
         }
-        return 'Requirements:\n' + formState.requirements.map((req) => '• ' + req).join('\n');
+        return formState.requirements.join('\n');
     }
+
+    const isNewProject = props.projectId === undefined;
 
     return (
         <Dialog open={dialogueOpen}>
@@ -82,7 +123,7 @@ export default function AdminCreateProject() {
                     setDialogueOpen(true);
                 }}
             >
-                <PlusCircle /> Create Project
+                <PlusCircle /> {isNewProject ? 'Create Project' : 'Edit Project'}
             </DialogTrigger>
             <DialogPortal>
                 <DialogOverlay />
@@ -92,7 +133,7 @@ export default function AdminCreateProject() {
                 >
                     <DialogHeader>
                         <div className="w-full flex justify-between">
-                            <DialogTitle>Create New Project</DialogTitle>
+                            <DialogTitle>{isNewProject ? 'Create New Project' : `Editing ${getProject.data?.title}`}</DialogTitle>
                             <DialogClose
                                 onClick={() => {
                                     setDialogueOpen(false);
@@ -101,7 +142,7 @@ export default function AdminCreateProject() {
                                 <X />
                             </DialogClose>
                         </div>
-                        <DialogDescription>Fill out the information needed to create a new project.</DialogDescription>
+                        <DialogDescription>{isNewProject ? 'Fill out the information needed to create a new project' : 'Make changes to the project'}.</DialogDescription>
                     </DialogHeader>
                     <div className="grid w-full max-w-sm items-center gap-3">
                         <Label htmlFor="title">Title</Label>
@@ -135,7 +176,7 @@ export default function AdminCreateProject() {
                             allowCreate
                             allowDelete
                             onChange={(v) => setFormState({ ...formState, requirements: v as string[] })}
-                            defaultValues={formState.requirements}
+                            list={formState.requirements}
                         />
                         <Label htmlFor="start">Starts At</Label>
                         <Input
@@ -178,9 +219,9 @@ export default function AdminCreateProject() {
                             allowCreate
                             allowDelete
                             onChange={(v) => setFormState({ ...formState, tags: v as string[] })}
-                            defaultValues={formState.tags}
+                            list={formState.tags}
                         />
-                        <Button onClick={onSubmit}>Create</Button>
+                        <Button onClick={onSubmit}>{isNewProject ? 'Create' : 'Save Changes'}</Button>
                         <Button
                             variant="secondary"
                             onClick={onDiscard}
