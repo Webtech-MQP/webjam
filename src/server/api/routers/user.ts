@@ -1,6 +1,6 @@
 import { adminProcedure, createTRPCRouter, protectedProcedure, publicProcedure } from '@/server/api/trpc';
 import { users } from '@/server/db/schemas/auth';
-import { adminProfiles } from '@/server/db/schemas/users';
+import { adminProfiles } from '@/server/db/schemas/profiles';
 import { eq } from 'drizzle-orm';
 import { z } from 'zod';
 

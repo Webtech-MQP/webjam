@@ -1,4 +1,5 @@
-import { relations } from 'drizzle-orm';
+import { createId } from '@paralleldrive/cuid2';
+import { relations, sql } from 'drizzle-orm';
 import { primaryKey } from 'drizzle-orm/sqlite-core';
 import { createTable } from '../schema-util';
 import { users } from './auth';
@@ -36,6 +37,7 @@ export const candidateProfilesRelations = relations(candidateProfiles, ({ one, m
         references: [users.id],
     }),
     candidateProfilesToProjects: many(candidateProfilesToProjects),
+    reports: many(candidateReport),
 }));
 
 export const recruiterProfiles = createTable('recruiter_profile', (d) => ({
@@ -123,5 +125,40 @@ export const recruitersToCandidatesRelations = relations(recruitersToCandidates,
     candidateProfile: one(candidateProfiles, {
         fields: [recruitersToCandidates.candidateId],
         references: [candidateProfiles.userId],
+    }),
+}));
+
+export const candidateReport = createTable('candidate_report', (d) => ({
+    id: d
+        .text()
+        .$defaultFn(() => createId())
+        .primaryKey(),
+    candidateId: d
+        .text('candidate_id')
+        .notNull()
+        .references(() => candidateProfiles.userId, {
+            onDelete: 'cascade',
+            onUpdate: 'cascade',
+        }),
+    reporterId: d
+        .text('reporter_id')
+        .notNull()
+        .references(() => users.id, {
+            onDelete: 'cascade',
+            onUpdate: 'cascade',
+        }),
+    reason: d.text('reason').notNull(),
+    additionalDetails: d.text('additional_details').notNull().default(''),
+    createdAt: d.integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
+}));
+
+export const candidateReportRelations = relations(candidateReport, ({ one }) => ({
+    candidateProfile: one(candidateProfiles, {
+        fields: [candidateReport.candidateId],
+        references: [candidateProfiles.userId],
+    }),
+    reporter: one(users, {
+        fields: [candidateReport.reporterId],
+        references: [users.id],
     }),
 }));

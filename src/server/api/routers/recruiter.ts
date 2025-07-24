@@ -1,5 +1,5 @@
 import { adminProcedure, createTRPCRouter, protectedProcedure, publicProcedure } from '@/server/api/trpc';
-import { recruiterProfiles } from '@/server/db/schemas/users';
+import { recruiterProfiles } from '@/server/db/schemas/profiles';
 import { TRPCError } from '@trpc/server';
 import { eq } from 'drizzle-orm';
 import { z } from 'zod';

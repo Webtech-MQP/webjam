@@ -1,6 +1,6 @@
 import * as authSchema from '@/server/db/schemas/auth';
+import * as userSchema from '@/server/db/schemas/profiles';
 import * as projectSchema from '@/server/db/schemas/projects';
-import * as userSchema from '@/server/db/schemas/users';
 import { createId } from '@paralleldrive/cuid2';
 import { drizzle } from 'drizzle-orm/libsql';
 import { reset } from 'drizzle-seed';

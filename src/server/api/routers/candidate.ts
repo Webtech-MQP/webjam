@@ -1,7 +1,7 @@
 import { adminProcedure, createTRPCRouter, protectedProcedure, publicProcedure } from '@/server/api/trpc';
 import { users } from '@/server/db/schemas/auth';
+import { candidateProfiles } from '@/server/db/schemas/profiles';
 import { candidateProfilesToProjects } from '@/server/db/schemas/projects';
-import { candidateProfiles } from '@/server/db/schemas/users';
 import { TRPCError } from '@trpc/server';
 import { and, eq, inArray, like, or, sql } from 'drizzle-orm';
 import { z } from 'zod';
