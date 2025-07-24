@@ -10,7 +10,7 @@ export const projectRouter = createTRPCRouter({
                 id: z.string().cuid2(),
                 title: z.string().min(1).max(255),
                 subtitle: z.string().min(0).max(255),
-                description: z.string().min(0).max(255),
+                description: z.string().min(0).max(10000),
                 requirements: z.string().min(0).max(255),
                 imageURL: z.string().min(0).max(255),
                 starts: z.date(),
@@ -66,9 +66,36 @@ export const projectRouter = createTRPCRouter({
         });
     }),
 
-    updateOne: publicProcedure.input(z.object({ id: z.string().cuid2(), title: z.string().min(1).max(255) })).mutation(async ({ ctx, input }) => {
-        return ctx.db.update(projects).set({ title: input.title }).where(eq(projects.id, input.id));
-    }),
+    updateOne: publicProcedure
+        .input(
+            z.object({
+                id: z.string().cuid2(),
+                title: z.string().min(1).max(255),
+                subtitle: z.string().min(0).max(255),
+                description: z.string().min(0).max(10000),
+                requirements: z.string().min(0).max(255),
+                imageURL: z.string().min(0).max(255),
+                starts: z.date(),
+                ends: z.date(),
+            })
+        )
+        .mutation(async ({ ctx, input }) => {
+            return ctx.db
+                .update(projects)
+                .set({
+                    title: input.title,
+                    subTitle: input.subtitle,
+                    description: input.description,
+                    instructions: '',
+                    requirements: input.requirements,
+                    imageURL: input.imageURL,
+                    status: 'upcoming',
+                    deadline: new Date(0),
+                    startDateTime: input.starts,
+                    endDateTime: input.ends,
+                })
+                .where(eq(projects.id, input.id));
+        }),
 
     deleteOne: protectedProcedure.input(z.object({ id: z.string().cuid2() })).mutation(async ({ ctx, input }) => {
         return ctx.db.delete(projects).where(eq(projects.id, input.id));
