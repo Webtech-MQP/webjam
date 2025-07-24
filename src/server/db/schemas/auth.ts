@@ -3,7 +3,7 @@ import { relations, sql } from 'drizzle-orm';
 import { index, primaryKey, unique } from 'drizzle-orm/sqlite-core';
 import type { AdapterAccount } from 'next-auth/adapters';
 import { createTable } from '../schema-util';
-import { adminProfiles, candidateProfiles, recruiterProfiles } from './users';
+import { adminProfiles, candidateProfiles, recruiterProfiles } from './profiles';
 
 export const accounts = createTable(
     'account',

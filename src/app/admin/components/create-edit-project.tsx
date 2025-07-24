@@ -55,7 +55,7 @@ export default function AdminCreateEditProject(props: AdminCreateEditProjectProp
         }
         setFormState({
             title: getProject.data.title ?? '',
-            subtitle: getProject.data.subTitle ?? '',
+            subtitle: getProject.data.subtitle ?? '',
             description: getProject.data.description ?? '',
             requirements: (getProject.data.requirements ?? '').split('\n'),
             start: new Date(getProject.data.startDateTime ?? '').toISOString().split('.')[0]!,

@@ -3,8 +3,8 @@ import { drizzle } from 'drizzle-orm/libsql';
 
 import { env } from '@/env';
 import * as authSchema from './schemas/auth';
+import * as usersSchema from './schemas/profiles';
 import * as projectsSchema from './schemas/projects';
-import * as usersSchema from './schemas/users';
 
 /**
  * Cache the database connection in development. This avoids creating a new connection on every HMR

@@ -15,7 +15,7 @@ import { auth } from '@/server/auth';
 import { db } from '@/server/db';
 import { eq } from 'drizzle-orm';
 import { users } from '../db/schemas/auth';
-import { adminProfiles } from '../db/schemas/users';
+import { adminProfiles } from '../db/schemas/profiles';
 
 /**
  * 1. CONTEXT
