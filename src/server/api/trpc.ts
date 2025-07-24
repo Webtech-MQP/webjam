@@ -14,7 +14,8 @@ import { ZodError } from 'zod';
 import { auth } from '@/server/auth';
 import { db } from '@/server/db';
 import { eq } from 'drizzle-orm';
-import { adminProfiles, users } from '../db/schemas/users';
+import { users } from '../db/schemas/auth';
+import { adminProfiles } from '../db/schemas/users';
 
 /**
  * 1. CONTEXT

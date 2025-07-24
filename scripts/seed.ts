@@ -1,13 +1,15 @@
-import * as schema2 from '@/server/db/schemas/projects';
-import * as schema1 from '@/server/db/schemas/users';
+import * as authSchema from '@/server/db/schemas/auth';
+import * as projectSchema from '@/server/db/schemas/projects';
+import * as userSchema from '@/server/db/schemas/users';
 import { createId } from '@paralleldrive/cuid2';
 import { drizzle } from 'drizzle-orm/libsql';
 import { reset } from 'drizzle-seed';
 
+const schema = { ...authSchema, ...userSchema, ...projectSchema };
+
 async function main() {
     const db = drizzle(process.env.DATABASE_URL!);
-    await reset(db, schema1);
-    await reset(db, schema2);
+    await reset(db, schema);
     type userRoles = 'candidate' | 'recruiter' | 'admin';
     console.log('Seeding users...');
     const userBrian = {
@@ -55,11 +57,11 @@ async function main() {
         email: 'matthewF@admin.com',
         role: 'admin' as userRoles,
     };
-    await db.insert(schema1.users).values([userBrian, userTyler, userJohnny, userSally, userAce, userMattH, userMatthew]);
+    await db.insert(schema.users).values([userBrian, userTyler, userJohnny, userSally, userAce, userMattH, userMatthew]);
     console.log('Users seeded!');
 
     console.log('Seeding candidate profiles...');
-    await db.insert(schema1.candidateProfiles).values([
+    await db.insert(schema.candidateProfiles).values([
         {
             userId: userBrian.id,
             displayName: 'Brian Smith',
@@ -67,7 +69,6 @@ async function main() {
             experience: '0 years',
             location: 'Boston',
             resumeURL: 'https://brian.dev/resume.pdf',
-            githubUsername: 'brianhub',
             portfolioURL: 'https://brian.dev',
             linkedinURL: 'https://linkedin.com/in/brian',
             imageURL: 'https://placehold.co/100.png',
@@ -79,7 +80,6 @@ async function main() {
             experience: '5 years',
             location: 'San Francisco',
             resumeURL: 'https://tyler.dev/resume.pdf',
-            githubUsername: 'laidofftyler',
             portfolioURL: 'https://tyler.dev',
             linkedinURL: 'https://linkedin.com/in/tyler',
             imageURL: 'https://placehold.co/100.png',
@@ -91,7 +91,6 @@ async function main() {
             experience: '0 years',
             location: 'An Avg College',
             resumeURL: 'https://johnny.dev/resume.pdf',
-            githubUsername: 'johnnycodes',
             portfolioURL: 'https://johnny.dev',
             linkedinURL: 'https://linkedin.com/in/johnny',
             imageURL: 'https://placehold.co/100.png',
@@ -100,7 +99,7 @@ async function main() {
     console.log('Candidate profiles seeded!');
 
     console.log('Seeding recruiter profiles...');
-    await db.insert(schema1.recruiterProfiles).values([
+    await db.insert(schema.recruiterProfiles).values([
         {
             userId: userSally.id,
             displayName: 'Sally Sushi',
@@ -110,14 +109,14 @@ async function main() {
             companyWebsite: 'https://sushiInc.com',
             linkedinURL: 'https://linkedin.com/in/sallysushi',
             imageURL: 'https://placehold.co/100.png',
-            publicEmail: 'sally@recruit.com',
+            displayEmail: 'sally@recruit.com',
         },
     ]);
     console.log('Recruiter profiles seeded!');
 
     console.log('Seeding admin profiles...');
     type adminRoles = 'Reg' | 'Mod' | 'Super' | 'idk';
-    await db.insert(schema1.adminProfiles).values([
+    await db.insert(schema.adminProfiles).values([
         {
             userId: userAce.id,
             displayName: 'Ace Beattie',
@@ -146,7 +145,7 @@ async function main() {
     console.log('Admin profiles seeded!');
 
     console.log('Seeding recruiter list...');
-    await db.insert(schema1.recruitersToCandidates).values([
+    await db.insert(schema.recruitersToCandidates).values([
         {
             recruiterId: userSally.id,
             candidateId: userBrian.id,
@@ -177,7 +176,7 @@ async function main() {
         updatedAt: new Date(),
         createdBy: userMattH.id,
     };
-    await db.insert(schema2.projects).values(project1);
+    await db.insert(schema.projects).values(project1);
     console.log('Project seeded!');
 
     console.log('Seeding tags...');
@@ -185,11 +184,11 @@ async function main() {
     const tagUIDesign = { id: createId(), name: 'UI Design' };
     const tagManagement = { id: createId(), name: 'Management' };
     const tagWeb = { id: createId(), name: 'Web' };
-    await db.insert(schema2.tags).values([tagReact, tagUIDesign, tagManagement, tagWeb]);
+    await db.insert(schema.tags).values([tagReact, tagUIDesign, tagManagement, tagWeb]);
     console.log('Tags seeded!');
 
     console.log('Seeding Project-tag links...');
-    await db.insert(schema2.projectsTags).values([
+    await db.insert(schema.projectsTags).values([
         { projectId: projectId, tagId: tagReact.id },
         { projectId: projectId, tagId: tagUIDesign.id },
         { projectId: projectId, tagId: tagManagement.id },
@@ -198,7 +197,7 @@ async function main() {
     console.log('Project-tag links seeded!');
 
     console.log('Seeding project candidate profiles...');
-    await db.insert(schema2.candidateProfilesToProjects).values([
+    await db.insert(schema.candidateProfilesToProjects).values([
         { projectId, candidateId: userBrian.id },
         { projectId, candidateId: userTyler.id },
     ]);

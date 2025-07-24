@@ -2,6 +2,7 @@ import { createClient, type Client } from '@libsql/client';
 import { drizzle } from 'drizzle-orm/libsql';
 
 import { env } from '@/env';
+import * as authSchema from './schemas/auth';
 import * as projectsSchema from './schemas/projects';
 import * as usersSchema from './schemas/users';
 
@@ -17,5 +18,5 @@ export const client = globalForDb.client ?? createClient({ url: env.DATABASE_URL
 if (env.NODE_ENV !== 'production') globalForDb.client = client;
 
 export const db = drizzle(client, {
-    schema: { ...usersSchema, ...projectsSchema },
+    schema: { ...usersSchema, ...projectsSchema, ...authSchema },
 });

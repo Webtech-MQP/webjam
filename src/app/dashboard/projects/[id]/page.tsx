@@ -27,7 +27,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
                 <h1>{project.title}</h1>
                 <div className="flex gap-2">
                     <Badge className="bg-indigo-500">
-                        <Users /> {project.candidateProfilesToProjects.length} members
+                        <Users /> {project.projectsToCandidateProfiles.length} members
                     </Badge>
                     <Badge className="bg-indigo-500">
                         <Clock /> {project.deadline?.toLocaleDateString()}
@@ -104,7 +104,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
             <DashboardCard>
                 <h1>Teammates</h1>
                 <div className="relative flex w-full flex-col gap-4">
-                    {project.candidateProfilesToProjects.map((projectCandidate, index) => (
+                    {project.projectsToCandidateProfiles.map((projectCandidate, index) => (
                         <div
                             key={index}
                             className="flex items-center gap-2"

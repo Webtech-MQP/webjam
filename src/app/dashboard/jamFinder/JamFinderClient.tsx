@@ -249,9 +249,9 @@ export default function JamFinderClient() {
                                             title={project.title ?? 'Untitled Jam'}
                                             startDateTime={project.startDateTime ?? new Date()}
                                             endDateTime={project.endDateTime ?? new Date()}
-                                            numberOfTeammates={project.candidateProfilesToProjects?.length}
+                                            numberOfTeammates={project.projectsToCandidateProfiles?.length}
                                             imageUrl={project.imageURL ?? 'https://placehold.co/150/png'}
-                                            tags={project.tags?.map((tag) => tag.tag) ?? []}
+                                            tags={project.projectsToTags?.map((pt) => pt.tag) ?? []}
                                             onClick={() => {
                                                 setSelectedProject(project.id);
                                                 setIsModalOpen(true);
@@ -260,14 +260,14 @@ export default function JamFinderClient() {
                                         {isModalOpen && selectedProject === project.id && (
                                             <ProjectModal
                                                 title={project.title ?? 'Untitled Jam'}
-                                                subtitle={project.subTitle ?? ''}
+                                                subtitle={project.subtitle ?? ''}
                                                 starts={format(project.startDateTime ?? new Date(), 'MMM dd, yyyy')}
                                                 ends={project.endDateTime ? format(project.endDateTime, 'MMM dd, yyyy') : 'Present'}
                                                 signups={123}
                                                 description={project.description ?? 'No description available'}
                                                 imageUrl={project.imageURL ?? 'https://placehold.co/1080x1920.png'}
                                                 requirements={project.requirements ?? 'No requirements specified'}
-                                                tags={project.tags?.map((tag) => tag.tag.name ?? '') ?? []}
+                                                tags={project.projectsToTags?.map((pt) => pt.tag.name) ?? []}
                                                 onSignup={function (): void {
                                                     throw new Error('Function not implemented.');
                                                 }}
@@ -308,9 +308,9 @@ export default function JamFinderClient() {
                                             title={project.title ?? 'Untitled Jam'}
                                             startDateTime={project.startDateTime ?? new Date()}
                                             endDateTime={project.endDateTime ?? new Date()}
-                                            numberOfTeammates={project.candidateProfilesToProjects?.length}
+                                            numberOfTeammates={project.projectsToCandidateProfiles?.length}
                                             imageUrl={project.imageURL ?? 'https://placehold.co/150/png'}
-                                            tags={project.tags?.map((tag) => tag.tag) ?? []}
+                                            tags={project.projectsToTags?.map((pt) => pt.tag) ?? []}
                                             onClick={() => {
                                                 setSelectedProject(project.id);
                                                 setIsModalOpen(true);
@@ -319,14 +319,14 @@ export default function JamFinderClient() {
                                         {isModalOpen && selectedProject === project.id && (
                                             <ProjectModal
                                                 title={project.title ?? 'Untitled Jam'}
-                                                subtitle={project.subTitle ?? ''}
+                                                subtitle={project.subtitle ?? ''}
                                                 starts={format(project.startDateTime ?? new Date(), 'MMM dd, yyyy')}
                                                 ends={project.endDateTime ? format(project.endDateTime, 'MMM dd, yyyy') : 'Present'}
                                                 signups={123}
                                                 description={project.description ?? 'No description available'}
                                                 imageUrl={project.imageURL ?? 'https://placehold.co/1080x1920.png'}
                                                 requirements={project.requirements ?? 'No requirements specified'}
-                                                tags={project.tags?.map((tag) => tag.tag.name ?? '') ?? []}
+                                                tags={project.projectsToTags?.map((pt) => pt.tag.name) ?? []}
                                                 onSignup={function (): void {
                                                     throw new Error('Function not implemented.');
                                                 }}
