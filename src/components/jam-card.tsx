@@ -6,7 +6,7 @@ import Image from 'next/image';
 import { DashboardCard } from './dashboard-card';
 import { Badge } from './ui/badge';
 
-type Tag = RouterOutputs['projects']['getAll'][number]['tags'][number]['tag'];
+type Tag = RouterOutputs['projects']['getAll'][number]['projectsToTags'][number]['tag'];
 
 interface JamCardProps {
     title: string;

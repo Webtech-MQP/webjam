@@ -1,5 +1,6 @@
 import { adminProcedure, createTRPCRouter, protectedProcedure, publicProcedure } from '@/server/api/trpc';
-import { adminProfiles, users } from '@/server/db/schemas/users';
+import { users } from '@/server/db/schemas/auth';
+import { adminProfiles } from '@/server/db/schemas/users';
 import { eq } from 'drizzle-orm';
 import { z } from 'zod';
 
@@ -20,18 +21,9 @@ export const userRouter = createTRPCRouter({
             });
         }),
 
-    getOne: publicProcedure.input(z.union([z.object({ id: z.string().cuid2() }), z.object({ githubUsername: z.string() })])).query(async ({ ctx, input }) => {
+    getOne: publicProcedure.input(z.union([z.object({ id: z.cuid2() }), z.object({ githubUsername: z.string() })])).query(async ({ ctx, input }) => {
         return ctx.db.query.users.findFirst({
             where: 'id' in input ? (users, { eq }) => eq(users.id, input.id) : (users, { eq }) => eq(users.githubUsername, input.githubUsername),
-            with: {
-                candidateProfile: {
-                    with: {
-                        projects: true,
-                    },
-                },
-                adminProfile: true,
-                recruiterProfile: true,
-            },
         });
     }),
 
@@ -42,7 +34,7 @@ export const userRouter = createTRPCRouter({
     updateOne: adminProcedure
         .input(
             z.object({
-                id: z.string().cuid2(),
+                id: z.cuid2(),
                 name: z.string().min(1).max(255),
                 email: z.string(),
             })
@@ -57,7 +49,7 @@ export const userRouter = createTRPCRouter({
                 .where(eq(users.id, input.id));
         }),
 
-    deleteOne: adminProcedure.input(z.object({ id: z.string().cuid2() })).mutation(async ({ ctx, input }) => {
+    deleteOne: adminProcedure.input(z.object({ id: z.cuid2() })).mutation(async ({ ctx, input }) => {
         return ctx.db.delete(users).where(eq(users.id, input.id));
     }),
 

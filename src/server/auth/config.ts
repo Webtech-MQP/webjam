@@ -4,8 +4,7 @@ import GithubProvider from 'next-auth/providers/github';
 
 import { env } from '@/env';
 import { db } from '@/server/db';
-import { accounts, sessions, verificationTokens } from '@/server/db/schemas/auth';
-import { users } from '@/server/db/schemas/users';
+import { accounts, sessions, users, verificationTokens } from '@/server/db/schemas/auth';
 import { type SqlFlavorOptions } from 'node_modules/@auth/drizzle-adapter/lib/utils';
 
 /**

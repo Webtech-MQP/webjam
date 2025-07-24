@@ -1,38 +1,8 @@
-import { relations, sql } from 'drizzle-orm';
+import { relations } from 'drizzle-orm';
+import { primaryKey } from 'drizzle-orm/sqlite-core';
 import { createTable } from '../schema-util';
-
-import { createId } from '@paralleldrive/cuid2';
-import { primaryKey, unique } from 'drizzle-orm/sqlite-core';
-import { accounts } from './auth';
+import { users } from './auth';
 import { candidateProfilesToProjects } from './projects';
-
-export const users = createTable(
-    'user',
-    (d) => ({
-        id: d
-            .text({ length: 255 })
-            .notNull()
-            .primaryKey()
-            .$defaultFn(() => createId()),
-        name: d.text({ length: 255 }),
-        image: d.text({ length: 255 }),
-        email: d.text({ length: 255 }).notNull(),
-        emailVerified: d.integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
-        phoneNumber: d.text({ length: 255 }),
-        role: d.text({ enum: ['candidate', 'recruiter', 'admin'] }).default('candidate'),
-        createdAt: d.integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
-        updatedAt: d.integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
-        githubUsername: d.text({ length: 255 }),
-    }),
-    (t) => [unique('user_id_role_unique').on(t.id, t.role)]
-);
-
-export const usersRelations = relations(users, ({ one, many }) => ({
-    accounts: many(accounts),
-    candidateProfile: one(candidateProfiles),
-    recruiterProfile: one(recruiterProfiles),
-    adminProfile: one(adminProfiles),
-}));
 
 export const candidateProfiles = createTable('candidate_profile', (d) => ({
     userId: d
@@ -54,7 +24,6 @@ export const candidateProfiles = createTable('candidate_profile', (d) => ({
     // Extended profile info
     bio: d.text({ length: 255 }),
     experience: d.text({ length: 255 }),
-    githubUsername: d.text({ length: 255 }),
     portfolioURL: d.text({ length: 255 }),
     linkedinURL: d.text({ length: 255 }),
     // This is different from user.image (user.image is github image)
@@ -66,7 +35,7 @@ export const candidateProfilesRelations = relations(candidateProfiles, ({ one, m
         fields: [candidateProfiles.userId],
         references: [users.id],
     }),
-    projects: many(candidateProfilesToProjects),
+    candidateProfilesToProjects: many(candidateProfilesToProjects),
 }));
 
 export const recruiterProfiles = createTable('recruiter_profile', (d) => ({
@@ -76,18 +45,20 @@ export const recruiterProfiles = createTable('recruiter_profile', (d) => ({
         .primaryKey()
         .references(() => users.id, { onDelete: 'cascade' }),
     // Required profile info
-    displayName: d.text({ length: 255 }).notNull(),
+
+    // NULL => use user.name
+    displayName: d.text({ length: 255 }),
+    displayEmail: d.text({ length: 255 }).notNull().default(''),
 
     // Previously in recruiters table
-    companyName: d.text({ length: 255 }),
-    location: d.text({ length: 255 }),
+    companyName: d.text({ length: 255 }).notNull().default(''),
+    location: d.text({ length: 255 }).notNull().default(''),
 
     // Extended profile info
-    bio: d.text({ length: 255 }),
-    companyWebsite: d.text({ length: 255 }),
-    linkedinURL: d.text({ length: 255 }),
+    bio: d.text({ length: 255 }).notNull().default(''),
+    companyWebsite: d.text({ length: 255 }).notNull().default(''),
+    linkedinURL: d.text({ length: 255 }).notNull().default(''),
     imageURL: d.text({ length: 255 }),
-    publicEmail: d.text({ length: 255 }),
 }));
 
 export const recruiterProfilesRelations = relations(recruiterProfiles, ({ one }) => ({

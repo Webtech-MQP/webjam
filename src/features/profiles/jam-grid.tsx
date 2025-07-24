@@ -20,8 +20,8 @@ export function JamGrid({ jams, name }: Props) {
                     key={j.id}
                     imageUrl={j.imageURL ?? 'Never'}
                     title={j.title ?? 'Never'}
-                    numberOfTeammates={j.candidateProfilesToProjects.length}
-                    tags={j.tags.map((t) => t.tag)}
+                    numberOfTeammates={j.projectsToCandidateProfiles.length}
+                    tags={j.projectsToTags.map((t) => t.tag)}
                 />
             ))}
             {jams?.length === 0 && <p className="text-muted-foreground italic">{name ?? 'This user'} has no jams.</p>}

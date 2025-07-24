@@ -1,8 +1,7 @@
-import { relations, sql } from 'drizzle-orm';
-import { createTable } from '../schema-util';
-
 import { createId } from '@paralleldrive/cuid2';
+import { relations, sql } from 'drizzle-orm';
 import { primaryKey } from 'drizzle-orm/sqlite-core';
+import { createTable } from '../schema-util';
 import { adminProfiles, candidateProfiles } from './users';
 
 export const projects = createTable('project', (d) => ({
@@ -11,7 +10,7 @@ export const projects = createTable('project', (d) => ({
         .$defaultFn(() => createId())
         .primaryKey(),
     title: d.text({ length: 256 }),
-    subTitle: d.text({ length: 256 }),
+    subtitle: d.text({ length: 256 }),
     description: d.text({ length: 256 }),
     instructions: d.text({ length: 256 }),
     requirements: d.text({ length: 256 }),
@@ -23,6 +22,8 @@ export const projects = createTable('project', (d) => ({
     createdAt: d.integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
     updatedAt: d.integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
     createdBy: d.text({ length: 255 }).references(() => adminProfiles.userId, { onDelete: 'set null' }),
+
+    repoURL: d.text({ length: 255 }),
 }));
 
 export const projectsRelations = relations(projects, ({ one, many }) => ({
@@ -30,8 +31,8 @@ export const projectsRelations = relations(projects, ({ one, many }) => ({
         fields: [projects.id],
         references: [projectSubmissions.projectId],
     }),
-    candidateProfilesToProjects: many(candidateProfilesToProjects),
-    tags: many(projectsTags),
+    projectsToCandidateProfiles: many(candidateProfilesToProjects),
+    projectsToTags: many(projectsTags),
     creator: one(adminProfiles, {
         fields: [projects.createdBy],
         references: [adminProfiles.userId],
@@ -54,7 +55,6 @@ export const projectSubmissions = createTable('projectSubmission', (d) => ({
         .text({ length: 255 })
         .notNull()
         .references(() => adminProfiles.userId),
-    repoURL: d.text({ length: 255 }),
     notes: d.text({ length: 255 }),
 }));
 
@@ -63,7 +63,7 @@ export const tags = createTable('tag', (d) => ({
         .text()
         .$defaultFn(() => createId())
         .primaryKey(),
-    name: d.text({ length: 256 }).unique(),
+    name: d.text({ length: 256 }).unique().notNull(),
 }));
 
 export const candidateProfilesToProjects = createTable(
@@ -104,7 +104,7 @@ export const projectSubmissionsRelations = relations(projectSubmissions, ({ one 
         fields: [projectSubmissions.projectId],
         references: [projects.id],
     }),
-    reviewedByAdmin: one(adminProfiles, {
+    reviewer: one(adminProfiles, {
         fields: [projectSubmissions.reviewedBy],
         references: [adminProfiles.userId],
     }),
