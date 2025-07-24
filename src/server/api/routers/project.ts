@@ -1,5 +1,5 @@
 import { createTRPCRouter, protectedProcedure, publicProcedure } from '@/server/api/trpc';
-import { projects, tags } from '@/server/db/schemas/projects';
+import { projects, projectsTags, tags } from '@/server/db/schemas/projects';
 import { eq } from 'drizzle-orm';
 import { z } from 'zod';
 
@@ -19,7 +19,7 @@ export const projectRouter = createTRPCRouter({
             })
         )
         .mutation(async ({ ctx, input }) => {
-            return ctx.db.insert(projects).values({
+            await ctx.db.insert(projects).values({
                 id: input.id,
                 title: input.title,
                 subTitle: input.subtitle,
@@ -31,9 +31,18 @@ export const projectRouter = createTRPCRouter({
                 deadline: new Date(0),
                 startDateTime: input.starts,
                 endDateTime: input.ends,
-                // tags: input.tags,
                 createdBy: ctx.session.user.id,
             });
+
+            // Connect tags to the project
+            if (input.tags && input.tags.length > 0) {
+                await ctx.db.insert(projectsTags).values(
+                    input.tags.map((tagId) => ({
+                        projectId: input.id,
+                        tagId: tagId,
+                    }))
+                );
+            }
         }),
 
     getOne: publicProcedure.input(z.object({ id: z.string().cuid2() })).query(async ({ ctx, input }) => {
