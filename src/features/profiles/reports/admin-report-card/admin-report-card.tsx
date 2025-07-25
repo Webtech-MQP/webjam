@@ -43,7 +43,7 @@ export function AdminReportCard({ report }: Props) {
                 </p>
                 {report.action && (
                     <p className="text-sm text-muted-foreground">
-                        On {report.actionedAt!.toLocaleString()}, {report.actioner!.displayName} {report.action === 'banned' ? <span className="text-red-400">banned {report.bannedUserDisplayName}.</span> : <span className="text-orange-200">archived this report</span>}
+                        On {report.actionedAt!.toLocaleString()}, {report.actioner!.displayName} {report.action === 'banned' ? <span className="text-red-400">banned {report.bannedUserDisplayName}.</span> : <span className="text-orange-200">archived this report.</span>}
                     </p>
                 )}
             </div>
