@@ -43,7 +43,7 @@ export default function Page() {
                 },
                 {
                     ...prev,
-                    projects: prev.projects.map((p) => (p.projectId === d.projectId ? { ...p, visible: d.visible } : p)),
+                    candidateProfilesToProjects: prev.candidateProfilesToProjects.map((p) => (p.projectId === d.projectId ? { ...p, visible: d.visible } : p)),
                 }
             );
 
@@ -165,25 +165,25 @@ export default function Page() {
                     <div>
                         <h2>Jams</h2>
                         <div className="grid">
-                            {candidate?.projects.map((p) => (
+                            {candidate?.candidateProfilesToProjects.map((cp) => (
                                 <div
                                     className="flex items-center gap-2 rounded-md border p-4"
-                                    key={p.projectId}
+                                    key={cp.projectId}
                                 >
                                     <Button
                                         onClick={() =>
                                             changeProjectVisibility.mutate({
-                                                projectId: p.projectId,
-                                                visible: !p.visible,
+                                                projectId: cp.projectId,
+                                                visible: !cp.visible,
                                             })
                                         }
                                         className="h-6 w-6"
                                         variant="ghost"
                                         disabled={changeProjectVisibility.isPending}
                                     >
-                                        {p.visible ? <EyeIcon className="h-6 w-6" /> : <EyeOffIcon className="h-6 w-6" />}
+                                        {cp.visible ? <EyeIcon className="h-6 w-6" /> : <EyeOffIcon className="h-6 w-6" />}
                                     </Button>
-                                    <p className={cn(!p.visible && 'line-through')}>{p.project.title}</p>
+                                    <p className={cn(!cp.visible && 'line-through')}>{cp.project.title}</p>
                                 </div>
                             ))}
                         </div>
