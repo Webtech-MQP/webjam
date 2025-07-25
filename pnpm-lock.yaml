@@ -10,7 +10,7 @@ importers:
     dependencies:
       '@auth/drizzle-adapter':
         specifier: ^1.10.0
-        version: 1.10.0
+        version: 1.10.0(nodemailer@7.0.5)
       '@hookform/resolvers':
         specifier: ^5.1.1
         version: 5.1.1(react-hook-form@7.60.0(react@19.1.0))
@@ -41,6 +41,9 @@ importers:
       '@t3-oss/env-nextjs':
         specifier: ^0.12.0
         version: 0.12.0(typescript@5.8.3)(zod@3.25.67)
+      '@tanstack/react-form':
+        specifier: ^1.14.1
+        version: 1.14.1(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@tanstack/react-query':
         specifier: ^5.69.0
         version: 5.81.0(react@19.1.0)
@@ -79,13 +82,16 @@ importers:
         version: 15.3.4(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       next-auth:
         specifier: 5.0.0-beta.29
-        version: 5.0.0-beta.29(next@15.3.4(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react@19.1.0)
+        version: 5.0.0-beta.29(next@15.3.4(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(nodemailer@7.0.5)(react@19.1.0)
       next-themes:
         specifier: ^0.4.6
         version: 0.4.6(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      nodemailer:
+        specifier: ^7.0.5
+        version: 7.0.5
       prettier-plugin-organize-imports:
         specifier: ^4.1.0
-        version: 4.1.0(prettier@3.5.3)(typescript@5.8.3)
+        version: 4.2.0(prettier@3.5.3)(typescript@5.8.3)
       react:
         specifier: ^19.0.0
         version: 19.1.0
@@ -135,6 +141,9 @@ importers:
       '@types/node':
         specifier: ^20.14.10
         version: 20.19.1
+      '@types/nodemailer':
+        specifier: ^6.4.17
+        version: 6.4.17
       '@types/react':
         specifier: ^19.0.0
         version: 19.1.8
@@ -167,7 +176,7 @@ importers:
         version: 3.5.3
       prettier-plugin-tailwindcss:
         specifier: ^0.6.11
-        version: 0.6.13(prettier-plugin-organize-imports@4.1.0(prettier@3.5.3)(typescript@5.8.3))(prettier@3.5.3)
+        version: 0.6.13(prettier-plugin-organize-imports@4.2.0(prettier@3.5.3)(typescript@5.8.3))(prettier@3.5.3)
       tailwindcss:
         specifier: ^4.0.15
         version: 4.1.10
@@ -1350,13 +1359,37 @@ packages:
   '@tailwindcss/postcss@4.1.10':
     resolution: {integrity: sha512-B+7r7ABZbkXJwpvt2VMnS6ujcDoR2OOcFaqrLIo1xbcdxje4Vf+VgJdBzNNbrAjBj/rLZ66/tlQ1knIGNLKOBQ==}
 
+  '@tanstack/form-core@1.14.0':
+    resolution: {integrity: sha512-uAOW3IxkT/Cmy8JlznK8S/LSpvtHjpUQi2wyuPqVfJ04y95WuV90SO+VKtb9TrNp51QLrrTFBR8tMEuzqp5wmA==}
+
   '@tanstack/query-core@5.81.0':
     resolution: {integrity: sha512-lFsd8NBhkh26vzaq8uOOM2o3r4NtJros7kASI+TTMBmKT8C43HVN/2mOI9PFX9kzmxLThBzOLa4NI8ORhX8N9g==}
+
+  '@tanstack/react-form@1.14.1':
+    resolution: {integrity: sha512-Ioja3zcLZj082OdCH6pFNv15fD4UTfnJgKIXxY7Iumio8EcYLXSuxzanqNWewFvftshUFHknSEa7QtyOAkFs0Q==}
+    peerDependencies:
+      '@tanstack/react-start': ^1.112.0
+      react: ^17.0.0 || ^18.0.0 || ^19.0.0
+      vinxi: ^0.5.0
+    peerDependenciesMeta:
+      '@tanstack/react-start':
+        optional: true
+      vinxi:
+        optional: true
 
   '@tanstack/react-query@5.81.0':
     resolution: {integrity: sha512-nutU/X1xrgMJXui61oi5j0gXKs2ZlHnI9f/C128CNha/MRi9i/E5tN3pcUIjvQZzNQnOxp1Uv90SZs3kmcecgw==}
     peerDependencies:
       react: ^18 || ^19
+
+  '@tanstack/react-store@0.7.3':
+    resolution: {integrity: sha512-3Dnqtbw9P2P0gw8uUM8WP2fFfg8XMDSZCTsywRPZe/XqqYW8PGkXKZTvP0AHkE4mpqP9Y43GpOg9vwO44azu6Q==}
+    peerDependencies:
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+      react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+
+  '@tanstack/store@0.7.2':
+    resolution: {integrity: sha512-RP80Z30BYiPX2Pyo0Nyw4s1SJFH2jyM6f9i3HfX4pA+gm5jsnYryscdq2aIQLnL4TaGuQMO+zXmN9nh1Qck+Pg==}
 
   '@trpc/client@11.4.2':
     resolution: {integrity: sha512-Eep1rorAsATs9bxgaXf+BV34CRs4lAKQmwumUL4CNdNDkJItyfuWUr3xWx0np1w3EzUDVA0YDMK93iKDBBA0KQ==}
@@ -1420,6 +1453,9 @@ packages:
 
   '@types/node@20.19.1':
     resolution: {integrity: sha512-jJD50LtlD2dodAEO653i3YF04NWak6jN3ky+Ri3Em3mGR39/glWiboM/IePaRbgwSfqM1TpGXfAg8ohn/4dTgA==}
+
+  '@types/nodemailer@6.4.17':
+    resolution: {integrity: sha512-I9CCaIp6DTldEg7vyUTZi8+9Vo0hi1/T8gv3C89yk1rSAAzoKQ8H8ki/jBYJSFoH/BisgLP8tkZMlQ91CIquww==}
 
   '@types/react-dom@19.1.6':
     resolution: {integrity: sha512-4hOiT/dwO8Ko0gV1m/TJZYk3y0KBnY9vzDh7W+DH17b2HFSOGgdj33dhihPeuy3l0q23+4e+hoXHV6hCC4dCXw==}
@@ -1885,6 +1921,9 @@ packages:
   decimal.js-light@2.5.1:
     resolution: {integrity: sha512-qIMFpTMZmny+MMIitAB6D7iVPEorVw6YQRWkvarTkT4tBeSLLiHzcwj6q0MmYSFCiVpiqPJTJEYIrpcPzVEIvg==}
 
+  decode-formdata@0.9.0:
+    resolution: {integrity: sha512-q5uwOjR3Um5YD+ZWPOF/1sGHVW9A5rCrRwITQChRXlmPkxDFBqCm4jNTIVdGHNH9OnR+V9MoZVgRhsFb+ARbUw==}
+
   deep-is@0.1.4:
     resolution: {integrity: sha512-oIPzksmTg4/MriiaYGO+okXDT7ztn/w3Eptv/+gSIdMdKsJo0u4CfYNFJPy+4SKMuCqGw2wxnA+URMg3t8a/bQ==}
 
@@ -1910,6 +1949,9 @@ packages:
 
   detect-node-es@1.1.0:
     resolution: {integrity: sha512-ypdmJU/TbBby2Dxibuv7ZLW3Bs1QEmM7nHjEANfohJLvE0XVujisn1qPJcZxg+qDucsr+bP6fLD1rPS3AhJ7EQ==}
+
+  devalue@5.1.1:
+    resolution: {integrity: sha512-maua5KUiapvEwiEAe+XnlZ3Rh0GD+qI1J/nb9vrJc3muPXvcF/8gXYTWF76+5DAqHyDUtOIImEuo0YKE9mshVw==}
 
   doctrine@2.1.0:
     resolution: {integrity: sha512-35mSku4ZXK0vfCuHEDAwt55dg2jNajHZ1odvF+8SSr82EsZY4QmXfuWso8oEd8zRhVObSN18aM0CjSdoBX7zIw==}
@@ -2780,6 +2822,10 @@ packages:
     resolution: {integrity: sha512-dRB78srN/l6gqWulah9SrxeYnxeddIG30+GOqK/9OlLVyLg3HPnr6SqOWTWOXKRwC2eGYCkZ59NNuSgvSrpgOA==}
     engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
 
+  nodemailer@7.0.5:
+    resolution: {integrity: sha512-nsrh2lO3j4GkLLXoeEksAMgAOqxOv6QumNRVQTJwKH4nuiww6iC2y7GyANs9kRAxCexg3+lTWM3PZ91iLlVjfg==}
+    engines: {node: '>=6.0.0'}
+
   oauth4webapi@3.5.3:
     resolution: {integrity: sha512-2bnHosmBLAQpXNBLOvaJMyMkr4Yya5ohE5Q9jqyxiN+aa7GFCzvDN1RRRMrp0NkfqRR2MTaQNkcSUCCjILD9oQ==}
 
@@ -2890,12 +2936,12 @@ packages:
     resolution: {integrity: sha512-vkcDPrRZo1QZLbn5RLGPpg/WmIQ65qoWWhcGKf/b5eplkkarX0m9z8ppCat4mlOqUsWpyNuYgO3VRyrYHSzX5g==}
     engines: {node: '>= 0.8.0'}
 
-  prettier-plugin-organize-imports@4.1.0:
-    resolution: {integrity: sha512-5aWRdCgv645xaa58X8lOxzZoiHAldAPChljr/MT0crXVOWTZ+Svl4hIWlz+niYSlO6ikE5UXkN1JrRvIP2ut0A==}
+  prettier-plugin-organize-imports@4.2.0:
+    resolution: {integrity: sha512-Zdy27UhlmyvATZi67BTnLcKTo8fm6Oik59Sz6H64PgZJVs6NJpPD1mT240mmJn62c98/QaL+r3kx9Q3gRpDajg==}
     peerDependencies:
       prettier: '>=2.0'
       typescript: '>=2.9'
-      vue-tsc: ^2.1.0
+      vue-tsc: ^2.1.0 || 3
     peerDependenciesMeta:
       vue-tsc:
         optional: true
@@ -3457,17 +3503,19 @@ snapshots:
       '@jridgewell/gen-mapping': 0.3.8
       '@jridgewell/trace-mapping': 0.3.25
 
-  '@auth/core@0.40.0':
+  '@auth/core@0.40.0(nodemailer@7.0.5)':
     dependencies:
       '@panva/hkdf': 1.2.1
       jose: 6.0.11
       oauth4webapi: 3.5.3
       preact: 10.24.3
       preact-render-to-string: 6.5.11(preact@10.24.3)
+    optionalDependencies:
+      nodemailer: 7.0.5
 
-  '@auth/drizzle-adapter@1.10.0':
+  '@auth/drizzle-adapter@1.10.0(nodemailer@7.0.5)':
     dependencies:
-      '@auth/core': 0.40.0
+      '@auth/core': 0.40.0(nodemailer@7.0.5)
     transitivePeerDependencies:
       - '@simplewebauthn/browser'
       - '@simplewebauthn/server'
@@ -4359,12 +4407,35 @@ snapshots:
       postcss: 8.5.6
       tailwindcss: 4.1.10
 
+  '@tanstack/form-core@1.14.0':
+    dependencies:
+      '@tanstack/store': 0.7.2
+
   '@tanstack/query-core@5.81.0': {}
+
+  '@tanstack/react-form@1.14.1(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
+    dependencies:
+      '@tanstack/form-core': 1.14.0
+      '@tanstack/react-store': 0.7.3(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      decode-formdata: 0.9.0
+      devalue: 5.1.1
+      react: 19.1.0
+    transitivePeerDependencies:
+      - react-dom
 
   '@tanstack/react-query@5.81.0(react@19.1.0)':
     dependencies:
       '@tanstack/query-core': 5.81.0
       react: 19.1.0
+
+  '@tanstack/react-store@0.7.3(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
+    dependencies:
+      '@tanstack/store': 0.7.2
+      react: 19.1.0
+      react-dom: 19.1.0(react@19.1.0)
+      use-sync-external-store: 1.5.0(react@19.1.0)
+
+  '@tanstack/store@0.7.2': {}
 
   '@trpc/client@11.4.2(@trpc/server@11.4.2(typescript@5.8.3))(typescript@5.8.3)':
     dependencies:
@@ -4422,6 +4493,10 @@ snapshots:
   '@types/node@20.19.1':
     dependencies:
       undici-types: 6.21.0
+
+  '@types/nodemailer@6.4.17':
+    dependencies:
+      '@types/node': 20.19.1
 
   '@types/react-dom@19.1.6(@types/react@19.1.8)':
     dependencies:
@@ -4918,6 +4993,8 @@ snapshots:
 
   decimal.js-light@2.5.1: {}
 
+  decode-formdata@0.9.0: {}
+
   deep-is@0.1.4: {}
 
   define-data-property@1.1.4:
@@ -4939,6 +5016,8 @@ snapshots:
   detect-libc@2.0.4: {}
 
   detect-node-es@1.1.0: {}
+
+  devalue@5.1.1: {}
 
   doctrine@2.1.0:
     dependencies:
@@ -5846,11 +5925,13 @@ snapshots:
 
   natural-compare@1.4.0: {}
 
-  next-auth@5.0.0-beta.29(next@15.3.4(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react@19.1.0):
+  next-auth@5.0.0-beta.29(next@15.3.4(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(nodemailer@7.0.5)(react@19.1.0):
     dependencies:
-      '@auth/core': 0.40.0
+      '@auth/core': 0.40.0(nodemailer@7.0.5)
       next: 15.3.4(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       react: 19.1.0
+    optionalDependencies:
+      nodemailer: 7.0.5
 
   next-themes@0.4.6(react-dom@19.1.0(react@19.1.0))(react@19.1.0):
     dependencies:
@@ -5889,6 +5970,8 @@ snapshots:
       data-uri-to-buffer: 4.0.1
       fetch-blob: 3.2.0
       formdata-polyfill: 4.0.10
+
+  nodemailer@7.0.5: {}
 
   oauth4webapi@3.5.3: {}
 
@@ -6004,16 +6087,16 @@ snapshots:
 
   prelude-ls@1.2.1: {}
 
-  prettier-plugin-organize-imports@4.1.0(prettier@3.5.3)(typescript@5.8.3):
+  prettier-plugin-organize-imports@4.2.0(prettier@3.5.3)(typescript@5.8.3):
     dependencies:
       prettier: 3.5.3
       typescript: 5.8.3
 
-  prettier-plugin-tailwindcss@0.6.13(prettier-plugin-organize-imports@4.1.0(prettier@3.5.3)(typescript@5.8.3))(prettier@3.5.3):
+  prettier-plugin-tailwindcss@0.6.13(prettier-plugin-organize-imports@4.2.0(prettier@3.5.3)(typescript@5.8.3))(prettier@3.5.3):
     dependencies:
       prettier: 3.5.3
     optionalDependencies:
-      prettier-plugin-organize-imports: 4.1.0(prettier@3.5.3)(typescript@5.8.3)
+      prettier-plugin-organize-imports: 4.2.0(prettier@3.5.3)(typescript@5.8.3)
 
   prettier@3.5.3: {}
 

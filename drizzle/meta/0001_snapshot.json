@@ -1,1172 +1,1069 @@
 {
-  "version": "6",
-  "dialect": "sqlite",
-  "id": "53fc7f94-bbf1-416a-8041-6204df66149e",
-  "prevId": "7af12bb7-d655-4129-9ffa-02d4e4938c30",
-  "tables": {
-    "prototype-3_account": {
-      "name": "prototype-3_account",
-      "columns": {
-        "userId": {
-          "name": "userId",
-          "type": "text(255)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
+    "version": "6",
+    "dialect": "sqlite",
+    "id": "53fc7f94-bbf1-416a-8041-6204df66149e",
+    "prevId": "7af12bb7-d655-4129-9ffa-02d4e4938c30",
+    "tables": {
+        "prototype-3_account": {
+            "name": "prototype-3_account",
+            "columns": {
+                "userId": {
+                    "name": "userId",
+                    "type": "text(255)",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false
+                },
+                "type": {
+                    "name": "type",
+                    "type": "text(255)",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false
+                },
+                "provider": {
+                    "name": "provider",
+                    "type": "text(255)",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false
+                },
+                "providerAccountId": {
+                    "name": "providerAccountId",
+                    "type": "text(255)",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false
+                },
+                "refresh_token": {
+                    "name": "refresh_token",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "autoincrement": false
+                },
+                "refresh_token_expires_in": {
+                    "name": "refresh_token_expires_in",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "autoincrement": false
+                },
+                "access_token": {
+                    "name": "access_token",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "autoincrement": false
+                },
+                "expires_at": {
+                    "name": "expires_at",
+                    "type": "integer",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "autoincrement": false
+                },
+                "token_type": {
+                    "name": "token_type",
+                    "type": "text(255)",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "autoincrement": false
+                },
+                "scope": {
+                    "name": "scope",
+                    "type": "text(255)",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "autoincrement": false
+                },
+                "id_token": {
+                    "name": "id_token",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "autoincrement": false
+                },
+                "session_state": {
+                    "name": "session_state",
+                    "type": "text(255)",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "autoincrement": false
+                }
+            },
+            "indexes": {
+                "account_user_id_idx": {
+                    "name": "account_user_id_idx",
+                    "columns": ["userId"],
+                    "isUnique": false
+                }
+            },
+            "foreignKeys": {
+                "prototype-3_account_userId_prototype-3_user_id_fk": {
+                    "name": "prototype-3_account_userId_prototype-3_user_id_fk",
+                    "tableFrom": "prototype-3_account",
+                    "tableTo": "prototype-3_user",
+                    "columnsFrom": ["userId"],
+                    "columnsTo": ["id"],
+                    "onDelete": "no action",
+                    "onUpdate": "no action"
+                }
+            },
+            "compositePrimaryKeys": {
+                "prototype-3_account_provider_providerAccountId_pk": {
+                    "columns": ["provider", "providerAccountId"],
+                    "name": "prototype-3_account_provider_providerAccountId_pk"
+                }
+            },
+            "uniqueConstraints": {},
+            "checkConstraints": {}
         },
-        "type": {
-          "name": "type",
-          "type": "text(255)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
+        "prototype-3_session": {
+            "name": "prototype-3_session",
+            "columns": {
+                "sessionToken": {
+                    "name": "sessionToken",
+                    "type": "text(255)",
+                    "primaryKey": true,
+                    "notNull": true,
+                    "autoincrement": false
+                },
+                "userId": {
+                    "name": "userId",
+                    "type": "text(255)",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false
+                },
+                "expires": {
+                    "name": "expires",
+                    "type": "integer",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false
+                }
+            },
+            "indexes": {
+                "session_userId_idx": {
+                    "name": "session_userId_idx",
+                    "columns": ["userId"],
+                    "isUnique": false
+                }
+            },
+            "foreignKeys": {
+                "prototype-3_session_userId_prototype-3_user_id_fk": {
+                    "name": "prototype-3_session_userId_prototype-3_user_id_fk",
+                    "tableFrom": "prototype-3_session",
+                    "tableTo": "prototype-3_user",
+                    "columnsFrom": ["userId"],
+                    "columnsTo": ["id"],
+                    "onDelete": "no action",
+                    "onUpdate": "no action"
+                }
+            },
+            "compositePrimaryKeys": {},
+            "uniqueConstraints": {},
+            "checkConstraints": {}
         },
-        "provider": {
-          "name": "provider",
-          "type": "text(255)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
+        "prototype-3_verification_token": {
+            "name": "prototype-3_verification_token",
+            "columns": {
+                "identifier": {
+                    "name": "identifier",
+                    "type": "text(255)",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false
+                },
+                "token": {
+                    "name": "token",
+                    "type": "text(255)",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false
+                },
+                "expires": {
+                    "name": "expires",
+                    "type": "integer",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false
+                }
+            },
+            "indexes": {},
+            "foreignKeys": {},
+            "compositePrimaryKeys": {
+                "prototype-3_verification_token_identifier_token_pk": {
+                    "columns": ["identifier", "token"],
+                    "name": "prototype-3_verification_token_identifier_token_pk"
+                }
+            },
+            "uniqueConstraints": {},
+            "checkConstraints": {}
         },
-        "providerAccountId": {
-          "name": "providerAccountId",
-          "type": "text(255)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
+        "prototype-3_candidate_profiles_to_projects": {
+            "name": "prototype-3_candidate_profiles_to_projects",
+            "columns": {
+                "candidate_id": {
+                    "name": "candidate_id",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false
+                },
+                "project_id": {
+                    "name": "project_id",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false
+                }
+            },
+            "indexes": {},
+            "foreignKeys": {
+                "prototype-3_candidate_profiles_to_projects_candidate_id_prototype-3_candidate_profile_candidateId_fk": {
+                    "name": "prototype-3_candidate_profiles_to_projects_candidate_id_prototype-3_candidate_profile_candidateId_fk",
+                    "tableFrom": "prototype-3_candidate_profiles_to_projects",
+                    "tableTo": "prototype-3_candidate_profile",
+                    "columnsFrom": ["candidate_id"],
+                    "columnsTo": ["candidateId"],
+                    "onDelete": "cascade",
+                    "onUpdate": "no action"
+                },
+                "prototype-3_candidate_profiles_to_projects_project_id_prototype-3_project_id_fk": {
+                    "name": "prototype-3_candidate_profiles_to_projects_project_id_prototype-3_project_id_fk",
+                    "tableFrom": "prototype-3_candidate_profiles_to_projects",
+                    "tableTo": "prototype-3_project",
+                    "columnsFrom": ["project_id"],
+                    "columnsTo": ["id"],
+                    "onDelete": "cascade",
+                    "onUpdate": "no action"
+                }
+            },
+            "compositePrimaryKeys": {
+                "prototype-3_candidate_profiles_to_projects_candidate_id_project_id_pk": {
+                    "columns": ["candidate_id", "project_id"],
+                    "name": "prototype-3_candidate_profiles_to_projects_candidate_id_project_id_pk"
+                }
+            },
+            "uniqueConstraints": {},
+            "checkConstraints": {}
         },
-        "refresh_token": {
-          "name": "refresh_token",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
+        "prototype-3_candidates_to_projects": {
+            "name": "prototype-3_candidates_to_projects",
+            "columns": {
+                "candidate_id": {
+                    "name": "candidate_id",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false
+                },
+                "project_id": {
+                    "name": "project_id",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false
+                }
+            },
+            "indexes": {},
+            "foreignKeys": {
+                "prototype-3_candidates_to_projects_candidate_id_prototype-3_candidate_userId_fk": {
+                    "name": "prototype-3_candidates_to_projects_candidate_id_prototype-3_candidate_userId_fk",
+                    "tableFrom": "prototype-3_candidates_to_projects",
+                    "tableTo": "prototype-3_candidate",
+                    "columnsFrom": ["candidate_id"],
+                    "columnsTo": ["userId"],
+                    "onDelete": "cascade",
+                    "onUpdate": "no action"
+                },
+                "prototype-3_candidates_to_projects_project_id_prototype-3_project_id_fk": {
+                    "name": "prototype-3_candidates_to_projects_project_id_prototype-3_project_id_fk",
+                    "tableFrom": "prototype-3_candidates_to_projects",
+                    "tableTo": "prototype-3_project",
+                    "columnsFrom": ["project_id"],
+                    "columnsTo": ["id"],
+                    "onDelete": "cascade",
+                    "onUpdate": "no action"
+                }
+            },
+            "compositePrimaryKeys": {
+                "prototype-3_candidates_to_projects_candidate_id_project_id_pk": {
+                    "columns": ["candidate_id", "project_id"],
+                    "name": "prototype-3_candidates_to_projects_candidate_id_project_id_pk"
+                }
+            },
+            "uniqueConstraints": {},
+            "checkConstraints": {}
         },
-        "refresh_token_expires_in": {
-          "name": "refresh_token_expires_in",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
+        "prototype-3_projectSubmission": {
+            "name": "prototype-3_projectSubmission",
+            "columns": {
+                "id": {
+                    "name": "id",
+                    "type": "text",
+                    "primaryKey": true,
+                    "notNull": true,
+                    "autoincrement": false
+                },
+                "projectId": {
+                    "name": "projectId",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false
+                },
+                "submittedOn": {
+                    "name": "submittedOn",
+                    "type": "integer",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "autoincrement": false,
+                    "default": "(unixepoch())"
+                },
+                "status": {
+                    "name": "status",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "autoincrement": false,
+                    "default": "'submitted'"
+                },
+                "reviewedOn": {
+                    "name": "reviewedOn",
+                    "type": "integer",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "autoincrement": false
+                },
+                "reviewedBy": {
+                    "name": "reviewedBy",
+                    "type": "text(255)",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false
+                },
+                "repoURL": {
+                    "name": "repoURL",
+                    "type": "text(255)",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "autoincrement": false
+                },
+                "notes": {
+                    "name": "notes",
+                    "type": "text(255)",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "autoincrement": false
+                }
+            },
+            "indexes": {},
+            "foreignKeys": {
+                "prototype-3_projectSubmission_projectId_prototype-3_project_id_fk": {
+                    "name": "prototype-3_projectSubmission_projectId_prototype-3_project_id_fk",
+                    "tableFrom": "prototype-3_projectSubmission",
+                    "tableTo": "prototype-3_project",
+                    "columnsFrom": ["projectId"],
+                    "columnsTo": ["id"],
+                    "onDelete": "no action",
+                    "onUpdate": "no action"
+                },
+                "prototype-3_projectSubmission_reviewedBy_prototype-3_admin_userId_fk": {
+                    "name": "prototype-3_projectSubmission_reviewedBy_prototype-3_admin_userId_fk",
+                    "tableFrom": "prototype-3_projectSubmission",
+                    "tableTo": "prototype-3_admin",
+                    "columnsFrom": ["reviewedBy"],
+                    "columnsTo": ["userId"],
+                    "onDelete": "no action",
+                    "onUpdate": "no action"
+                }
+            },
+            "compositePrimaryKeys": {},
+            "uniqueConstraints": {},
+            "checkConstraints": {}
         },
-        "access_token": {
-          "name": "access_token",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
+        "prototype-3_project": {
+            "name": "prototype-3_project",
+            "columns": {
+                "id": {
+                    "name": "id",
+                    "type": "text",
+                    "primaryKey": true,
+                    "notNull": true,
+                    "autoincrement": false
+                },
+                "title": {
+                    "name": "title",
+                    "type": "text(256)",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "autoincrement": false
+                },
+                "subTitle": {
+                    "name": "subTitle",
+                    "type": "text(256)",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "autoincrement": false
+                },
+                "description": {
+                    "name": "description",
+                    "type": "text(256)",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "autoincrement": false
+                },
+                "instructions": {
+                    "name": "instructions",
+                    "type": "text(256)",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "autoincrement": false
+                },
+                "requirements": {
+                    "name": "requirements",
+                    "type": "text(256)",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "autoincrement": false
+                },
+                "imageURL": {
+                    "name": "imageURL",
+                    "type": "text(256)",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "autoincrement": false
+                },
+                "status": {
+                    "name": "status",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "autoincrement": false,
+                    "default": "'in-progress'"
+                },
+                "deadline": {
+                    "name": "deadline",
+                    "type": "integer",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "autoincrement": false
+                },
+                "startDateTime": {
+                    "name": "startDateTime",
+                    "type": "integer",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "autoincrement": false
+                },
+                "endDateTime": {
+                    "name": "endDateTime",
+                    "type": "integer",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "autoincrement": false
+                },
+                "createdAt": {
+                    "name": "createdAt",
+                    "type": "integer",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "autoincrement": false,
+                    "default": "(unixepoch())"
+                },
+                "updatedAt": {
+                    "name": "updatedAt",
+                    "type": "integer",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "autoincrement": false,
+                    "default": "(unixepoch())"
+                },
+                "createdBy": {
+                    "name": "createdBy",
+                    "type": "text(255)",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "autoincrement": false
+                }
+            },
+            "indexes": {},
+            "foreignKeys": {
+                "prototype-3_project_createdBy_prototype-3_admin_profile_adminId_fk": {
+                    "name": "prototype-3_project_createdBy_prototype-3_admin_profile_adminId_fk",
+                    "tableFrom": "prototype-3_project",
+                    "tableTo": "prototype-3_admin_profile",
+                    "columnsFrom": ["createdBy"],
+                    "columnsTo": ["adminId"],
+                    "onDelete": "set null",
+                    "onUpdate": "no action"
+                }
+            },
+            "compositePrimaryKeys": {},
+            "uniqueConstraints": {},
+            "checkConstraints": {}
         },
-        "expires_at": {
-          "name": "expires_at",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
+        "prototype-3_projects_tags": {
+            "name": "prototype-3_projects_tags",
+            "columns": {
+                "project_id": {
+                    "name": "project_id",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false
+                },
+                "tag_id": {
+                    "name": "tag_id",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false
+                }
+            },
+            "indexes": {},
+            "foreignKeys": {
+                "prototype-3_projects_tags_project_id_prototype-3_project_id_fk": {
+                    "name": "prototype-3_projects_tags_project_id_prototype-3_project_id_fk",
+                    "tableFrom": "prototype-3_projects_tags",
+                    "tableTo": "prototype-3_project",
+                    "columnsFrom": ["project_id"],
+                    "columnsTo": ["id"],
+                    "onDelete": "cascade",
+                    "onUpdate": "no action"
+                },
+                "prototype-3_projects_tags_tag_id_prototype-3_tag_id_fk": {
+                    "name": "prototype-3_projects_tags_tag_id_prototype-3_tag_id_fk",
+                    "tableFrom": "prototype-3_projects_tags",
+                    "tableTo": "prototype-3_tag",
+                    "columnsFrom": ["tag_id"],
+                    "columnsTo": ["id"],
+                    "onDelete": "cascade",
+                    "onUpdate": "no action"
+                }
+            },
+            "compositePrimaryKeys": {},
+            "uniqueConstraints": {},
+            "checkConstraints": {}
         },
-        "token_type": {
-          "name": "token_type",
-          "type": "text(255)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
+        "prototype-3_tag": {
+            "name": "prototype-3_tag",
+            "columns": {
+                "id": {
+                    "name": "id",
+                    "type": "text",
+                    "primaryKey": true,
+                    "notNull": true,
+                    "autoincrement": false
+                },
+                "name": {
+                    "name": "name",
+                    "type": "text(256)",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "autoincrement": false
+                }
+            },
+            "indexes": {
+                "prototype-3_tag_name_unique": {
+                    "name": "prototype-3_tag_name_unique",
+                    "columns": ["name"],
+                    "isUnique": true
+                }
+            },
+            "foreignKeys": {},
+            "compositePrimaryKeys": {},
+            "uniqueConstraints": {},
+            "checkConstraints": {}
         },
-        "scope": {
-          "name": "scope",
-          "type": "text(255)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
+        "prototype-3_admin_profile": {
+            "name": "prototype-3_admin_profile",
+            "columns": {
+                "adminId": {
+                    "name": "adminId",
+                    "type": "text(255)",
+                    "primaryKey": true,
+                    "notNull": true,
+                    "autoincrement": false
+                },
+                "displayName": {
+                    "name": "displayName",
+                    "type": "text(255)",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false
+                },
+                "bio": {
+                    "name": "bio",
+                    "type": "text(255)",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "autoincrement": false
+                },
+                "imageURL": {
+                    "name": "imageURL",
+                    "type": "text(255)",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "autoincrement": false
+                },
+                "contactEmail": {
+                    "name": "contactEmail",
+                    "type": "text(255)",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "autoincrement": false
+                }
+            },
+            "indexes": {},
+            "foreignKeys": {
+                "prototype-3_admin_profile_adminId_prototype-3_admin_userId_fk": {
+                    "name": "prototype-3_admin_profile_adminId_prototype-3_admin_userId_fk",
+                    "tableFrom": "prototype-3_admin_profile",
+                    "tableTo": "prototype-3_admin",
+                    "columnsFrom": ["adminId"],
+                    "columnsTo": ["userId"],
+                    "onDelete": "cascade",
+                    "onUpdate": "no action"
+                }
+            },
+            "compositePrimaryKeys": {},
+            "uniqueConstraints": {},
+            "checkConstraints": {}
         },
-        "id_token": {
-          "name": "id_token",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
+        "prototype-3_admin": {
+            "name": "prototype-3_admin",
+            "columns": {
+                "userId": {
+                    "name": "userId",
+                    "type": "text(255)",
+                    "primaryKey": true,
+                    "notNull": true,
+                    "autoincrement": false
+                },
+                "role": {
+                    "name": "role",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "autoincrement": false,
+                    "default": "'Reg'"
+                }
+            },
+            "indexes": {
+                "admin_userid_role_unique": {
+                    "name": "admin_userid_role_unique",
+                    "columns": ["userId", "role"],
+                    "isUnique": true
+                }
+            },
+            "foreignKeys": {
+                "prototype-3_admin_userId_prototype-3_user_id_fk": {
+                    "name": "prototype-3_admin_userId_prototype-3_user_id_fk",
+                    "tableFrom": "prototype-3_admin",
+                    "tableTo": "prototype-3_user",
+                    "columnsFrom": ["userId"],
+                    "columnsTo": ["id"],
+                    "onDelete": "cascade",
+                    "onUpdate": "no action"
+                }
+            },
+            "compositePrimaryKeys": {},
+            "uniqueConstraints": {},
+            "checkConstraints": {}
         },
-        "session_state": {
-          "name": "session_state",
-          "type": "text(255)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
+        "prototype-3_candidate_profile": {
+            "name": "prototype-3_candidate_profile",
+            "columns": {
+                "candidateId": {
+                    "name": "candidateId",
+                    "type": "text(255)",
+                    "primaryKey": true,
+                    "notNull": true,
+                    "autoincrement": false
+                },
+                "displayName": {
+                    "name": "displayName",
+                    "type": "text(255)",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false
+                },
+                "bio": {
+                    "name": "bio",
+                    "type": "text(255)",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "autoincrement": false
+                },
+                "experience": {
+                    "name": "experience",
+                    "type": "text(255)",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "autoincrement": false
+                },
+                "githubUsername": {
+                    "name": "githubUsername",
+                    "type": "text(255)",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "autoincrement": false
+                },
+                "portfolioURL": {
+                    "name": "portfolioURL",
+                    "type": "text(255)",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "autoincrement": false
+                },
+                "linkedinURL": {
+                    "name": "linkedinURL",
+                    "type": "text(255)",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "autoincrement": false
+                },
+                "imageURL": {
+                    "name": "imageURL",
+                    "type": "text(255)",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "autoincrement": false
+                }
+            },
+            "indexes": {},
+            "foreignKeys": {
+                "prototype-3_candidate_profile_candidateId_prototype-3_candidate_userId_fk": {
+                    "name": "prototype-3_candidate_profile_candidateId_prototype-3_candidate_userId_fk",
+                    "tableFrom": "prototype-3_candidate_profile",
+                    "tableTo": "prototype-3_candidate",
+                    "columnsFrom": ["candidateId"],
+                    "columnsTo": ["userId"],
+                    "onDelete": "cascade",
+                    "onUpdate": "no action"
+                }
+            },
+            "compositePrimaryKeys": {},
+            "uniqueConstraints": {},
+            "checkConstraints": {}
+        },
+        "prototype-3_candidate": {
+            "name": "prototype-3_candidate",
+            "columns": {
+                "userId": {
+                    "name": "userId",
+                    "type": "text(255)",
+                    "primaryKey": true,
+                    "notNull": true,
+                    "autoincrement": false
+                },
+                "location": {
+                    "name": "location",
+                    "type": "text(255)",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "autoincrement": false
+                },
+                "language": {
+                    "name": "language",
+                    "type": "text(255)",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "autoincrement": false
+                },
+                "resumeURL": {
+                    "name": "resumeURL",
+                    "type": "text(255)",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "autoincrement": false
+                }
+            },
+            "indexes": {},
+            "foreignKeys": {
+                "prototype-3_candidate_userId_prototype-3_user_id_fk": {
+                    "name": "prototype-3_candidate_userId_prototype-3_user_id_fk",
+                    "tableFrom": "prototype-3_candidate",
+                    "tableTo": "prototype-3_user",
+                    "columnsFrom": ["userId"],
+                    "columnsTo": ["id"],
+                    "onDelete": "cascade",
+                    "onUpdate": "no action"
+                }
+            },
+            "compositePrimaryKeys": {},
+            "uniqueConstraints": {},
+            "checkConstraints": {}
+        },
+        "prototype-3_recruiter_profile": {
+            "name": "prototype-3_recruiter_profile",
+            "columns": {
+                "recruiterId": {
+                    "name": "recruiterId",
+                    "type": "text(255)",
+                    "primaryKey": true,
+                    "notNull": true,
+                    "autoincrement": false
+                },
+                "displayName": {
+                    "name": "displayName",
+                    "type": "text(255)",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false
+                },
+                "companyName": {
+                    "name": "companyName",
+                    "type": "text(255)",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "autoincrement": false
+                },
+                "bio": {
+                    "name": "bio",
+                    "type": "text(255)",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "autoincrement": false
+                },
+                "companyWebsite": {
+                    "name": "companyWebsite",
+                    "type": "text(255)",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "autoincrement": false
+                },
+                "linkedinURL": {
+                    "name": "linkedinURL",
+                    "type": "text(255)",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "autoincrement": false
+                },
+                "imageURL": {
+                    "name": "imageURL",
+                    "type": "text(255)",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "autoincrement": false
+                },
+                "publicEmail": {
+                    "name": "publicEmail",
+                    "type": "text(255)",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "autoincrement": false
+                }
+            },
+            "indexes": {},
+            "foreignKeys": {
+                "prototype-3_recruiter_profile_recruiterId_prototype-3_recruiter_userId_fk": {
+                    "name": "prototype-3_recruiter_profile_recruiterId_prototype-3_recruiter_userId_fk",
+                    "tableFrom": "prototype-3_recruiter_profile",
+                    "tableTo": "prototype-3_recruiter",
+                    "columnsFrom": ["recruiterId"],
+                    "columnsTo": ["userId"],
+                    "onDelete": "cascade",
+                    "onUpdate": "no action"
+                }
+            },
+            "compositePrimaryKeys": {},
+            "uniqueConstraints": {},
+            "checkConstraints": {}
+        },
+        "prototype-3_recruiter": {
+            "name": "prototype-3_recruiter",
+            "columns": {
+                "userId": {
+                    "name": "userId",
+                    "type": "text(255)",
+                    "primaryKey": true,
+                    "notNull": true,
+                    "autoincrement": false
+                },
+                "companyName": {
+                    "name": "companyName",
+                    "type": "text(255)",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "autoincrement": false
+                },
+                "location": {
+                    "name": "location",
+                    "type": "text(255)",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "autoincrement": false
+                }
+            },
+            "indexes": {},
+            "foreignKeys": {
+                "prototype-3_recruiter_userId_prototype-3_user_id_fk": {
+                    "name": "prototype-3_recruiter_userId_prototype-3_user_id_fk",
+                    "tableFrom": "prototype-3_recruiter",
+                    "tableTo": "prototype-3_user",
+                    "columnsFrom": ["userId"],
+                    "columnsTo": ["id"],
+                    "onDelete": "cascade",
+                    "onUpdate": "no action"
+                }
+            },
+            "compositePrimaryKeys": {},
+            "uniqueConstraints": {},
+            "checkConstraints": {}
+        },
+        "prototype-3_recruiters_candidates": {
+            "name": "prototype-3_recruiters_candidates",
+            "columns": {
+                "recruiter_id": {
+                    "name": "recruiter_id",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false
+                },
+                "candidate_id": {
+                    "name": "candidate_id",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false
+                },
+                "comments": {
+                    "name": "comments",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false,
+                    "default": "''"
+                }
+            },
+            "indexes": {},
+            "foreignKeys": {
+                "prototype-3_recruiters_candidates_recruiter_id_prototype-3_recruiter_userId_fk": {
+                    "name": "prototype-3_recruiters_candidates_recruiter_id_prototype-3_recruiter_userId_fk",
+                    "tableFrom": "prototype-3_recruiters_candidates",
+                    "tableTo": "prototype-3_recruiter",
+                    "columnsFrom": ["recruiter_id"],
+                    "columnsTo": ["userId"],
+                    "onDelete": "cascade",
+                    "onUpdate": "no action"
+                },
+                "prototype-3_recruiters_candidates_candidate_id_prototype-3_candidate_userId_fk": {
+                    "name": "prototype-3_recruiters_candidates_candidate_id_prototype-3_candidate_userId_fk",
+                    "tableFrom": "prototype-3_recruiters_candidates",
+                    "tableTo": "prototype-3_candidate",
+                    "columnsFrom": ["candidate_id"],
+                    "columnsTo": ["userId"],
+                    "onDelete": "cascade",
+                    "onUpdate": "no action"
+                }
+            },
+            "compositePrimaryKeys": {
+                "prototype-3_recruiters_candidates_candidate_id_recruiter_id_pk": {
+                    "columns": ["candidate_id", "recruiter_id"],
+                    "name": "prototype-3_recruiters_candidates_candidate_id_recruiter_id_pk"
+                }
+            },
+            "uniqueConstraints": {},
+            "checkConstraints": {}
+        },
+        "prototype-3_user": {
+            "name": "prototype-3_user",
+            "columns": {
+                "id": {
+                    "name": "id",
+                    "type": "text(255)",
+                    "primaryKey": true,
+                    "notNull": true,
+                    "autoincrement": false
+                },
+                "name": {
+                    "name": "name",
+                    "type": "text(255)",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "autoincrement": false
+                },
+                "image": {
+                    "name": "image",
+                    "type": "text(255)",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "autoincrement": false
+                },
+                "email": {
+                    "name": "email",
+                    "type": "text(255)",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false
+                },
+                "emailVerified": {
+                    "name": "emailVerified",
+                    "type": "integer",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "autoincrement": false,
+                    "default": "(unixepoch())"
+                },
+                "phoneNumber": {
+                    "name": "phoneNumber",
+                    "type": "text(255)",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "autoincrement": false
+                },
+                "role": {
+                    "name": "role",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "autoincrement": false,
+                    "default": "'candidate'"
+                },
+                "createdAt": {
+                    "name": "createdAt",
+                    "type": "integer",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "autoincrement": false,
+                    "default": "(unixepoch())"
+                },
+                "updatedAt": {
+                    "name": "updatedAt",
+                    "type": "integer",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "autoincrement": false,
+                    "default": "(unixepoch())"
+                }
+            },
+            "indexes": {
+                "user_id_role_unique": {
+                    "name": "user_id_role_unique",
+                    "columns": ["id", "role"],
+                    "isUnique": true
+                }
+            },
+            "foreignKeys": {},
+            "compositePrimaryKeys": {},
+            "uniqueConstraints": {},
+            "checkConstraints": {}
         }
-      },
-      "indexes": {
-        "account_user_id_idx": {
-          "name": "account_user_id_idx",
-          "columns": [
-            "userId"
-          ],
-          "isUnique": false
-        }
-      },
-      "foreignKeys": {
-        "prototype-3_account_userId_prototype-3_user_id_fk": {
-          "name": "prototype-3_account_userId_prototype-3_user_id_fk",
-          "tableFrom": "prototype-3_account",
-          "tableTo": "prototype-3_user",
-          "columnsFrom": [
-            "userId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {
-        "prototype-3_account_provider_providerAccountId_pk": {
-          "columns": [
-            "provider",
-            "providerAccountId"
-          ],
-          "name": "prototype-3_account_provider_providerAccountId_pk"
-        }
-      },
-      "uniqueConstraints": {},
-      "checkConstraints": {}
     },
-    "prototype-3_session": {
-      "name": "prototype-3_session",
-      "columns": {
-        "sessionToken": {
-          "name": "sessionToken",
-          "type": "text(255)",
-          "primaryKey": true,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "userId": {
-          "name": "userId",
-          "type": "text(255)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "expires": {
-          "name": "expires",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        }
-      },
-      "indexes": {
-        "session_userId_idx": {
-          "name": "session_userId_idx",
-          "columns": [
-            "userId"
-          ],
-          "isUnique": false
-        }
-      },
-      "foreignKeys": {
-        "prototype-3_session_userId_prototype-3_user_id_fk": {
-          "name": "prototype-3_session_userId_prototype-3_user_id_fk",
-          "tableFrom": "prototype-3_session",
-          "tableTo": "prototype-3_user",
-          "columnsFrom": [
-            "userId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "checkConstraints": {}
+    "views": {},
+    "enums": {},
+    "_meta": {
+        "schemas": {},
+        "tables": {},
+        "columns": {}
     },
-    "prototype-3_verification_token": {
-      "name": "prototype-3_verification_token",
-      "columns": {
-        "identifier": {
-          "name": "identifier",
-          "type": "text(255)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "token": {
-          "name": "token",
-          "type": "text(255)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "expires": {
-          "name": "expires",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {
-        "prototype-3_verification_token_identifier_token_pk": {
-          "columns": [
-            "identifier",
-            "token"
-          ],
-          "name": "prototype-3_verification_token_identifier_token_pk"
-        }
-      },
-      "uniqueConstraints": {},
-      "checkConstraints": {}
-    },
-    "prototype-3_candidate_profiles_to_projects": {
-      "name": "prototype-3_candidate_profiles_to_projects",
-      "columns": {
-        "candidate_id": {
-          "name": "candidate_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "project_id": {
-          "name": "project_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "prototype-3_candidate_profiles_to_projects_candidate_id_prototype-3_candidate_profile_candidateId_fk": {
-          "name": "prototype-3_candidate_profiles_to_projects_candidate_id_prototype-3_candidate_profile_candidateId_fk",
-          "tableFrom": "prototype-3_candidate_profiles_to_projects",
-          "tableTo": "prototype-3_candidate_profile",
-          "columnsFrom": [
-            "candidate_id"
-          ],
-          "columnsTo": [
-            "candidateId"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "prototype-3_candidate_profiles_to_projects_project_id_prototype-3_project_id_fk": {
-          "name": "prototype-3_candidate_profiles_to_projects_project_id_prototype-3_project_id_fk",
-          "tableFrom": "prototype-3_candidate_profiles_to_projects",
-          "tableTo": "prototype-3_project",
-          "columnsFrom": [
-            "project_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {
-        "prototype-3_candidate_profiles_to_projects_candidate_id_project_id_pk": {
-          "columns": [
-            "candidate_id",
-            "project_id"
-          ],
-          "name": "prototype-3_candidate_profiles_to_projects_candidate_id_project_id_pk"
-        }
-      },
-      "uniqueConstraints": {},
-      "checkConstraints": {}
-    },
-    "prototype-3_candidates_to_projects": {
-      "name": "prototype-3_candidates_to_projects",
-      "columns": {
-        "candidate_id": {
-          "name": "candidate_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "project_id": {
-          "name": "project_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "prototype-3_candidates_to_projects_candidate_id_prototype-3_candidate_userId_fk": {
-          "name": "prototype-3_candidates_to_projects_candidate_id_prototype-3_candidate_userId_fk",
-          "tableFrom": "prototype-3_candidates_to_projects",
-          "tableTo": "prototype-3_candidate",
-          "columnsFrom": [
-            "candidate_id"
-          ],
-          "columnsTo": [
-            "userId"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "prototype-3_candidates_to_projects_project_id_prototype-3_project_id_fk": {
-          "name": "prototype-3_candidates_to_projects_project_id_prototype-3_project_id_fk",
-          "tableFrom": "prototype-3_candidates_to_projects",
-          "tableTo": "prototype-3_project",
-          "columnsFrom": [
-            "project_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {
-        "prototype-3_candidates_to_projects_candidate_id_project_id_pk": {
-          "columns": [
-            "candidate_id",
-            "project_id"
-          ],
-          "name": "prototype-3_candidates_to_projects_candidate_id_project_id_pk"
-        }
-      },
-      "uniqueConstraints": {},
-      "checkConstraints": {}
-    },
-    "prototype-3_projectSubmission": {
-      "name": "prototype-3_projectSubmission",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "projectId": {
-          "name": "projectId",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "submittedOn": {
-          "name": "submittedOn",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "(unixepoch())"
-        },
-        "status": {
-          "name": "status",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'submitted'"
-        },
-        "reviewedOn": {
-          "name": "reviewedOn",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "reviewedBy": {
-          "name": "reviewedBy",
-          "type": "text(255)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "repoURL": {
-          "name": "repoURL",
-          "type": "text(255)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "notes": {
-          "name": "notes",
-          "type": "text(255)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "prototype-3_projectSubmission_projectId_prototype-3_project_id_fk": {
-          "name": "prototype-3_projectSubmission_projectId_prototype-3_project_id_fk",
-          "tableFrom": "prototype-3_projectSubmission",
-          "tableTo": "prototype-3_project",
-          "columnsFrom": [
-            "projectId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "prototype-3_projectSubmission_reviewedBy_prototype-3_admin_userId_fk": {
-          "name": "prototype-3_projectSubmission_reviewedBy_prototype-3_admin_userId_fk",
-          "tableFrom": "prototype-3_projectSubmission",
-          "tableTo": "prototype-3_admin",
-          "columnsFrom": [
-            "reviewedBy"
-          ],
-          "columnsTo": [
-            "userId"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "checkConstraints": {}
-    },
-    "prototype-3_project": {
-      "name": "prototype-3_project",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "title": {
-          "name": "title",
-          "type": "text(256)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "subTitle": {
-          "name": "subTitle",
-          "type": "text(256)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "description": {
-          "name": "description",
-          "type": "text(256)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "instructions": {
-          "name": "instructions",
-          "type": "text(256)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "requirements": {
-          "name": "requirements",
-          "type": "text(256)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "imageURL": {
-          "name": "imageURL",
-          "type": "text(256)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "status": {
-          "name": "status",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'in-progress'"
-        },
-        "deadline": {
-          "name": "deadline",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "startDateTime": {
-          "name": "startDateTime",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "endDateTime": {
-          "name": "endDateTime",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "createdAt": {
-          "name": "createdAt",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "(unixepoch())"
-        },
-        "updatedAt": {
-          "name": "updatedAt",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "(unixepoch())"
-        },
-        "createdBy": {
-          "name": "createdBy",
-          "type": "text(255)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "prototype-3_project_createdBy_prototype-3_admin_profile_adminId_fk": {
-          "name": "prototype-3_project_createdBy_prototype-3_admin_profile_adminId_fk",
-          "tableFrom": "prototype-3_project",
-          "tableTo": "prototype-3_admin_profile",
-          "columnsFrom": [
-            "createdBy"
-          ],
-          "columnsTo": [
-            "adminId"
-          ],
-          "onDelete": "set null",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "checkConstraints": {}
-    },
-    "prototype-3_projects_tags": {
-      "name": "prototype-3_projects_tags",
-      "columns": {
-        "project_id": {
-          "name": "project_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "tag_id": {
-          "name": "tag_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "prototype-3_projects_tags_project_id_prototype-3_project_id_fk": {
-          "name": "prototype-3_projects_tags_project_id_prototype-3_project_id_fk",
-          "tableFrom": "prototype-3_projects_tags",
-          "tableTo": "prototype-3_project",
-          "columnsFrom": [
-            "project_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "prototype-3_projects_tags_tag_id_prototype-3_tag_id_fk": {
-          "name": "prototype-3_projects_tags_tag_id_prototype-3_tag_id_fk",
-          "tableFrom": "prototype-3_projects_tags",
-          "tableTo": "prototype-3_tag",
-          "columnsFrom": [
-            "tag_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "checkConstraints": {}
-    },
-    "prototype-3_tag": {
-      "name": "prototype-3_tag",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "name": {
-          "name": "name",
-          "type": "text(256)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        }
-      },
-      "indexes": {
-        "prototype-3_tag_name_unique": {
-          "name": "prototype-3_tag_name_unique",
-          "columns": [
-            "name"
-          ],
-          "isUnique": true
-        }
-      },
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "checkConstraints": {}
-    },
-    "prototype-3_admin_profile": {
-      "name": "prototype-3_admin_profile",
-      "columns": {
-        "adminId": {
-          "name": "adminId",
-          "type": "text(255)",
-          "primaryKey": true,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "displayName": {
-          "name": "displayName",
-          "type": "text(255)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "bio": {
-          "name": "bio",
-          "type": "text(255)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "imageURL": {
-          "name": "imageURL",
-          "type": "text(255)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "contactEmail": {
-          "name": "contactEmail",
-          "type": "text(255)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "prototype-3_admin_profile_adminId_prototype-3_admin_userId_fk": {
-          "name": "prototype-3_admin_profile_adminId_prototype-3_admin_userId_fk",
-          "tableFrom": "prototype-3_admin_profile",
-          "tableTo": "prototype-3_admin",
-          "columnsFrom": [
-            "adminId"
-          ],
-          "columnsTo": [
-            "userId"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "checkConstraints": {}
-    },
-    "prototype-3_admin": {
-      "name": "prototype-3_admin",
-      "columns": {
-        "userId": {
-          "name": "userId",
-          "type": "text(255)",
-          "primaryKey": true,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "role": {
-          "name": "role",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'Reg'"
-        }
-      },
-      "indexes": {
-        "admin_userid_role_unique": {
-          "name": "admin_userid_role_unique",
-          "columns": [
-            "userId",
-            "role"
-          ],
-          "isUnique": true
-        }
-      },
-      "foreignKeys": {
-        "prototype-3_admin_userId_prototype-3_user_id_fk": {
-          "name": "prototype-3_admin_userId_prototype-3_user_id_fk",
-          "tableFrom": "prototype-3_admin",
-          "tableTo": "prototype-3_user",
-          "columnsFrom": [
-            "userId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "checkConstraints": {}
-    },
-    "prototype-3_candidate_profile": {
-      "name": "prototype-3_candidate_profile",
-      "columns": {
-        "candidateId": {
-          "name": "candidateId",
-          "type": "text(255)",
-          "primaryKey": true,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "displayName": {
-          "name": "displayName",
-          "type": "text(255)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "bio": {
-          "name": "bio",
-          "type": "text(255)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "experience": {
-          "name": "experience",
-          "type": "text(255)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "githubUsername": {
-          "name": "githubUsername",
-          "type": "text(255)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "portfolioURL": {
-          "name": "portfolioURL",
-          "type": "text(255)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "linkedinURL": {
-          "name": "linkedinURL",
-          "type": "text(255)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "imageURL": {
-          "name": "imageURL",
-          "type": "text(255)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "prototype-3_candidate_profile_candidateId_prototype-3_candidate_userId_fk": {
-          "name": "prototype-3_candidate_profile_candidateId_prototype-3_candidate_userId_fk",
-          "tableFrom": "prototype-3_candidate_profile",
-          "tableTo": "prototype-3_candidate",
-          "columnsFrom": [
-            "candidateId"
-          ],
-          "columnsTo": [
-            "userId"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "checkConstraints": {}
-    },
-    "prototype-3_candidate": {
-      "name": "prototype-3_candidate",
-      "columns": {
-        "userId": {
-          "name": "userId",
-          "type": "text(255)",
-          "primaryKey": true,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "location": {
-          "name": "location",
-          "type": "text(255)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "language": {
-          "name": "language",
-          "type": "text(255)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "resumeURL": {
-          "name": "resumeURL",
-          "type": "text(255)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "prototype-3_candidate_userId_prototype-3_user_id_fk": {
-          "name": "prototype-3_candidate_userId_prototype-3_user_id_fk",
-          "tableFrom": "prototype-3_candidate",
-          "tableTo": "prototype-3_user",
-          "columnsFrom": [
-            "userId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "checkConstraints": {}
-    },
-    "prototype-3_recruiter_profile": {
-      "name": "prototype-3_recruiter_profile",
-      "columns": {
-        "recruiterId": {
-          "name": "recruiterId",
-          "type": "text(255)",
-          "primaryKey": true,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "displayName": {
-          "name": "displayName",
-          "type": "text(255)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "companyName": {
-          "name": "companyName",
-          "type": "text(255)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "bio": {
-          "name": "bio",
-          "type": "text(255)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "companyWebsite": {
-          "name": "companyWebsite",
-          "type": "text(255)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "linkedinURL": {
-          "name": "linkedinURL",
-          "type": "text(255)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "imageURL": {
-          "name": "imageURL",
-          "type": "text(255)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "publicEmail": {
-          "name": "publicEmail",
-          "type": "text(255)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "prototype-3_recruiter_profile_recruiterId_prototype-3_recruiter_userId_fk": {
-          "name": "prototype-3_recruiter_profile_recruiterId_prototype-3_recruiter_userId_fk",
-          "tableFrom": "prototype-3_recruiter_profile",
-          "tableTo": "prototype-3_recruiter",
-          "columnsFrom": [
-            "recruiterId"
-          ],
-          "columnsTo": [
-            "userId"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "checkConstraints": {}
-    },
-    "prototype-3_recruiter": {
-      "name": "prototype-3_recruiter",
-      "columns": {
-        "userId": {
-          "name": "userId",
-          "type": "text(255)",
-          "primaryKey": true,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "companyName": {
-          "name": "companyName",
-          "type": "text(255)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "location": {
-          "name": "location",
-          "type": "text(255)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "prototype-3_recruiter_userId_prototype-3_user_id_fk": {
-          "name": "prototype-3_recruiter_userId_prototype-3_user_id_fk",
-          "tableFrom": "prototype-3_recruiter",
-          "tableTo": "prototype-3_user",
-          "columnsFrom": [
-            "userId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "checkConstraints": {}
-    },
-    "prototype-3_recruiters_candidates": {
-      "name": "prototype-3_recruiters_candidates",
-      "columns": {
-        "recruiter_id": {
-          "name": "recruiter_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "candidate_id": {
-          "name": "candidate_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "comments": {
-          "name": "comments",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": "''"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "prototype-3_recruiters_candidates_recruiter_id_prototype-3_recruiter_userId_fk": {
-          "name": "prototype-3_recruiters_candidates_recruiter_id_prototype-3_recruiter_userId_fk",
-          "tableFrom": "prototype-3_recruiters_candidates",
-          "tableTo": "prototype-3_recruiter",
-          "columnsFrom": [
-            "recruiter_id"
-          ],
-          "columnsTo": [
-            "userId"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "prototype-3_recruiters_candidates_candidate_id_prototype-3_candidate_userId_fk": {
-          "name": "prototype-3_recruiters_candidates_candidate_id_prototype-3_candidate_userId_fk",
-          "tableFrom": "prototype-3_recruiters_candidates",
-          "tableTo": "prototype-3_candidate",
-          "columnsFrom": [
-            "candidate_id"
-          ],
-          "columnsTo": [
-            "userId"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {
-        "prototype-3_recruiters_candidates_candidate_id_recruiter_id_pk": {
-          "columns": [
-            "candidate_id",
-            "recruiter_id"
-          ],
-          "name": "prototype-3_recruiters_candidates_candidate_id_recruiter_id_pk"
-        }
-      },
-      "uniqueConstraints": {},
-      "checkConstraints": {}
-    },
-    "prototype-3_user": {
-      "name": "prototype-3_user",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text(255)",
-          "primaryKey": true,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "name": {
-          "name": "name",
-          "type": "text(255)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "image": {
-          "name": "image",
-          "type": "text(255)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "email": {
-          "name": "email",
-          "type": "text(255)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "emailVerified": {
-          "name": "emailVerified",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "(unixepoch())"
-        },
-        "phoneNumber": {
-          "name": "phoneNumber",
-          "type": "text(255)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "role": {
-          "name": "role",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "'candidate'"
-        },
-        "createdAt": {
-          "name": "createdAt",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "(unixepoch())"
-        },
-        "updatedAt": {
-          "name": "updatedAt",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "(unixepoch())"
-        }
-      },
-      "indexes": {
-        "user_id_role_unique": {
-          "name": "user_id_role_unique",
-          "columns": [
-            "id",
-            "role"
-          ],
-          "isUnique": true
-        }
-      },
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "checkConstraints": {}
+    "internal": {
+        "indexes": {}
     }
-  },
-  "views": {},
-  "enums": {},
-  "_meta": {
-    "schemas": {},
-    "tables": {},
-    "columns": {}
-  },
-  "internal": {
-    "indexes": {}
-  }
 }

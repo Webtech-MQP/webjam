@@ -13,9 +13,10 @@ import { cn } from '@/lib/utils';
 import { api } from '@/trpc/react';
 import { createId } from '@paralleldrive/cuid2';
 import { DialogOverlay, DialogPortal } from '@radix-ui/react-dialog';
+import { skipToken } from '@tanstack/react-query';
 import { Check, ChevronsUpDown, Plus, PlusCircle, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useState, type ChangeEvent } from 'react';
+import { useEffect, useState, type ChangeEvent } from 'react';
 import { toast } from 'sonner';
 
 interface CreateProjectFormSchema {
@@ -40,7 +41,11 @@ const defaultForm: CreateProjectFormSchema = {
     tags: [],
 };
 
-export default function AdminCreateProject() {
+interface AdminCreateEditProjectProps {
+    projectId?: string;
+}
+
+export default function AdminCreateEditProject(props: AdminCreateEditProjectProps) {
     const [dialogueOpen, setDialogueOpen] = useState<boolean>(false);
     const [formState, setFormState] = useState<CreateProjectFormSchema>(defaultForm);
     const [open, setOpen] = useState(false);
@@ -48,50 +53,100 @@ export default function AdminCreateProject() {
     const createTag = api.projects.createTag.useMutation();
     const createProject = api.projects.create.useMutation();
     const tags = api.projects.getAllTags.useQuery();
+    const editProject = api.projects.updateOne.useMutation();
+    const getProject = api.projects.getOne.useQuery(props.projectId ? { id: props.projectId } : skipToken);
     const router = useRouter();
 
+    useEffect(() => {
+        if (!getProject.data) {
+            return;
+        }
+        setFormState({
+            title: getProject.data.title ?? '',
+            subtitle: getProject.data.subTitle ?? '',
+            description: getProject.data.description ?? '',
+            requirements: (getProject.data.requirements ?? '').split('\n'),
+            start: new Date(getProject.data.startDateTime ?? '').toISOString().split('.')[0]!,
+            end: new Date(getProject.data.endDateTime ?? '').toISOString().split('.')[0]!,
+            imageURL: getProject.data.imageURL ?? '',
+            tags: getProject.data.tags?.map((t) => t.tag.name ?? 'Untitled Tag') ?? [],
+        });
+    }, [getProject.data]);
+
     async function onSubmit() {
-        const id = createId();
         const title = formState.title.length > 0 ? formState.title : 'Untitled Project';
         const start = new Date(formState.start.length > 0 ? formState.start : Date.now());
         const end = new Date(formState.end.length > 0 ? formState.end : Date.now());
         const tagIds = tags.data?.filter((tag) => formState.tags.includes(tag.name ?? 'Untitled Tag')).map((tag) => tag.id);
-        const promise = createProject.mutateAsync({
-            id: id,
-            title: title,
-            subtitle: formState.subtitle,
-            description: formState.description,
-            requirements: getReqsString(),
-            imageURL: formState.imageURL,
-            starts: start,
-            ends: end,
-            tags: tagIds,
-        });
-        toast.promise(promise, {
-            loading: 'Creating project...',
-            success: 'Project created successfully!',
-            error: 'Failed to create project.',
-        });
-        try {
-            await promise;
-            onDiscard();
-            // router.push(`/dashboard/projects/${id}`);
-        } catch (err) {
-            // error toast already handled by toast.promise
+
+        if (props.projectId) {
+            const promise = editProject.mutateAsync({
+                id: props.projectId,
+                title: title,
+                subtitle: formState.subtitle,
+                description: formState.description,
+                requirements: getReqsString(),
+                imageURL: formState.imageURL,
+                starts: start,
+                ends: end,
+                tags: tagIds ?? [],
+            });
+            toast.promise(promise, {
+                loading: 'Updating project...',
+                success: 'Project updated successfully!',
+                error: 'Failed to update project.',
+            });
+            try {
+                await promise;
+                onDiscard();
+                router.push(`/dashboard/projects/${props.projectId}`);
+            } catch (err) {
+                // error toast already handled by toast.promise
+            }
+        } else {
+            console.log(tagIds);
+            const id = createId();
+            const promise = createProject.mutateAsync({
+                id: id,
+                title: title,
+                subtitle: formState.subtitle,
+                description: formState.description,
+                requirements: getReqsString(),
+                imageURL: formState.imageURL,
+                starts: start,
+                ends: end,
+                tags: tagIds,
+            });
+            toast.promise(promise, {
+                loading: 'Creating project...',
+                success: 'Project created successfully!',
+                error: 'Failed to create project.',
+            });
+            try {
+                await promise;
+                onDiscard();
+                // router.push(`/dashboard/projects/${id}`);
+            } catch (err) {
+                // error toast already handled by toast.promise
+            }
         }
     }
 
     function onDiscard() {
         setDialogueOpen(false);
-        setFormState(defaultForm);
+        if (!props.projectId) {
+            setFormState(defaultForm);
+        }
     }
 
     function getReqsString() {
         if (!formState.requirements || formState.requirements.length === 0) {
             return '';
         }
-        return 'Requirements:\n' + formState.requirements.map((req) => '• ' + req).join('\n');
+        return formState.requirements.join('\n');
     }
+
+    const isNewProject = props.projectId === undefined;
 
     return (
         <Dialog open={dialogueOpen}>
@@ -102,7 +157,7 @@ export default function AdminCreateProject() {
                 asChild
             >
                 <Button>
-                    <PlusCircle /> Create Project
+                    <PlusCircle /> {isNewProject ? 'Create Project' : 'Edit Project'}
                 </Button>
             </DialogTrigger>
             <DialogPortal>
@@ -113,7 +168,7 @@ export default function AdminCreateProject() {
                 >
                     <DialogHeader>
                         <div className="w-full flex justify-between">
-                            <DialogTitle>Create New Project</DialogTitle>
+                            <DialogTitle>{isNewProject ? 'Create New Project' : `Editing ${getProject.data?.title}`}</DialogTitle>
                             <DialogClose
                                 className="hover:cursor-pointer"
                                 onClick={() => {
@@ -123,7 +178,7 @@ export default function AdminCreateProject() {
                                 <X />
                             </DialogClose>
                         </div>
-                        <DialogDescription>Fill out the information needed to create a new project.</DialogDescription>
+                        <DialogDescription>{isNewProject ? 'Fill out the information needed to create a new project' : 'Make changes to the project'}.</DialogDescription>
                     </DialogHeader>
                     <div className="grid w-full items-center gap-3">
                         <Label htmlFor="title">Title</Label>
@@ -158,7 +213,7 @@ export default function AdminCreateProject() {
                             allowCreate
                             allowDelete
                             onChange={(v) => setFormState({ ...formState, requirements: v as string[] })}
-                            defaultValues={formState.requirements}
+                            list={formState.requirements}
                         />
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
@@ -186,7 +241,7 @@ export default function AdminCreateProject() {
                         </div>
                         <Label htmlFor="imageURL">Image</Label>
                         <Input
-                            type="file"
+                            type="text"
                             id="imageURL"
                             placeholder="Image URL"
                             value={formState.imageURL}
@@ -235,18 +290,19 @@ export default function AdminCreateProject() {
                                                 variant="ghost"
                                                 className="w-full justify-between whitespace-normal break-words"
                                                 onClick={async () => {
-                                                    const promise = createTag.mutateAsync({ name: tagInput.trim() });
+                                                    const cleanInput = tagInput.trim();
+                                                    const promise = createTag.mutateAsync({ name: cleanInput });
                                                     toast.promise(promise, {
                                                         loading: 'Creating tag...',
                                                         success: (data) => `Tag "${data?.name}" created successfully!`,
                                                         error: 'Failed to create tag.',
                                                     });
                                                     const data = await promise;
-                                                    const newTagId = data?.id;
-                                                    if (newTagId && !formState.tags.includes(newTagId)) {
+                                                    // const newTagId = data?.id;
+                                                    if (!formState.tags.includes(cleanInput)) {
                                                         setFormState({
                                                             ...formState,
-                                                            tags: [...formState.tags, newTagId],
+                                                            tags: [...formState.tags, cleanInput],
                                                         });
                                                     }
                                                     setTagInput('');
@@ -289,20 +345,19 @@ export default function AdminCreateProject() {
                         </Popover>
                         {formState.tags && formState.tags.length > 0 && (
                             <div className="flex flex-wrap gap-2 my-2">
-                                {formState.tags.map((tagId) => {
-                                    const tagObj = tags.data?.find((t) => t.id === tagId);
+                                {formState.tags.map((tagName) => {
                                     return (
                                         <Badge
-                                            key={tagId}
+                                            key={tagName}
                                             className="inline-flex items-center px-2 py-1 text-xs font-medium"
                                         >
-                                            {tagObj?.name ?? tagId}
+                                            {tagName}
                                             <button
                                                 className="ml-2 text-white hover:text-red-500"
                                                 onClick={() => {
                                                     setFormState({
                                                         ...formState,
-                                                        tags: formState.tags.filter((t) => t !== tagId),
+                                                        tags: formState.tags.filter((t) => t !== tagName),
                                                     });
                                                 }}
                                             >
@@ -313,7 +368,7 @@ export default function AdminCreateProject() {
                                 })}
                             </div>
                         )}
-                        <Button onClick={onSubmit}>Create</Button>
+                        <Button onClick={onSubmit}>{isNewProject ? 'Create' : 'Save Changes'}</Button>
                         <Button
                             variant="secondary"
                             onClick={onDiscard}

@@ -8,14 +8,14 @@ export const projectRouter = createTRPCRouter({
         .input(
             z.object({
                 id: z.string().cuid2(),
-                title: z.string().min(1).max(255),
-                subtitle: z.string().min(0).max(255),
-                description: z.string().min(0).max(255),
-                requirements: z.string().min(0).max(255),
-                imageURL: z.string().min(0).max(255),
+                title: z.string().min(1).max(1000),
+                subtitle: z.string().min(0).max(1000),
+                description: z.string().min(0).max(1000),
+                requirements: z.string().min(0).max(1000),
+                imageURL: z.string().min(0).max(1000),
                 starts: z.date(),
                 ends: z.date(),
-                tags: z.array(z.string().min(1).max(256)).optional(),
+                tags: z.array(z.string().min(1).max(1000)).optional(),
             })
         )
         .mutation(async ({ ctx, input }) => {
@@ -54,6 +54,11 @@ export const projectRouter = createTRPCRouter({
                         candidateProfile: true,
                     },
                 },
+                tags: {
+                    with: {
+                        tag: true,
+                    },
+                },
                 creator: true,
             },
         });
@@ -77,9 +82,49 @@ export const projectRouter = createTRPCRouter({
         });
     }),
 
-    updateOne: publicProcedure.input(z.object({ id: z.string().cuid2(), title: z.string().min(1).max(255) })).mutation(async ({ ctx, input }) => {
-        return ctx.db.update(projects).set({ title: input.title }).where(eq(projects.id, input.id));
-    }),
+    updateOne: publicProcedure
+        .input(
+            z.object({
+                id: z.string().cuid2(),
+                title: z.string().min(1).max(1000),
+                subtitle: z.string().min(0).max(1000),
+                description: z.string().min(0).max(10000),
+                requirements: z.string().min(0).max(10000),
+                imageURL: z.string().min(0).max(1000),
+                starts: z.date(),
+                ends: z.date(),
+                tags: z.array(z.string().min(1).max(1000)).optional(),
+            })
+        )
+        .mutation(async ({ ctx, input }) => {
+            await ctx.db
+                .update(projects)
+                .set({
+                    title: input.title,
+                    subTitle: input.subtitle,
+                    description: input.description,
+                    instructions: '',
+                    requirements: input.requirements,
+                    imageURL: input.imageURL,
+                    status: 'upcoming',
+                    deadline: new Date(0),
+                    startDateTime: input.starts,
+                    endDateTime: input.ends,
+                })
+                .where(eq(projects.id, input.id));
+            
+            // Update tags
+            if (input.tags && input.tags.length > 0) {
+                await ctx.db.delete(projectsTags).where(eq(projectsTags.projectId, input.id));
+
+                await ctx.db.insert(projectsTags).values(
+                    input.tags.map((tagId) => ({
+                        projectId: input.id,
+                        tagId: tagId,
+                    }))
+                );
+            }
+        }),
 
     deleteOne: protectedProcedure.input(z.object({ id: z.string().cuid2() })).mutation(async ({ ctx, input }) => {
         return ctx.db.delete(projects).where(eq(projects.id, input.id));
@@ -102,7 +147,7 @@ export const projectRouter = createTRPCRouter({
         )
         .query(async ({ ctx, input }) => {
             const q = await ctx.db.query.projects.findMany({
-                where: (projects, { and, gte, lte, like }) => {
+                where: (projects, { and, gte, lte, eq, like }) => {
                     const conditions = [like(projects.title, `%${input.title}%`)];
                     if (input.from) {
                         conditions.push(gte(projects.startDateTime, input.from));
