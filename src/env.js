@@ -7,7 +7,7 @@ export const env = createEnv({
      * isn't built with invalid env vars.
      */
     server: {
-        DATABASE_URL: z.string().url(),
+        DATABASE_URL: z.url(),
         NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
         AUTH_GITHUB_ID: z.string(),
         AUTH_GITHUB_SECRET: z.string(),

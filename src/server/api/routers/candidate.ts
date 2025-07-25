@@ -1,18 +1,19 @@
 import { adminProcedure, createTRPCRouter, protectedProcedure, publicProcedure } from '@/server/api/trpc';
+import { users } from '@/server/db/schemas/auth';
+import { candidateProfiles } from '@/server/db/schemas/profiles';
 import { candidateProfilesToProjects } from '@/server/db/schemas/projects';
-import { candidateProfiles, users } from '@/server/db/schemas/users';
 import { TRPCError } from '@trpc/server';
 import { and, eq, inArray, like, or, sql } from 'drizzle-orm';
 import { z } from 'zod';
 
 export const candidateRouter = createTRPCRouter({
-    getOne: publicProcedure.input(z.union([z.object({ id: z.string().cuid2() }), z.object({ githubUsername: z.string() })])).query(async ({ ctx, input }) => {
+    getOne: publicProcedure.input(z.union([z.object({ id: z.cuid2() }), z.object({ githubUsername: z.string() })])).query(async ({ ctx, input }) => {
         if ('id' in input) {
             return ctx.db.query.candidateProfiles.findFirst({
                 where: (candidateProfiles, { eq }) => eq(candidateProfiles.userId, input.id),
                 with: {
                     user: true,
-                    projects: {
+                    candidateProfilesToProjects: {
                         with: {
                             project: true,
                         },
@@ -35,7 +36,7 @@ export const candidateRouter = createTRPCRouter({
                             githubUsername: true,
                         },
                     },
-                    projects: {
+                    candidateProfilesToProjects: {
                         with: {
                             project: true,
                         },
@@ -49,7 +50,7 @@ export const candidateRouter = createTRPCRouter({
         .input(
             z
                 .object({
-                    id: z.string().cuid2(),
+                    id: z.cuid2(),
                     location: z.string(),
                     language: z.string(),
                     resumeURL: z.string(),
@@ -69,7 +70,7 @@ export const candidateRouter = createTRPCRouter({
             return ctx.db.update(candidateProfiles).set(updatedData).where(eq(candidateProfiles.userId, input.id));
         }),
 
-    deleteOne: adminProcedure.input(z.object({ id: z.string().cuid2() })).mutation(async ({ ctx, input }) => {
+    deleteOne: adminProcedure.input(z.object({ id: z.cuid2() })).mutation(async ({ ctx, input }) => {
         return ctx.db.delete(candidateProfiles).where(eq(candidateProfiles.userId, input.id));
     }),
 
@@ -90,10 +91,10 @@ export const candidateRouter = createTRPCRouter({
                     resumeURL: z.string(),
                     githubUsername: z.string(),
                     portfolioURL: z.string(),
-                    linkedinURL: z.string().url().startsWith('https://linkedin.com/in/', {
+                    linkedinURL: z.url().startsWith('https://linkedin.com/in/', {
                         message: 'Must be a valid LinkedIn URL',
                     }),
-                    imageURL: z.string().url(),
+                    imageURL: z.url(),
                 })
                 .partial()
         )
@@ -101,7 +102,7 @@ export const candidateRouter = createTRPCRouter({
             return ctx.db.update(candidateProfiles).set(input).where(eq(candidateProfiles.userId, ctx.session.user.id));
         }),
 
-    deleteMe: protectedProcedure.input(z.object({ id: z.string().cuid2() })).mutation(async ({ ctx, input }) => {
+    deleteMe: protectedProcedure.input(z.object({ id: z.cuid2() })).mutation(async ({ ctx, input }) => {
         const candidateProfile = await ctx.db.query.candidateProfiles.findFirst({
             where: (candidateProfiles, { eq }) => eq(candidateProfiles.userId, input.id),
         });
@@ -111,18 +112,18 @@ export const candidateRouter = createTRPCRouter({
         return ctx.db.delete(candidateProfiles).where(eq(candidateProfiles.userId, input.id));
     }),
 
-    getProjects: publicProcedure.input(z.object({ userId: z.string().cuid2() })).query(async ({ ctx, input }) => {
+    getProjects: publicProcedure.input(z.object({ userId: z.cuid2() })).query(async ({ ctx, input }) => {
         const candidateProfile = await ctx.db.query.candidateProfiles.findFirst({
             where: (candidateProfiles, { eq }) => eq(candidateProfiles.userId, input.userId),
             with: {
-                projects: {
+                candidateProfilesToProjects: {
                     with: {
                         project: {
                             with: {
-                                tags: {
+                                projectsToTags: {
                                     with: { tag: true },
                                 },
-                                candidateProfilesToProjects: true,
+                                projectsToCandidateProfiles: true,
                             },
                         },
                     },
@@ -130,7 +131,7 @@ export const candidateRouter = createTRPCRouter({
             },
         });
         if (!candidateProfile) return null;
-        return candidateProfile.projects.filter((p) => p.visible).map((p) => p.project);
+        return candidateProfile.candidateProfilesToProjects.filter((p) => p.visible).map((p) => p.project);
     }),
 
     changeProjectVisibility: protectedProcedure.input(z.object({ projectId: z.string(), visible: z.boolean() })).mutation(async ({ input, ctx }) => {
@@ -214,7 +215,7 @@ export const candidateRouter = createTRPCRouter({
                                 githubUsername: true,
                             },
                         },
-                        projects: {
+                        candidateProfilesToProjects: {
                             with: {
                                 project: true,
                             },
@@ -240,7 +241,7 @@ export const candidateRouter = createTRPCRouter({
                                 githubUsername: true,
                             },
                         },
-                        projects: {
+                        candidateProfilesToProjects: {
                             with: {
                                 project: true,
                             },

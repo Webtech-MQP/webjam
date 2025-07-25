@@ -7,12 +7,12 @@ export const projectRouter = createTRPCRouter({
     create: protectedProcedure
         .input(
             z.object({
-                id: z.string().cuid2(),
-                title: z.string().min(1).max(1000),
-                subtitle: z.string().min(0).max(1000),
-                description: z.string().min(0).max(1000),
-                requirements: z.string().min(0).max(1000),
-                imageURL: z.string().min(0).max(1000),
+                id: z.cuid2(),
+                title: z.string().min(1).max(255),
+                subtitle: z.string().min(0).max(255),
+                description: z.string().min(0).max(255),
+                requirements: z.string().min(0).max(255),
+                imageURL: z.string().min(0).max(255),
                 starts: z.date(),
                 ends: z.date(),
                 tags: z.array(z.string().min(1).max(1000)).optional(),
@@ -22,7 +22,7 @@ export const projectRouter = createTRPCRouter({
             await ctx.db.insert(projects).values({
                 id: input.id,
                 title: input.title,
-                subTitle: input.subtitle,
+                subtitle: input.subtitle,
                 description: input.description,
                 instructions: '',
                 requirements: input.requirements,
@@ -45,11 +45,11 @@ export const projectRouter = createTRPCRouter({
             }
         }),
 
-    getOne: publicProcedure.input(z.object({ id: z.string().cuid2() })).query(async ({ ctx, input }) => {
+    getOne: publicProcedure.input(z.object({ id: z.cuid2() })).query(async ({ ctx, input }) => {
         return ctx.db.query.projects.findFirst({
             where: (projects, { eq }) => eq(projects.id, input.id),
             with: {
-                candidateProfilesToProjects: {
+                projectsToCandidateProfiles: {
                     with: {
                         candidateProfile: true,
                     },
@@ -67,12 +67,12 @@ export const projectRouter = createTRPCRouter({
     getAll: publicProcedure.query(async ({ ctx }) => {
         return ctx.db.query.projects.findMany({
             with: {
-                candidateProfilesToProjects: {
+                projectsToCandidateProfiles: {
                     with: {
                         candidateProfile: true,
                     },
                 },
-                tags: {
+                projectsToTags: {
                     with: {
                         tag: true,
                     },
@@ -85,7 +85,7 @@ export const projectRouter = createTRPCRouter({
     updateOne: publicProcedure
         .input(
             z.object({
-                id: z.string().cuid2(),
+                id: z.cuid2(),
                 title: z.string().min(1).max(1000),
                 subtitle: z.string().min(0).max(1000),
                 description: z.string().min(0).max(10000),
@@ -101,7 +101,7 @@ export const projectRouter = createTRPCRouter({
                 .update(projects)
                 .set({
                     title: input.title,
-                    subTitle: input.subtitle,
+                    subtitle: input.subtitle,
                     description: input.description,
                     instructions: '',
                     requirements: input.requirements,
@@ -126,7 +126,7 @@ export const projectRouter = createTRPCRouter({
             }
         }),
 
-    deleteOne: protectedProcedure.input(z.object({ id: z.string().cuid2() })).mutation(async ({ ctx, input }) => {
+    deleteOne: protectedProcedure.input(z.object({ id: z.cuid2() })).mutation(async ({ ctx, input }) => {
         return ctx.db.delete(projects).where(eq(projects.id, input.id));
     }),
 
@@ -147,7 +147,7 @@ export const projectRouter = createTRPCRouter({
         )
         .query(async ({ ctx, input }) => {
             const q = await ctx.db.query.projects.findMany({
-                where: (projects, { and, gte, lte, eq, like }) => {
+                where: (projects, { and, gte, lte, like }) => {
                     const conditions = [like(projects.title, `%${input.title}%`)];
                     if (input.from) {
                         conditions.push(gte(projects.startDateTime, input.from));
@@ -158,12 +158,12 @@ export const projectRouter = createTRPCRouter({
                     return and(...conditions);
                 },
                 with: {
-                    candidateProfilesToProjects: {
+                    projectsToCandidateProfiles: {
                         with: {
                             candidateProfile: true,
                         },
                     },
-                    tags: {
+                    projectsToTags: {
                         with: {
                             tag: true,
                         },
@@ -172,11 +172,11 @@ export const projectRouter = createTRPCRouter({
             });
 
             return q.filter((p) => {
-                if (input.groupSize && p.candidateProfilesToProjects.length !== input.groupSize) {
+                if (input.groupSize && p.projectsToCandidateProfiles.length !== input.groupSize) {
                     return false;
                 }
                 if (!input.tags || input.tags.length === 0) return true;
-                const projectTagIds = p.tags.map((tp) => tp.tag.id);
+                const projectTagIds = p.projectsToTags.map((tp) => tp.tag.id);
                 return input.tags.every((tagId) => projectTagIds.includes(tagId));
             });
         }),

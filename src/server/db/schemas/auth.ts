@@ -1,9 +1,9 @@
-import { createTable } from '../schema-util';
-
-import { relations } from 'drizzle-orm';
-import { index, primaryKey } from 'drizzle-orm/sqlite-core';
+import { createId } from '@paralleldrive/cuid2';
+import { relations, sql } from 'drizzle-orm';
+import { index, primaryKey, unique } from 'drizzle-orm/sqlite-core';
 import type { AdapterAccount } from 'next-auth/adapters';
-import { users } from './users';
+import { createTable } from '../schema-util';
+import { adminProfiles, candidateProfiles, recruiterProfiles } from './profiles';
 
 export const accounts = createTable(
     'account',
@@ -62,3 +62,31 @@ export const verificationTokens = createTable(
     }),
     (t) => [primaryKey({ columns: [t.identifier, t.token] })]
 );
+
+export const users = createTable(
+    'user',
+    (d) => ({
+        id: d
+            .text({ length: 255 })
+            .notNull()
+            .primaryKey()
+            .$defaultFn(() => createId()),
+        name: d.text({ length: 255 }),
+        image: d.text({ length: 255 }),
+        email: d.text({ length: 255 }).notNull(),
+        emailVerified: d.integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
+        phoneNumber: d.text({ length: 255 }),
+        role: d.text({ enum: ['candidate', 'recruiter', 'admin'] }).default('candidate'),
+        createdAt: d.integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
+        updatedAt: d.integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
+        githubUsername: d.text({ length: 255 }),
+    }),
+    (t) => [unique('user_id_role_unique').on(t.id, t.role)]
+);
+
+export const usersRelations = relations(users, ({ one, many }) => ({
+    accounts: many(accounts),
+    candidateProfile: one(candidateProfiles),
+    recruiterProfile: one(recruiterProfiles),
+    adminProfile: one(adminProfiles),
+}));

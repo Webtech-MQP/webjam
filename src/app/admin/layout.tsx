@@ -1,7 +1,16 @@
 import { Toaster } from '@/components/ui/sonner';
+import { auth } from '@/server/auth';
+import { api } from '@/trpc/server';
+import { redirect } from 'next/navigation';
 import { Sidebar } from '../../components/sidebar';
 
-export default function Layout({ children }: { children: React.ReactNode }) {
+export default async function Layout({ children }: { children: React.ReactNode }) {
+    const session = await auth();
+    const isAdmin = await api.users.isAdmin();
+    if (!session?.user || !isAdmin) {
+        redirect('/');
+    }
+
     return (
         <div className="flex h-screen">
             <Sidebar />

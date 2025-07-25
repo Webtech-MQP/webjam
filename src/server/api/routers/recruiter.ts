@@ -1,11 +1,11 @@
 import { adminProcedure, createTRPCRouter, protectedProcedure, publicProcedure } from '@/server/api/trpc';
-import { recruiterProfiles } from '@/server/db/schemas/users';
+import { recruiterProfiles } from '@/server/db/schemas/profiles';
 import { TRPCError } from '@trpc/server';
 import { eq } from 'drizzle-orm';
 import { z } from 'zod';
 
 export const recruiterRouter = createTRPCRouter({
-    getOne: publicProcedure.input(z.object({ id: z.string().cuid2() })).query(async ({ ctx, input }) => {
+    getOne: publicProcedure.input(z.object({ id: z.cuid2() })).query(async ({ ctx, input }) => {
         return ctx.db.query.recruiterProfiles.findFirst({
             where: (recruiterProfiles, { eq }) => eq(recruiterProfiles.userId, input.id),
             with: {
@@ -25,7 +25,7 @@ export const recruiterRouter = createTRPCRouter({
     updateOne: adminProcedure
         .input(
             z.object({
-                id: z.string().cuid2(),
+                id: z.cuid2(),
                 companyName: z.string().optional(),
                 location: z.string().optional(),
                 displayName: z.string().optional(),
@@ -44,7 +44,7 @@ export const recruiterRouter = createTRPCRouter({
     updateMe: protectedProcedure
         .input(
             z.object({
-                id: z.string().cuid2(),
+                id: z.cuid2(),
                 displayName: z.string().optional(),
                 companyName: z.string().optional(),
                 location: z.string().optional(),
@@ -66,7 +66,7 @@ export const recruiterRouter = createTRPCRouter({
             return ctx.db.update(recruiterProfiles).set(updatedData).where(eq(recruiterProfiles.userId, input.id));
         }),
 
-    deleteOne: adminProcedure.input(z.object({ id: z.string().cuid2() })).mutation(async ({ ctx, input }) => {
+    deleteOne: adminProcedure.input(z.object({ id: z.cuid2() })).mutation(async ({ ctx, input }) => {
         return ctx.db.delete(recruiterProfiles).where(eq(recruiterProfiles.userId, input.id));
     }),
 
@@ -75,7 +75,7 @@ export const recruiterRouter = createTRPCRouter({
         return ctx.db.delete(recruiterProfiles);
     }),
 
-    deleteMe: protectedProcedure.input(z.object({ id: z.string().cuid2() })).mutation(async ({ ctx, input }) => {
+    deleteMe: protectedProcedure.input(z.object({ id: z.cuid2() })).mutation(async ({ ctx, input }) => {
         const recruiterProfile = await ctx.db.query.recruiterProfiles.findFirst({
             where: (recruiterProfiles, { eq }) => eq(recruiterProfiles.userId, input.id),
         });
