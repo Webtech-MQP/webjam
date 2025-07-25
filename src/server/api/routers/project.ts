@@ -1,5 +1,5 @@
 import { createTRPCRouter, protectedProcedure, publicProcedure } from '@/server/api/trpc';
-import { projects, tags } from '@/server/db/schemas/projects';
+import { projects, projectsTags, tags } from '@/server/db/schemas/projects';
 import { eq } from 'drizzle-orm';
 import { z } from 'zod';
 
@@ -8,17 +8,18 @@ export const projectRouter = createTRPCRouter({
         .input(
             z.object({
                 id: z.cuid2(),
-                title: z.string().min(1).max(255),
-                subtitle: z.string().min(0).max(255),
-                description: z.string().min(0).max(255),
-                requirements: z.string().min(0).max(255),
-                imageURL: z.string().min(0).max(255),
+                title: z.string().min(1).max(256),
+                subtitle: z.string().min(0).max(256),
+                description: z.string().min(0).max(10000),
+                requirements: z.string().min(0).max(10000),
+                imageURL: z.string().min(0).max(256),
                 starts: z.date(),
                 ends: z.date(),
+                tags: z.array(z.string().min(1).max(256)).optional(),
             })
         )
         .mutation(async ({ ctx, input }) => {
-            return ctx.db.insert(projects).values({
+            await ctx.db.insert(projects).values({
                 id: input.id,
                 title: input.title,
                 subtitle: input.subtitle,
@@ -32,6 +33,16 @@ export const projectRouter = createTRPCRouter({
                 endDateTime: input.ends,
                 createdBy: ctx.session.user.id,
             });
+
+            // Connect tags to the project
+            if (input.tags && input.tags.length > 0) {
+                await ctx.db.insert(projectsTags).values(
+                    input.tags.map((tagId) => ({
+                        projectId: input.id,
+                        tagId: tagId,
+                    }))
+                );
+            }
         }),
 
     getOne: publicProcedure.input(z.object({ id: z.cuid2() })).query(async ({ ctx, input }) => {
@@ -41,6 +52,11 @@ export const projectRouter = createTRPCRouter({
                 projectsToCandidateProfiles: {
                     with: {
                         candidateProfile: true,
+                    },
+                },
+                projectsToTags: {
+                    with: {
+                        tag: true,
                     },
                 },
                 creator: true,
@@ -77,10 +93,11 @@ export const projectRouter = createTRPCRouter({
                 imageURL: z.string().min(0).max(1000),
                 starts: z.date(),
                 ends: z.date(),
+                tags: z.array(z.string().min(1).max(1000)).optional(),
             })
         )
         .mutation(async ({ ctx, input }) => {
-            return ctx.db
+            await ctx.db
                 .update(projects)
                 .set({
                     title: input.title,
@@ -95,6 +112,18 @@ export const projectRouter = createTRPCRouter({
                     endDateTime: input.ends,
                 })
                 .where(eq(projects.id, input.id));
+
+            // Update tags
+            if (input.tags && input.tags.length > 0) {
+                await ctx.db.delete(projectsTags).where(eq(projectsTags.projectId, input.id));
+
+                await ctx.db.insert(projectsTags).values(
+                    input.tags.map((tagId) => ({
+                        projectId: input.id,
+                        tagId: tagId,
+                    }))
+                );
+            }
         }),
 
     deleteOne: protectedProcedure.input(z.object({ id: z.cuid2() })).mutation(async ({ ctx, input }) => {
@@ -154,7 +183,8 @@ export const projectRouter = createTRPCRouter({
 
     //Tag CRUD
     createTag: protectedProcedure.input(z.object({ name: z.string().min(1).max(256) })).mutation(async ({ ctx, input }) => {
-        return ctx.db.insert(tags).values({ name: input.name });
+        const inserted = await ctx.db.insert(tags).values({ name: input.name }).returning();
+        return inserted[0];
     }),
 
     getTag: publicProcedure.input(z.object({ id: z.string() })).query(async ({ ctx, input }) => {

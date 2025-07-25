@@ -37,7 +37,7 @@ export const ProjectModal = (props: ProjectModalProps) => {
             document.body.style.overflowY = 'scroll';
             window.removeEventListener('keydown', handleEsc);
         };
-    }, [props.onClose]);
+    }, [props, props.onClose]);
 
     return (
         <div
@@ -63,7 +63,7 @@ export const ProjectModal = (props: ProjectModalProps) => {
                     ...(visible ? { transform: 'translate(-50%, -50%) scale(1)' } : { transform: 'translate(-50%, -50%) scale(0.92)' }),
                 }}
             >
-                <div className="flex max-h-[90vh] w-[80vw] flex-col items-start gap-4 overflow-x-hidden overflow-y-scroll rounded-lg bg-stone-800 p-6">
+                <div className="flex max-h-[90vh] w-[80vw] flex-col items-start gap-4 overflow-x-hidden overflow-y-hidden bg-stone-800 p-6 rounded-lg   ">
                     <div className="flex w-full flex-row flex-nowrap justify-between">
                         <div className="flex flex-row flex-nowrap justify-start">
                             {props.tags.map((tag, index) => {

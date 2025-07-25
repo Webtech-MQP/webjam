@@ -1,19 +1,24 @@
 'use client';
 
 import { ArrayInput } from '@/components/array-input';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Command, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Textarea } from '@/components/ui/textarea';
+import { cn } from '@/lib/utils';
 import { api } from '@/trpc/react';
 import { createId } from '@paralleldrive/cuid2';
 import { DialogOverlay, DialogPortal } from '@radix-ui/react-dialog';
 import { skipToken } from '@tanstack/react-query';
-import { PlusCircle, X } from 'lucide-react';
+import { Check, ChevronsUpDown, Plus, PlusCircle, X } from 'lucide-react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState, type ChangeEvent } from 'react';
+import { toast } from 'sonner';
 
 interface CreateProjectFormSchema {
     title: string;
@@ -34,7 +39,7 @@ const defaultForm: CreateProjectFormSchema = {
     start: '',
     end: '',
     imageURL: '',
-    tags: [''],
+    tags: [],
 };
 
 interface AdminCreateEditProjectProps {
@@ -44,7 +49,11 @@ interface AdminCreateEditProjectProps {
 export default function AdminCreateEditProject(props: AdminCreateEditProjectProps) {
     const [dialogueOpen, setDialogueOpen] = useState<boolean>(false);
     const [formState, setFormState] = useState<CreateProjectFormSchema>(defaultForm);
+    const [open, setOpen] = useState(false);
+    const [tagInput, setTagInput] = useState('');
+    const createTag = api.projects.createTag.useMutation();
     const createProject = api.projects.create.useMutation();
+    const tags = api.projects.getAllTags.useQuery();
     const editProject = api.projects.updateOne.useMutation();
     const getProject = api.projects.getOne.useQuery(props.projectId ? { id: props.projectId } : skipToken);
     const router = useRouter();
@@ -61,7 +70,7 @@ export default function AdminCreateEditProject(props: AdminCreateEditProjectProp
             start: new Date(getProject.data.startDateTime ?? '').toISOString().split('.')[0]!,
             end: new Date(getProject.data.endDateTime ?? '').toISOString().split('.')[0]!,
             imageURL: getProject.data.imageURL ?? '',
-            tags: [''], //TODO implement tag handling
+            tags: getProject.data.projectsToTags?.map((t) => t.tag.name ?? 'Untitled Tag') ?? [],
         });
     }, [getProject.data]);
 
@@ -69,9 +78,10 @@ export default function AdminCreateEditProject(props: AdminCreateEditProjectProp
         const title = formState.title.length > 0 ? formState.title : 'Untitled Project';
         const start = new Date(formState.start.length > 0 ? formState.start : Date.now());
         const end = new Date(formState.end.length > 0 ? formState.end : Date.now());
-        console.log(formState.start);
+        const tagIds = tags.data?.filter((tag) => formState.tags.includes(tag.name ?? 'Untitled Tag')).map((tag) => tag.id);
+
         if (props.projectId) {
-            await editProject.mutateAsync({
+            const promise = editProject.mutateAsync({
                 id: props.projectId,
                 title: title,
                 subtitle: formState.subtitle,
@@ -80,12 +90,23 @@ export default function AdminCreateEditProject(props: AdminCreateEditProjectProp
                 imageURL: formState.imageURL,
                 starts: start,
                 ends: end,
+                tags: tagIds ?? [],
             });
-            onDiscard();
-            router.push(`/dashboard/projects/${props.projectId}`);
+            toast.promise(promise, {
+                loading: 'Updating project...',
+                success: 'Project updated successfully!',
+                error: 'Failed to update project.',
+            });
+            try {
+                await promise;
+                onDiscard();
+                router.push(`/dashboard/projects/${props.projectId}`);
+            } catch (err) {
+                // error toast already handled by toast.promise
+            }
         } else {
             const id = createId();
-            await createProject.mutateAsync({
+            const promise = createProject.mutateAsync({
                 id: id,
                 title: title,
                 subtitle: formState.subtitle,
@@ -94,9 +115,20 @@ export default function AdminCreateEditProject(props: AdminCreateEditProjectProp
                 imageURL: formState.imageURL,
                 starts: start,
                 ends: end,
+                tags: tagIds,
             });
-            onDiscard();
-            router.push(`/dashboard/projects/${id}`);
+            toast.promise(promise, {
+                loading: 'Creating project...',
+                success: 'Project created successfully!',
+                error: 'Failed to create project.',
+            });
+            try {
+                await promise;
+                onDiscard();
+                router.push(`/dashboard/projects/${id}`);
+            } catch (err) {
+                // error toast already handled by toast.promise
+            }
         }
     }
 
@@ -122,19 +154,23 @@ export default function AdminCreateEditProject(props: AdminCreateEditProjectProp
                 onClick={() => {
                     setDialogueOpen(true);
                 }}
+                asChild
             >
-                <PlusCircle /> {isNewProject ? 'Create Project' : 'Edit Project'}
+                <Button>
+                    <PlusCircle /> {isNewProject ? 'Create Project' : 'Edit Project'}
+                </Button>
             </DialogTrigger>
             <DialogPortal>
                 <DialogOverlay />
                 <DialogContent
-                    className="h-full overflow-y-scroll"
+                    className="w-screen max-h-2/3 min-w-3/5 overflow-y-scroll"
                     showCloseButton={false}
                 >
                     <DialogHeader>
                         <div className="w-full flex justify-between">
                             <DialogTitle>{isNewProject ? 'Create New Project' : `Editing ${getProject.data?.title}`}</DialogTitle>
                             <DialogClose
+                                className="hover:cursor-pointer"
                                 onClick={() => {
                                     setDialogueOpen(false);
                                 }}
@@ -144,12 +180,13 @@ export default function AdminCreateEditProject(props: AdminCreateEditProjectProp
                         </div>
                         <DialogDescription>{isNewProject ? 'Fill out the information needed to create a new project' : 'Make changes to the project'}.</DialogDescription>
                     </DialogHeader>
-                    <div className="grid w-full max-w-sm items-center gap-3">
+                    <div className="grid w-full items-center gap-3">
                         <Label htmlFor="title">Title</Label>
                         <Input
                             type="text"
                             id="title"
                             placeholder="Title"
+                            autoFocus
                             required
                             minLength={1}
                             value={formState.title}
@@ -178,27 +215,33 @@ export default function AdminCreateEditProject(props: AdminCreateEditProjectProp
                             onChange={(v) => setFormState({ ...formState, requirements: v as string[] })}
                             list={formState.requirements}
                         />
-                        <Label htmlFor="start">Starts At</Label>
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="start">Starts At</Label>
+                                <Input
+                                    type="datetime-local"
+                                    id="start"
+                                    placeholder="Starts At"
+                                    required
+                                    value={formState.start}
+                                    onChange={(e: ChangeEvent<HTMLInputElement>) => setFormState({ ...formState, start: e.target.value })}
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="end">Ends At</Label>
+                                <Input
+                                    type="datetime-local"
+                                    id="end"
+                                    placeholder="Ends At"
+                                    required
+                                    value={formState.end}
+                                    onChange={(e: ChangeEvent<HTMLInputElement>) => setFormState({ ...formState, end: e.target.value })}
+                                />
+                            </div>
+                        </div>
+                        <Label htmlFor="imageURL">Image</Label>
                         <Input
-                            type="datetime-local"
-                            id="start"
-                            placeholder="Starts At"
-                            required
-                            value={formState.start}
-                            onChange={(e: ChangeEvent<HTMLInputElement>) => setFormState({ ...formState, start: e.target.value })}
-                        />
-                        <Label htmlFor="end">Ends At</Label>
-                        <Input
-                            type="datetime-local"
-                            id="end"
-                            placeholder="Ends At"
-                            required
-                            value={formState.end}
-                            onChange={(e: ChangeEvent<HTMLInputElement>) => setFormState({ ...formState, end: e.target.value })}
-                        />
-                        <Label htmlFor="imageURL">Image URL</Label>
-                        <Input
-                            type="url"
+                            type="text"
                             id="imageURL"
                             placeholder="Image URL"
                             value={formState.imageURL}
@@ -213,14 +256,117 @@ export default function AdminCreateEditProject(props: AdminCreateEditProjectProp
                                 className="object-cover"
                             />
                         )}
-                        <ArrayInput
-                            title="Tags"
-                            decoration="bullets"
-                            allowCreate
-                            allowDelete
-                            onChange={(v) => setFormState({ ...formState, tags: v as string[] })}
-                            list={formState.tags}
-                        />
+                        <Label htmlFor="tags">Tags</Label>
+                        <Popover
+                            open={open}
+                            onOpenChange={setOpen}
+                        >
+                            <PopoverTrigger asChild>
+                                <Button
+                                    variant="outline"
+                                    role="combobox"
+                                    aria-expanded={open}
+                                    className="w-full justify-between"
+                                >
+                                    Select tags from dropdown
+                                    <ChevronsUpDown className="opacity-50" />
+                                </Button>
+                            </PopoverTrigger>
+                            <PopoverContent
+                                className="w-[200px] p-0"
+                                side="right"
+                                align="start"
+                            >
+                                <Command>
+                                    <CommandInput
+                                        placeholder="Enter tag name"
+                                        className="h-9"
+                                        value={tagInput}
+                                        onValueChange={setTagInput}
+                                    />
+                                    <CommandList>
+                                        {tagInput.trim() !== '' && !tags.data?.some((tag) => tag.name?.toLowerCase() === tagInput.trim().toLowerCase()) && (
+                                            <Button
+                                                variant="ghost"
+                                                className="w-full justify-between whitespace-normal break-words"
+                                                onClick={async () => {
+                                                    const cleanInput = tagInput.trim();
+                                                    const promise = createTag.mutateAsync({ name: cleanInput });
+                                                    toast.promise(promise, {
+                                                        loading: 'Creating tag...',
+                                                        success: (data) => `Tag "${data?.name}" created successfully!`,
+                                                        error: 'Failed to create tag.',
+                                                    });
+                                                    await promise;
+                                                    if (!formState.tags.includes(cleanInput)) {
+                                                        setFormState({
+                                                            ...formState,
+                                                            tags: [...formState.tags, cleanInput],
+                                                        });
+                                                    }
+                                                    setTagInput('');
+                                                    setOpen(false);
+                                                    await tags.refetch();
+                                                }}
+                                            >
+                                                Create &quot;{tagInput}&quot; tag <Plus />
+                                            </Button>
+                                        )}
+                                        <CommandGroup>
+                                            {tags.data?.map((tag) => (
+                                                <CommandItem
+                                                    key={tag.id}
+                                                    value={tag.name ?? 'Untitled Tag'}
+                                                    onSelect={(currentValue) => {
+                                                        if (!formState.tags.includes(currentValue)) {
+                                                            setFormState({
+                                                                ...formState,
+                                                                tags: [...formState.tags, currentValue],
+                                                            });
+                                                        } else {
+                                                            setFormState({
+                                                                ...formState,
+                                                                tags: formState.tags.filter((t) => t !== currentValue),
+                                                            });
+                                                        }
+                                                        setTagInput('');
+                                                        console.log('Selected tags:', formState.tags);
+                                                    }}
+                                                >
+                                                    {tag.name}
+                                                    <Check className={cn('ml-auto', formState.tags.includes(tag.name ?? 'Untitled Tag') ? 'opacity-100' : 'opacity-0')} />
+                                                </CommandItem>
+                                            ))}
+                                        </CommandGroup>
+                                    </CommandList>
+                                </Command>
+                            </PopoverContent>
+                        </Popover>
+                        {formState.tags && formState.tags.length > 0 && (
+                            <div className="flex flex-wrap gap-2 my-2">
+                                {formState.tags.map((tagName) => {
+                                    return (
+                                        <Badge
+                                            key={tagName}
+                                            className="inline-flex items-center px-2 py-1 text-xs font-medium"
+                                        >
+                                            {tagName}
+                                            <button
+                                                className="ml-2 text-white hover:text-red-500"
+                                                onClick={() => {
+                                                    setFormState({
+                                                        ...formState,
+                                                        tags: formState.tags.filter((t) => t !== tagName),
+                                                    });
+                                                }}
+                                            >
+                                                <X className="h-3 w-3 hover:cursor-pointer" />
+                                            </button>
+                                        </Badge>
+                                    );
+                                })}
+                            </div>
+                        )}
                         <Button onClick={onSubmit}>{isNewProject ? 'Create' : 'Save Changes'}</Button>
                         <Button
                             variant="secondary"
