@@ -88,11 +88,12 @@ export const adminProfiles = createTable('admin_profile', (d) => ({
     contactEmail: d.text({ length: 255 }),
 }));
 
-export const adminProfilesRelations = relations(adminProfiles, ({ one }) => ({
+export const adminProfilesRelations = relations(adminProfiles, ({ one, many }) => ({
     user: one(users, {
         fields: [adminProfiles.userId],
         references: [users.id],
     }),
+    reportsActioned: many(candidateReport),
 }));
 
 export const recruitersToCandidates = createTable(
@@ -133,23 +134,21 @@ export const candidateReport = createTable('candidate_report', (d) => ({
         .text()
         .$defaultFn(() => createId())
         .primaryKey(),
-    candidateId: d
-        .text('candidate_id')
-        .notNull()
-        .references(() => candidateProfiles.userId, {
-            onDelete: 'cascade',
-            onUpdate: 'cascade',
-        }),
-    reporterId: d
-        .text('reporter_id')
-        .notNull()
-        .references(() => users.id, {
-            onDelete: 'cascade',
-            onUpdate: 'cascade',
-        }),
+    candidateId: d.text('candidate_id').references(() => candidateProfiles.userId, {
+        onDelete: 'set null',
+        onUpdate: 'cascade',
+    }),
+    reporterId: d.text('reporter_id').references(() => users.id, {
+        onDelete: 'set null',
+        onUpdate: 'cascade',
+    }),
     reason: d.text('reason').notNull(),
     additionalDetails: d.text('additional_details').notNull().default(''),
     createdAt: d.integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
+
+    action: d.text({ enum: ['banned', 'archived'] }),
+    actionedAt: d.integer({ mode: 'timestamp' }),
+    actionedBy: d.text().references(() => adminProfiles.userId),
 }));
 
 export const candidateReportRelations = relations(candidateReport, ({ one }) => ({
@@ -160,5 +159,9 @@ export const candidateReportRelations = relations(candidateReport, ({ one }) => 
     reporter: one(users, {
         fields: [candidateReport.reporterId],
         references: [users.id],
+    }),
+    actioner: one(adminProfiles, {
+        fields: [candidateReport.actionedBy],
+        references: [adminProfiles.userId],
     }),
 }));

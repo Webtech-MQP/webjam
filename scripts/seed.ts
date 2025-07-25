@@ -98,6 +98,22 @@ async function main() {
     ]);
     console.log('Candidate profiles seeded!');
 
+    await db.insert(schema.candidateReport).values([
+        {
+            candidateId: userBrian.id,
+            reporterId: userTyler.id,
+            reason: 'Brian is evil.',
+        },
+    ]);
+
+    await db.insert(schema.candidateReport).values([
+        {
+            candidateId: userTyler.id,
+            reporterId: userBrian.id,
+            reason: 'Tyler is MORE evil.',
+        },
+    ]);
+
     console.log('Seeding recruiter profiles...');
     await db.insert(schema.recruiterProfiles).values([
         {
