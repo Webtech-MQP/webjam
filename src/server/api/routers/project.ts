@@ -8,14 +8,14 @@ export const projectRouter = createTRPCRouter({
         .input(
             z.object({
                 id: z.string().cuid2(),
-                title: z.string().min(1).max(1000),
-                subtitle: z.string().min(0).max(1000),
-                description: z.string().min(0).max(1000),
-                requirements: z.string().min(0).max(1000),
-                imageURL: z.string().min(0).max(1000),
+                title: z.string().min(1).max(256),
+                subtitle: z.string().min(0).max(256),
+                description: z.string().min(0).max(10000),
+                requirements: z.string().min(0).max(10000),
+                imageURL: z.string().min(0).max(256),
                 starts: z.date(),
                 ends: z.date(),
-                tags: z.array(z.string().min(1).max(1000)).optional(),
+                tags: z.array(z.string().min(1).max(256)).optional(),
             })
         )
         .mutation(async ({ ctx, input }) => {

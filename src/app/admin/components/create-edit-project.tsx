@@ -18,6 +18,7 @@ import { Check, ChevronsUpDown, Plus, PlusCircle, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState, type ChangeEvent } from 'react';
 import { toast } from 'sonner';
+import Image from 'next/image';
 
 interface CreateProjectFormSchema {
     title: string;
@@ -104,7 +105,6 @@ export default function AdminCreateEditProject(props: AdminCreateEditProjectProp
                 // error toast already handled by toast.promise
             }
         } else {
-            console.log(tagIds);
             const id = createId();
             const promise = createProject.mutateAsync({
                 id: id,
@@ -125,7 +125,7 @@ export default function AdminCreateEditProject(props: AdminCreateEditProjectProp
             try {
                 await promise;
                 onDiscard();
-                // router.push(`/dashboard/projects/${id}`);
+                router.push(`/dashboard/projects/${id}`);
             } catch (err) {
                 // error toast already handled by toast.promise
             }
@@ -247,7 +247,7 @@ export default function AdminCreateEditProject(props: AdminCreateEditProjectProp
                             value={formState.imageURL}
                             onChange={(e: ChangeEvent<HTMLInputElement>) => setFormState({ ...formState, imageURL: e.target.value })}
                         />
-                        {/* {formState.imageURL.trim().length > 0 && isValidHttpUrl(formState.imageURL.trim()) && (
+                        {formState.imageURL.trim().length > 0 && isValidHttpUrl(formState.imageURL.trim()) && (
                             <Image
                                 src={formState.imageURL.trim()}
                                 alt="Image"
@@ -255,7 +255,7 @@ export default function AdminCreateEditProject(props: AdminCreateEditProjectProp
                                 height={100}
                                 className="object-cover"
                             />
-                        )} */}
+                        )}
                         <Label htmlFor="tags">Tags</Label>
                         <Popover
                             open={open}
@@ -382,14 +382,14 @@ export default function AdminCreateEditProject(props: AdminCreateEditProjectProp
     );
 }
 
-// function isValidHttpUrl(str: string) {
-//     let url;
+function isValidHttpUrl(str: string) {
+    let url;
 
-//     try {
-//         url = new URL(str);
-//     } catch (_) {
-//         return false;
-//     }
+    try {
+        url = new URL(str);
+    } catch (_) {
+        return false;
+    }
 
-//     return url.protocol === 'http:' || url.protocol === 'https:';
-// }
+    return url.protocol === 'http:' || url.protocol === 'https:';
+}
