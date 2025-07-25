@@ -1,5 +1,6 @@
 'use client';
 
+import { Skeleton } from '@/components/ui/skeleton';
 import { AdminReportCard } from '@/features/profiles/reports/admin-report-card/admin-report-card';
 import { api } from '@/trpc/react';
 
@@ -19,11 +20,18 @@ export default function Page() {
                         report={report}
                     />
                 ))}
+                {reports.isPending &&
+                    Array.from({ length: 10 }).map((_, index) => (
+                        <Skeleton
+                            className="h-24 w-full rounded"
+                            key={index}
+                        />
+                    ))}
             </div>
             {archivedReports && archivedReports.length > 0 && (
                 <>
                     <div className="mt-8 border-t relative">
-                        <p className="italic text-muted-foreground absolute left-1/2 -translate-y-1/2 -translate-x-1/2 bg-background p-2">Archived Reports</p>
+                        <p className="italic text-muted-foreground absolute left-1/2 -translate-y-1/2 -translate-x-1/2 bg-background p-2">Actioned Reports</p>
                     </div>
                     <div className="mt-8 space-y-4">
                         {archivedReports?.map((report) => (

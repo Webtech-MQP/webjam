@@ -33,17 +33,17 @@ export function AdminReportCard({ report }: Props) {
                         className="text-primary hover:underline"
                         href={report.candidateProfile ? '/users/' + report.candidateProfile.userId : '#'}
                     >
-                        {report.candidateProfile?.displayName ?? 'A user'}
+                        {report.candidateProfile?.displayName ?? report.bannedUserDisplayName}
                     </Link>{' '}
                     was reported on {report.createdAt?.toLocaleString()}
                 </p>
-                <p className="flex gap-2">
-                    <Info className="text-muted-foreground" />
+                <p className="flex gap-2 items-center">
+                    <Info className="h-4 w-4 text-muted-foreground" />
                     {report.reporter?.name ?? 'An admin'} wrote &quot;{report.reason}&quot;
                 </p>
                 {report.action && (
                     <p className="text-sm text-muted-foreground">
-                        On {report.actionedAt!.toLocaleString()}, {report.actioner!.displayName} {report.action === 'banned' ? `banned the reported user.` : 'archived this report'}
+                        On {report.actionedAt!.toLocaleString()}, {report.actioner!.displayName} {report.action === 'banned' ? <span className="text-red-400">banned {report.bannedUserDisplayName}.</span> : <span className="text-orange-200">archived this report</span>}
                     </p>
                 )}
             </div>

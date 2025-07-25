@@ -39,6 +39,9 @@ export const reportRouter = createTRPCRouter({
     banReportedUser: adminProcedure.input(z.object({ reportId: z.cuid2() })).mutation(async ({ ctx, input }) => {
         const report = await ctx.db.query.candidateReport.findFirst({
             where: (candidateReport, { eq }) => eq(candidateReport.id, input.reportId),
+            with: {
+                candidateProfile: true,
+            },
         });
 
         if (!report) {
@@ -57,12 +60,12 @@ export const reportRouter = createTRPCRouter({
         // This is a placeholder for the actual ban logic.
         try {
             await ctx.db.delete(candidateProfiles).where(eq(candidateProfiles.userId, userToBan)).returning();
+
+            const updatedReport = await ctx.db.update(candidateReport).set({ action: 'banned', actionedBy: ctx.session.user.id, actionedAt: new Date(), bannedUserDisplayName: report.candidateProfile?.displayName }).where(eq(candidateReport.id, input.reportId)).returning();
+
+            return updatedReport;
         } catch {
             throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Failed to ban user' });
         }
-
-        const updatedReport = await ctx.db.update(candidateReport).set({ action: 'banned', actionedBy: ctx.session.user.id, actionedAt: new Date() }).where(eq(candidateReport.id, input.reportId)).returning();
-
-        return updatedReport;
     }),
 });
