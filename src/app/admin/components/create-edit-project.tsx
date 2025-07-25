@@ -70,7 +70,7 @@ export default function AdminCreateEditProject(props: AdminCreateEditProjectProp
             start: new Date(getProject.data.startDateTime ?? '').toISOString().split('.')[0]!,
             end: new Date(getProject.data.endDateTime ?? '').toISOString().split('.')[0]!,
             imageURL: getProject.data.imageURL ?? '',
-            tags: getProject.data.tags?.map((t) => t.tag.name ?? 'Untitled Tag') ?? [],
+            tags: getProject.data.projectsToTags?.map((t) => t.tag.name ?? 'Untitled Tag') ?? [],
         });
     }, [getProject.data]);
 
