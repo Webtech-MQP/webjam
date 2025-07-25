@@ -15,10 +15,10 @@ import { createId } from '@paralleldrive/cuid2';
 import { DialogOverlay, DialogPortal } from '@radix-ui/react-dialog';
 import { skipToken } from '@tanstack/react-query';
 import { Check, ChevronsUpDown, Plus, PlusCircle, X } from 'lucide-react';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState, type ChangeEvent } from 'react';
 import { toast } from 'sonner';
-import Image from 'next/image';
 
 interface CreateProjectFormSchema {
     title: string;
@@ -297,8 +297,7 @@ export default function AdminCreateEditProject(props: AdminCreateEditProjectProp
                                                         success: (data) => `Tag "${data?.name}" created successfully!`,
                                                         error: 'Failed to create tag.',
                                                     });
-                                                    const data = await promise;
-                                                    // const newTagId = data?.id;
+                                                    await promise;
                                                     if (!formState.tags.includes(cleanInput)) {
                                                         setFormState({
                                                             ...formState,
