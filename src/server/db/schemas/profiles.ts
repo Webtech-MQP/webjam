@@ -149,6 +149,7 @@ export const candidateReport = createTable('candidate_report', (d) => ({
     action: d.text({ enum: ['banned', 'archived'] }),
     actionedAt: d.integer({ mode: 'timestamp' }),
     actionedBy: d.text().references(() => adminProfiles.userId),
+    bannedUserDisplayName: d.text('banned_user_display_name').notNull().default('A user'),
 }));
 
 export const candidateReportRelations = relations(candidateReport, ({ one }) => ({
