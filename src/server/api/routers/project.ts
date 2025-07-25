@@ -112,7 +112,7 @@ export const projectRouter = createTRPCRouter({
                     endDateTime: input.ends,
                 })
                 .where(eq(projects.id, input.id));
-            
+
             // Update tags
             if (input.tags && input.tags.length > 0) {
                 await ctx.db.delete(projectsTags).where(eq(projectsTags.projectId, input.id));
