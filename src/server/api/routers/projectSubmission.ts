@@ -4,7 +4,7 @@ import { eq } from 'drizzle-orm';
 import { z } from 'zod';
 
 export const projectSubmissionRouter = createTRPCRouter({
-    getOne: publicProcedure.input(z.object({ id: z.string().uuid() })).query(async ({ ctx, input }) => {
+    getOne: publicProcedure.input(z.object({ id: z.cuid2() })).query(async ({ ctx, input }) => {
         return ctx.db.query.projectSubmissions.findFirst({
             where: (projectSubmissions, { eq }) => eq(projectSubmissions.id, input.id),
         });
@@ -18,26 +18,16 @@ export const projectSubmissionRouter = createTRPCRouter({
         });
     }),
 
-  updateOne: publicProcedure
-    .input(z.object({ id: z.string().cuid2(), status: z.string() }))
-    .mutation(async ({ ctx, input }) => {
-      return ctx.db
-        .update(projectSubmissions)
-        .set({
-          status: input.status as "submitted" | "under-review" | "approved",
-        })
-        .where(eq(projectSubmissions.id, input.id));
+    updateOne: publicProcedure.input(z.object({ id: z.cuid2(), status: z.string() })).mutation(async ({ ctx, input }) => {
+        return ctx.db
+            .update(projectSubmissions)
+            .set({
+                status: input.status as 'submitted' | 'under-review' | 'approved',
+            })
+            .where(eq(projectSubmissions.id, input.id));
     }),
 
-  deleteOne: publicProcedure
-    .input(z.object({ id: z.string().cuid2() }))
-    .mutation(async ({ ctx, input }) => {
-      return ctx.db
-        .delete(projectSubmissions)
-        .where(eq(projectSubmissions.id, input.id));
-    }),
-
-    deleteOne: publicProcedure.input(z.object({ id: z.string().cuid2() })).mutation(async ({ ctx, input }) => {
+    deleteOne: publicProcedure.input(z.object({ id: z.cuid2() })).mutation(async ({ ctx, input }) => {
         return ctx.db.delete(projectSubmissions).where(eq(projectSubmissions.id, input.id));
     }),
 

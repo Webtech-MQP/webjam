@@ -1,11 +1,11 @@
 import { adminProcedure, createTRPCRouter } from '@/server/api/trpc';
-import { adminProfiles } from '@/server/db/schemas/users';
+import { adminProfiles } from '@/server/db/schemas/profiles';
 import { TRPCError } from '@trpc/server';
 import { eq } from 'drizzle-orm';
 import { z } from 'zod';
 
 export const adminRouter = createTRPCRouter({
-    getOne: adminProcedure.input(z.object({ id: z.string().cuid2() })).query(async ({ ctx, input }) => {
+    getOne: adminProcedure.input(z.object({ id: z.cuid2() })).query(async ({ ctx, input }) => {
         return ctx.db.query.adminProfiles.findFirst({
             where: (adminProfiles, { eq }) => eq(adminProfiles.userId, input.id),
             with: {
@@ -25,7 +25,7 @@ export const adminRouter = createTRPCRouter({
     updateOne: adminProcedure
         .input(
             z.object({
-                id: z.string().cuid2(),
+                id: z.cuid2(),
                 adminRole: z.enum(['Reg', 'Mod', 'Super', 'idk']).optional(),
                 displayName: z.string().optional(),
                 bio: z.string().optional(),
@@ -41,7 +41,7 @@ export const adminRouter = createTRPCRouter({
     updateMe: adminProcedure
         .input(
             z.object({
-                id: z.string().cuid2(),
+                id: z.cuid2(),
                 displayName: z.string().optional(),
                 bio: z.string().optional(),
                 imageURL: z.string().optional(),
@@ -60,7 +60,7 @@ export const adminRouter = createTRPCRouter({
             return ctx.db.update(adminProfiles).set(updatedData).where(eq(adminProfiles.userId, input.id));
         }),
 
-    deleteOne: adminProcedure.input(z.object({ id: z.string().cuid2() })).mutation(async ({ ctx, input }) => {
+    deleteOne: adminProcedure.input(z.object({ id: z.cuid2() })).mutation(async ({ ctx, input }) => {
         return ctx.db.delete(adminProfiles).where(eq(adminProfiles.userId, input.id));
     }),
 
@@ -69,7 +69,7 @@ export const adminRouter = createTRPCRouter({
         return ctx.db.delete(adminProfiles);
     }),
 
-    deleteMe: adminProcedure.input(z.object({ id: z.string().cuid2() })).mutation(async ({ ctx, input }) => {
+    deleteMe: adminProcedure.input(z.object({ id: z.cuid2() })).mutation(async ({ ctx, input }) => {
         return ctx.db.delete(adminProfiles).where(eq(adminProfiles.userId, input.id));
     }),
 });

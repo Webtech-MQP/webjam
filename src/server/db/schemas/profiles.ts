@@ -1,38 +1,9 @@
-import { relations, sql } from 'drizzle-orm';
-import { createTable } from '../schema-util';
-
 import { createId } from '@paralleldrive/cuid2';
-import { primaryKey, unique } from 'drizzle-orm/sqlite-core';
-import { accounts } from './auth';
+import { relations, sql } from 'drizzle-orm';
+import { primaryKey } from 'drizzle-orm/sqlite-core';
+import { createTable } from '../schema-util';
+import { users } from './auth';
 import { candidateProfilesToProjects } from './projects';
-
-export const users = createTable(
-    'user',
-    (d) => ({
-        id: d
-            .text({ length: 255 })
-            .notNull()
-            .primaryKey()
-            .$defaultFn(() => createId()),
-        name: d.text({ length: 255 }),
-        image: d.text({ length: 255 }),
-        email: d.text({ length: 255 }).notNull(),
-        emailVerified: d.integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
-        phoneNumber: d.text({ length: 255 }),
-        role: d.text({ enum: ['candidate', 'recruiter', 'admin'] }).default('candidate'),
-        createdAt: d.integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
-        updatedAt: d.integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
-        githubUsername: d.text({ length: 255 }),
-    }),
-    (t) => [unique('user_id_role_unique').on(t.id, t.role)]
-);
-
-export const usersRelations = relations(users, ({ one, many }) => ({
-    accounts: many(accounts),
-    candidateProfile: one(candidateProfiles),
-    recruiterProfile: one(recruiterProfiles),
-    adminProfile: one(adminProfiles),
-}));
 
 export const candidateProfiles = createTable('candidate_profile', (d) => ({
     userId: d
@@ -54,7 +25,6 @@ export const candidateProfiles = createTable('candidate_profile', (d) => ({
     // Extended profile info
     bio: d.text({ length: 255 }),
     experience: d.text({ length: 255 }),
-    githubUsername: d.text({ length: 255 }),
     portfolioURL: d.text({ length: 255 }),
     linkedinURL: d.text({ length: 255 }),
     // This is different from user.image (user.image is github image)
@@ -66,7 +36,8 @@ export const candidateProfilesRelations = relations(candidateProfiles, ({ one, m
         fields: [candidateProfiles.userId],
         references: [users.id],
     }),
-    projects: many(candidateProfilesToProjects),
+    candidateProfilesToProjects: many(candidateProfilesToProjects),
+    reports: many(candidateReport),
 }));
 
 export const recruiterProfiles = createTable('recruiter_profile', (d) => ({
@@ -76,18 +47,20 @@ export const recruiterProfiles = createTable('recruiter_profile', (d) => ({
         .primaryKey()
         .references(() => users.id, { onDelete: 'cascade' }),
     // Required profile info
-    displayName: d.text({ length: 255 }).notNull(),
+
+    // NULL => use user.name
+    displayName: d.text({ length: 255 }),
+    displayEmail: d.text({ length: 255 }).notNull().default(''),
 
     // Previously in recruiters table
-    companyName: d.text({ length: 255 }),
-    location: d.text({ length: 255 }),
+    companyName: d.text({ length: 255 }).notNull().default(''),
+    location: d.text({ length: 255 }).notNull().default(''),
 
     // Extended profile info
-    bio: d.text({ length: 255 }),
-    companyWebsite: d.text({ length: 255 }),
-    linkedinURL: d.text({ length: 255 }),
+    bio: d.text({ length: 255 }).notNull().default(''),
+    companyWebsite: d.text({ length: 255 }).notNull().default(''),
+    linkedinURL: d.text({ length: 255 }).notNull().default(''),
     imageURL: d.text({ length: 255 }),
-    publicEmail: d.text({ length: 255 }),
 }));
 
 export const recruiterProfilesRelations = relations(recruiterProfiles, ({ one }) => ({
@@ -115,11 +88,12 @@ export const adminProfiles = createTable('admin_profile', (d) => ({
     contactEmail: d.text({ length: 255 }),
 }));
 
-export const adminProfilesRelations = relations(adminProfiles, ({ one }) => ({
+export const adminProfilesRelations = relations(adminProfiles, ({ one, many }) => ({
     user: one(users, {
         fields: [adminProfiles.userId],
         references: [users.id],
     }),
+    reportsActioned: many(candidateReport),
 }));
 
 export const recruitersToCandidates = createTable(
@@ -152,5 +126,43 @@ export const recruitersToCandidatesRelations = relations(recruitersToCandidates,
     candidateProfile: one(candidateProfiles, {
         fields: [recruitersToCandidates.candidateId],
         references: [candidateProfiles.userId],
+    }),
+}));
+
+export const candidateReport = createTable('candidate_report', (d) => ({
+    id: d
+        .text()
+        .$defaultFn(() => createId())
+        .primaryKey(),
+    candidateId: d.text('candidate_id').references(() => candidateProfiles.userId, {
+        onDelete: 'set null',
+        onUpdate: 'cascade',
+    }),
+    reporterId: d.text('reporter_id').references(() => users.id, {
+        onDelete: 'set null',
+        onUpdate: 'cascade',
+    }),
+    reason: d.text('reason').notNull(),
+    additionalDetails: d.text('additional_details').notNull().default(''),
+    createdAt: d.integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
+
+    action: d.text({ enum: ['banned', 'archived'] }),
+    actionedAt: d.integer({ mode: 'timestamp' }),
+    actionedBy: d.text().references(() => adminProfiles.userId),
+    bannedUserDisplayName: d.text('banned_user_display_name').notNull().default('A user'),
+}));
+
+export const candidateReportRelations = relations(candidateReport, ({ one }) => ({
+    candidateProfile: one(candidateProfiles, {
+        fields: [candidateReport.candidateId],
+        references: [candidateProfiles.userId],
+    }),
+    reporter: one(users, {
+        fields: [candidateReport.reporterId],
+        references: [users.id],
+    }),
+    actioner: one(adminProfiles, {
+        fields: [candidateReport.actionedBy],
+        references: [adminProfiles.userId],
     }),
 }));
