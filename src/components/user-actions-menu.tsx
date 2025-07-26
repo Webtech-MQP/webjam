@@ -35,7 +35,11 @@ export function UserActionsMenu({ reportedUserName, reportedUserId }: UserAction
     });
 
     useEffect(() => {
-        createReport.isSuccess ? (toast.success('Report submitted successfully. The team will review it shortly.'), form.reset(), dialogCloseRef.current?.click()) : null;
+        if (createReport.isSuccess) {
+            toast.success('Report submitted successfully. The team will review it shortly.');
+            form.reset();
+            dialogCloseRef.current?.click();
+        }
     }, [form, createReport]);
 
     return (
