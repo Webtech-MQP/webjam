@@ -2,12 +2,18 @@ import { DashboardCard } from '@/components/dashboard-card';
 import { Badge } from '@/components/ui/badge';
 import { GanttChart } from '@/features/time-tracking/components/gantt-chart';
 import { api } from '@/trpc/server';
-import { Clock, ExternalLink, Users } from 'lucide-react';
+import { Clock, Ellipsis, ExternalLink, Users } from 'lucide-react';
 import Image from 'next/image';
 // import { CommitChart } from "@/features/github-integration/components/commit-chart";
 // import { DeploymentChart } from "@/features/aws-integration/components/deployment-chart";
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { auth } from '@/server/auth';
 import { redirect } from 'next/navigation';
+import { UserActionsMenu } from '@/components/user-actions-menu';
 
 export default async function Page({ params }: { params: Promise<{ id: string }> }) {
     const session = await auth();
@@ -15,6 +21,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
     if (!session?.user) {
         redirect('/');
     }
+
     const { id } = await params;
 
     const project = await api.projects.getOne({ id });
@@ -120,6 +127,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
                             </div>
                             <p className="font-semibold">{projectCandidate.candidateProfile.displayName ?? projectCandidate.candidateProfile.displayName}</p>
                             <p className="text-sm text-gray-500">Placeholder</p>
+                            <UserActionsMenu />
                         </div>
                     ))}
                 </div>
