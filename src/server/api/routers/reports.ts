@@ -1,6 +1,6 @@
 import { candidateProfiles, candidateReport } from '@/server/db/schemas/profiles';
 import { TRPCError } from '@trpc/server';
-import { eq } from 'drizzle-orm';
+import { sql, eq, and, gte, lt } from 'drizzle-orm';
 import z from 'zod';
 import { adminProcedure, createTRPCRouter } from '../trpc';
 
@@ -16,6 +16,21 @@ export const reportRouter = createTRPCRouter({
         });
 
         return reports;
+    }),
+    
+    getTodayCount: adminProcedure.query(async ({ ctx }) => {
+        const now = new Date();
+        const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        const startOfTomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+    
+        return ctx.db
+            .select({ count: sql<number>`count(*)` })
+            .from(candidateReport)
+            .where(and(
+                gte(candidateReport.createdAt, startOfToday),
+                lt(candidateReport.createdAt, startOfTomorrow),
+            ))
+            .get();
     }),
 
     archiveReport: adminProcedure.input(z.object({ id: z.cuid2() })).mutation(async ({ ctx, input }) => {

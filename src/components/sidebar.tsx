@@ -4,7 +4,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { api } from '@/trpc/react';
-import { ChevronDown, ChevronUp, Folders, Home, LogOut, Search, Users, FolderOpen} from 'lucide-react';
+import { ChevronDown, ChevronUp, Folders, Home, LogOut, Search, Users, FolderOpen, ClipboardList } from 'lucide-react';
 import { signOut, useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -34,21 +34,26 @@ const ROUTES = [
 ];
 
 const ADMIN_ROUTES = [
-  {
-    name: "Admin Dashboard",
-    href: "/dashboard/admin",
-    icon: Settings,
-  },
-  {
-    name: "User Management",
-    href: "/dashboard/admin/users",
-    icon: Users,
-  },
-  {
-    name: "Project Management",
-    href: "/dashboard/admin/projects",
-    icon: FolderOpen,
-  },
+    {
+        name: "Admin Dashboard",
+        href: "/admin",
+        icon: Home,
+    },
+    {
+        name: "User Management",
+        href: "/admin/users",
+        icon: Users,
+    },
+    {
+        name: "Project Management",
+        href: "/admin/projects",
+        icon: FolderOpen,
+    },
+    {
+        name: "Report Management",
+        href: "/admin/reports",
+        icon: ClipboardList,
+    },
 ];
 
 export function Sidebar() {

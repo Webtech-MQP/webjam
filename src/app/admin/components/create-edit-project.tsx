@@ -14,7 +14,7 @@ import { api } from '@/trpc/react';
 import { createId } from '@paralleldrive/cuid2';
 import { DialogOverlay, DialogPortal } from '@radix-ui/react-dialog';
 import { skipToken } from '@tanstack/react-query';
-import { Check, ChevronsUpDown, Plus, PlusCircle, X } from 'lucide-react';
+import { Check, ChevronsUpDown, FileText, Plus, PlusCircle, X } from 'lucide-react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState, type ChangeEvent } from 'react';
@@ -156,8 +156,11 @@ export default function AdminCreateEditProject(props: AdminCreateEditProjectProp
                 }}
                 asChild
             >
-                <Button>
-                    <PlusCircle /> {isNewProject ? 'Create Project' : 'Edit Project'}
+                <Button className="w-full justify-start rounded-lg border-0 bg-orange-600/20 text-orange-400 hover:bg-orange-500/50 px-3 py-2">
+                        <span className="w-6 h-6 rounded-lg flex items-center justify-center mr-3">
+                            <PlusCircle className="w-4 h-4"/>
+                        </span>
+                        {isNewProject ? 'Create Project' : 'Edit Project'}
                 </Button>
             </DialogTrigger>
             <DialogPortal>

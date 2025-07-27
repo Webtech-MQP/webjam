@@ -220,7 +220,7 @@ async function main() {
     console.log('Project candidate profiles seeded!');
 
     console.log("Seeding project submissions...");
-    await db.insert(schema2.projectSubmissions).values([
+    await db.insert(schema.projectSubmissions).values([
       {
         id: createId(),
         projectId: projectId,
@@ -228,7 +228,6 @@ async function main() {
         status: "submitted",
         reviewedOn: new Date(),
         reviewedBy: userMattH.id,
-        repoURL: "https://github.com/brianhub/reinvent-todo",
         notes: "Initial submission for review."
       }
     ]);
