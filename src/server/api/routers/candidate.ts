@@ -290,6 +290,29 @@ export const candidateRouter = createTRPCRouter({
             where: (candidateProfiles, { inArray }) => inArray(candidateProfiles.userId, input.ids),
         });
     }),
+    createMe: protectedProcedure
+        .input(
+            z.looseObject({
+                displayName: z.string(),
+                bio: z.string(),
+            })
+        )
+        .mutation(async ({ input, ctx }) => {
+            const existingProfile = await ctx.db.query.candidateProfiles.findFirst({
+                where: (candidateProfiles, { eq }) => eq(candidateProfiles.userId, ctx.session.user.id),
+            });
+
+            if (existingProfile) {
+                throw new TRPCError({ code: 'CONFLICT', message: 'Profile already exists' });
+            }
+
+            return ctx.db.insert(candidateProfiles).values({
+                userId: ctx.session.user.id,
+                displayName: input.displayName,
+                bio: input.bio,
+                location: '',
+            });
+        }),
 });
 
 export default candidateRouter;
