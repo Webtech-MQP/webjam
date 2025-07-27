@@ -6,6 +6,7 @@ import { Clock, ExternalLink, Users } from 'lucide-react';
 import Image from 'next/image';
 // import { CommitChart } from "@/features/github-integration/components/commit-chart";
 // import { DeploymentChart } from "@/features/aws-integration/components/deployment-chart";
+import { UserActionsMenu } from '@/components/user-actions-menu';
 import { auth } from '@/server/auth';
 import { redirect } from 'next/navigation';
 
@@ -15,6 +16,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
     if (!session?.user) {
         redirect('/');
     }
+
     const { id } = await params;
 
     const project = await api.projects.getOne({ id });
@@ -120,6 +122,10 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
                             </div>
                             <p className="font-semibold">{projectCandidate.candidateProfile.displayName ?? projectCandidate.candidateProfile.displayName}</p>
                             <p className="text-sm text-gray-500">Placeholder</p>
+                            <UserActionsMenu
+                                reportedUserName={projectCandidate.candidateProfile.displayName}
+                                reportedUserId={projectCandidate.candidateProfile.userId}
+                            />
                         </div>
                     ))}
                 </div>
