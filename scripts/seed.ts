@@ -219,19 +219,19 @@ async function main() {
     ]);
     console.log('Project candidate profiles seeded!');
 
-    console.log("Seeding project submissions...");
+    console.log('Seeding project submissions...');
     await db.insert(schema.projectSubmissions).values([
-      {
-        id: createId(),
-        projectId: projectId,
-        submittedOn: new Date(),
-        status: "submitted",
-        reviewedOn: new Date(),
-        reviewedBy: userMattH.id,
-        notes: "Initial submission for review."
-      }
+        {
+            id: createId(),
+            projectId: projectId,
+            submittedOn: new Date(),
+            status: 'submitted',
+            reviewedOn: new Date(),
+            reviewedBy: userMattH.id,
+            notes: 'Initial submission for review.',
+        },
     ]);
-    console.log("Project submissions seeded!");
+    console.log('Project submissions seeded!');
 }
 
 main()

@@ -1,12 +1,10 @@
-import { auth } from '@/server/auth';
-import { api } from "@/trpc/server";
-import { StatsCards } from './components/StatsCards';
+import { api } from '@/trpc/server';
+import { ProjectSubmissions } from './components/ProjectSubmissions';
 import { QuickActions } from './components/QuickActions';
 import { ReportsList } from './components/ReportsList';
-import { ProjectSubmissions } from './components/ProjectSubmissions';
+import { StatsCards } from './components/StatsCards';
 
 export default async function AdminDashboardPage() {
-
     //Fetch project submissions and reports from backend
     const projectSubmissions = await api.projectSubmission.getPendingSubmissions();
     const reports = await api.reports.getAll();
@@ -27,9 +25,9 @@ export default async function AdminDashboardPage() {
             </div>
 
             <div className="p-6">
-                <StatsCards 
-                    projectSubmissionsCount={projectSubmissions.length} 
-                    activeReportsCount={activeReports.length} 
+                <StatsCards
+                    projectSubmissionsCount={projectSubmissions.length}
+                    activeReportsCount={activeReports.length}
                     todaysActivityCount={projectSubmissionsToday!.count + reportsToday!.count}
                 />
 
@@ -42,12 +40,10 @@ export default async function AdminDashboardPage() {
                         <QuickActions />
                     </div>
                 </div>
-                
             </div>
             <div className="p-6">
                 <ProjectSubmissions submissions={projectSubmissions} />
             </div>
         </div>
-        
     );
 }

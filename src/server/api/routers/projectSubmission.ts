@@ -1,6 +1,6 @@
-import { createTRPCRouter, adminProcedure } from '@/server/api/trpc';
+import { adminProcedure, createTRPCRouter } from '@/server/api/trpc';
 import { projectSubmissions } from '@/server/db/schemas/projects';
-import { sql, eq, and, gte, lt } from 'drizzle-orm';
+import { and, eq, gte, lt, sql } from 'drizzle-orm';
 import { z } from 'zod';
 
 export const projectSubmissionRouter = createTRPCRouter({
@@ -21,8 +21,7 @@ export const projectSubmissionRouter = createTRPCRouter({
 
     getPendingSubmissions: adminProcedure.query(async ({ ctx }) => {
         return ctx.db.query.projectSubmissions.findMany({
-            where: (projectSubmissions, { inArray }) =>
-                inArray(projectSubmissions.status, ['submitted', 'under-review']),
+            where: (projectSubmissions, { inArray }) => inArray(projectSubmissions.status, ['submitted', 'under-review']),
             with: {
                 project: true,
                 reviewer: true,
@@ -38,10 +37,7 @@ export const projectSubmissionRouter = createTRPCRouter({
         return ctx.db
             .select({ count: sql<number>`count(*)` })
             .from(projectSubmissions)
-            .where(and(
-                gte(projectSubmissions.submittedOn, startOfToday),
-                lt(projectSubmissions.submittedOn, startOfTomorrow),
-            ))
+            .where(and(gte(projectSubmissions.submittedOn, startOfToday), lt(projectSubmissions.submittedOn, startOfTomorrow)))
             .get();
     }),
 

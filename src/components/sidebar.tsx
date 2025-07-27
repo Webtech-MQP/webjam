@@ -4,7 +4,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { api } from '@/trpc/react';
-import { ChevronDown, ChevronUp, Folders, Home, LogOut, Search, Users, FolderOpen, ClipboardList } from 'lucide-react';
+import { ChevronDown, ChevronUp, ClipboardList, FolderOpen, Folders, Home, LogOut, Search, Users } from 'lucide-react';
 import { signOut, useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -35,23 +35,23 @@ const ROUTES = [
 
 const ADMIN_ROUTES = [
     {
-        name: "Admin Dashboard",
-        href: "/admin",
+        name: 'Admin Dashboard',
+        href: '/admin',
         icon: Home,
     },
     {
-        name: "User Management",
-        href: "/admin/users",
+        name: 'User Management',
+        href: '/admin/users',
         icon: Users,
     },
     {
-        name: "Project Management",
-        href: "/admin/projects",
+        name: 'Project Management',
+        href: '/admin/projects',
         icon: FolderOpen,
     },
     {
-        name: "Report Management",
-        href: "/admin/reports",
+        name: 'Report Management',
+        href: '/admin/reports',
         icon: ClipboardList,
     },
 ];
@@ -62,7 +62,7 @@ export function Sidebar() {
     const [profileOpen, setProfileOpen] = useState(false);
 
     const closestMatch = useCallback(() => {
-      const allRoutes = [...ROUTES, ...ADMIN_ROUTES];
+        const allRoutes = [...ROUTES, ...ADMIN_ROUTES];
         return allRoutes.reduce(
             (a, b) => {
                 return path.startsWith(b.href) && b.href.length > a.href.length ? b : a;
@@ -89,22 +89,20 @@ export function Sidebar() {
                 ))}
 
                 {isAdmin && (
-                  <>
-                    <div className="my-4 border-t border-gray-200" />
-                    <div className="mb-2 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                      Admin
-                    </div>
-                    {ADMIN_ROUTES.map((route) => (
-                      <Link
-                        key={route.name}
-                        href={route.href}
-                        className={cn('hover:text-primary mb-4 flex items-center gap-3 p-4', closestMatch().href === route.href && 'border-primary border-b-4')}
-                      >
-                        <route.icon className="h-5 w-5" />
-                        {route.name}
-                      </Link>
-                    ))}
-                  </>
+                    <>
+                        <div className="my-4 border-t border-gray-200" />
+                        <div className="mb-2 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Admin</div>
+                        {ADMIN_ROUTES.map((route) => (
+                            <Link
+                                key={route.name}
+                                href={route.href}
+                                className={cn('hover:text-primary mb-4 flex items-center gap-3 p-4', closestMatch().href === route.href && 'border-primary border-b-4')}
+                            >
+                                <route.icon className="h-5 w-5" />
+                                {route.name}
+                            </Link>
+                        ))}
+                    </>
                 )}
             </nav>
             <div className="mt-auto">

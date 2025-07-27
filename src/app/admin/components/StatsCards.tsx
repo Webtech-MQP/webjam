@@ -1,7 +1,7 @@
 'use client';
 
-import { Card, CardContent } from "@/components/ui/card";
-import { AlertTriangle, FileText, Activity } from "lucide-react";
+import { Card, CardContent } from '@/components/ui/card';
+import { Activity, AlertTriangle, FileText } from 'lucide-react';
 
 interface StatsCardsProps {
     projectSubmissionsCount: number;
@@ -20,7 +20,7 @@ export function StatsCards({ projectSubmissionsCount, activeReportsCount, todays
                             <p className="text-3xl font-bold text-white">{projectSubmissionsCount}</p>
                         </div>
                         <div className="w-12 h-12 rounded-lg flex items-center justify-center bg-orange-400/10 text-orange-400">
-                            <FileText className="w-6 h-6"/>
+                            <FileText className="w-6 h-6" />
                         </div>
                     </div>
                 </CardContent>
@@ -34,7 +34,7 @@ export function StatsCards({ projectSubmissionsCount, activeReportsCount, todays
                             <p className="text-3xl font-bold text-white">{activeReportsCount}</p>
                         </div>
                         <div className="w-12 h-12 rounded-lg flex items-center justify-center bg-orange-400/10 text-orange-400">
-                            <AlertTriangle className="w-6 h-6"/>
+                            <AlertTriangle className="w-6 h-6" />
                         </div>
                     </div>
                 </CardContent>
@@ -48,7 +48,7 @@ export function StatsCards({ projectSubmissionsCount, activeReportsCount, todays
                             <p className="text-3xl font-bold text-white">{todaysActivityCount}</p>
                         </div>
                         <div className="w-12 h-12 rounded-lg flex items-center justify-center bg-green-900/30 text-green-400">
-                            <Activity className="w-6 h-6"/>
+                            <Activity className="w-6 h-6" />
                         </div>
                     </div>
                 </CardContent>
