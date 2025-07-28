@@ -13,6 +13,7 @@ export default async function AdminDashboardPage() {
     const reportsToday = await api.reports.getTodayCount();
 
     return (
+        //TODO: change background color
         <div className="min-h-screen bg-black">
             <div className="bg-stone-950 border-b border-gray-700">
                 <div className="px-6 py-4">

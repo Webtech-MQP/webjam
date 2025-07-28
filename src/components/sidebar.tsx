@@ -35,24 +35,9 @@ const ROUTES = [
 
 const ADMIN_ROUTES = [
     {
-        name: 'Admin Dashboard',
+        name: 'Dashboard',
         href: '/admin',
         icon: Home,
-    },
-    {
-        name: 'User Management',
-        href: '/admin/users',
-        icon: Users,
-    },
-    {
-        name: 'Project Management',
-        href: '/admin/projects',
-        icon: FolderOpen,
-    },
-    {
-        name: 'Report Management',
-        href: '/admin/reports',
-        icon: ClipboardList,
     },
 ];
 
@@ -87,7 +72,6 @@ export function Sidebar() {
                         {route.name}
                     </Link>
                 ))}
-
                 {isAdmin && (
                     <>
                         <div className="my-4 border-t border-gray-200" />

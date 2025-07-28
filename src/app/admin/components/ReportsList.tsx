@@ -2,46 +2,10 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Flag } from 'lucide-react';
-import type { AdminProfile } from './ProjectSubmissions';
+import Link from 'next/dist/client/link';
+import type { RouterOutputs } from '@/trpc/react';
 
-export interface CandidateProfile {
-    userId: string;
-    displayName: string;
-    location: string | null;
-    language: string | null;
-    resumeURL: string | null;
-    bio: string | null;
-    experience: string | null;
-    portfolioURL: string | null;
-    linkedinURL: string | null;
-    imageURL: string | null;
-}
-
-export interface User {
-    id: string;
-    name: string | null;
-    email: string;
-    image: string | null;
-    role: 'candidate' | 'admin' | 'recruiter' | null;
-    createdAt: Date | null;
-    updatedAt: Date | null;
-}
-
-export interface Report {
-    id: string;
-    candidateId: string | null;
-    reporterId: string | null;
-    reason: string;
-    additionalDetails: string;
-    createdAt: Date | null;
-    action: 'banned' | 'archived' | null;
-    actionedAt: Date | null;
-    actionedBy: string | null;
-    bannedUserDisplayName: string;
-    candidateProfile: CandidateProfile | null;
-    reporter: User | null;
-    actioner: AdminProfile | null;
-}
+type Report = RouterOutputs['reports']['getAll'][number];
 
 interface ReportsListProps {
     reports: Report[];
@@ -79,9 +43,10 @@ export function ReportsList({ reports }: ReportsListProps) {
                             <Button
                                 size="sm"
                                 className="rounded-lg border-0 bg-orange-600/10 text-orange-400 hover:bg-orange-500/50 px-3 py-1"
-                                onClick={() => (window.location.href = `/admin/reports#${report.id}`)}
                             >
-                                Investigate
+                                <Link href={`/admin/reports/${report.id}`}>
+                                    Investigate
+                                </Link>
                             </Button>
                         </div>
                     ))}

@@ -3,46 +3,9 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Link from 'next/dist/client/link';
+import type { RouterOutputs } from '@/trpc/react';
 
-export interface Project {
-    id: string;
-    title: string | null;
-    subtitle: string | null;
-    description: string | null;
-    instructions: string | null;
-    requirements: string | null;
-    imageURL: string | null;
-    status: string | null;
-    deadline: Date | null;
-    startDateTime: Date | null;
-    endDateTime: Date | null;
-    createdAt: Date | null;
-    updatedAt: Date | null;
-    projectTimeline: string | null;
-    repoURL: string | null;
-}
-
-export interface AdminProfile {
-    userId: string;
-    displayName: string;
-    bio: string | null;
-    imageURL: string | null;
-    adminRole: 'Reg' | 'Mod' | 'Super' | 'idk' | null;
-    contactEmail: string | null;
-}
-
-export interface ProjectSubmission {
-    id: string;
-    projectId: string;
-    submittedOn: Date | null;
-    status: 'submitted' | 'under-review' | 'approved' | null;
-    reviewedOn: Date | null;
-    reviewedBy: string;
-    notes: string | null;
-
-    project: Project;
-    reviewer: AdminProfile;
-}
+type ProjectSubmission = RouterOutputs['projectSubmission']['getAll'][number];
 
 interface ProjectSubmissionsProps {
     submissions: ProjectSubmission[];
@@ -50,6 +13,7 @@ interface ProjectSubmissionsProps {
 
 export function ProjectSubmissions({ submissions }: ProjectSubmissionsProps) {
     return (
+        //TODO: change background color
         <Card className="bg-stone-950 border-b border-gray-700">
             <CardHeader>
                 <div className="flex items-center justify-between">
@@ -82,16 +46,18 @@ export function ProjectSubmissions({ submissions }: ProjectSubmissionsProps) {
                                 <Button
                                     size="sm"
                                     className="rounded-lg border-0 bg-orange-600/10 text-orange-400 hover:bg-orange-500/50 px-3 py-1"
-                                    onClick={() => (window.location.href = `/admin/submissions/${submission.id}`)}
                                 >
-                                    Review
+                                    <Link href={`/admin/submissions/${submission.id}`}>
+                                        Review
+                                    </Link>
                                 </Button>
                                 <Button
                                     size="sm"
                                     className="rounded-lg border-0 bg-green-900 text-green-400 hover:bg-green-800 px-3 py-1"
-                                    onClick={() => (window.location.href = `/admin/submissions/${submission.id}/approve`)}
                                 >
-                                    Approve
+                                    <Link href={`/admin/submissions/${submission.id}/approve`}>
+                                        Approve
+                                    </Link>
                                 </Button>
                             </div>
                         </div>
