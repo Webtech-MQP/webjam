@@ -28,7 +28,8 @@ interface CreateProjectSubmissionProps {
 
 export default function CreateProjectSubmission(props: CreateProjectSubmissionProps) {
     const [dialogueOpen, setDialogueOpen] = useState<boolean>(false);
-    const [formState, setFormState] = useState<CreateSubmissionFormSchema>(defaultForm);
+    const project = api.projects.getOne.useQuery({ id: props.projectId }, { enabled: !!props.projectId });
+    const [formState, setFormState] = useState<CreateSubmissionFormSchema>({ ...defaultForm, repositoryURL: project.data?.repoURL ?? '' });
     const createProject = api.projectSubmission.createOne.useMutation();
 
     async function onSubmit() {

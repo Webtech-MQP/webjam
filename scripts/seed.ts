@@ -185,6 +185,7 @@ async function main() {
         requirements: 'Full-stack implementation (frontend, backend, database)\n' + 'Support for creating, editing, and managing tasks\n' + 'Some form of prioritization or workflow structure\n' + 'A clearly explained "rethinking" approach: what makes your app different',
         imageURL: 'https://placehold.co/1080x1920.png',
         status: 'upcoming' as 'in-progress' | 'completed' | 'upcoming',
+        repoURL: 'https://github.com/Webtech-MQP/prototype-3',
         deadline: new Date('2025-11-17T00:00:00Z'),
         startDateTime: new Date('2025-08-17T00:00:00Z'),
         endDateTime: new Date('2025-11-24T00:00:00Z'),
