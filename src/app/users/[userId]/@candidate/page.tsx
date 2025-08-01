@@ -1,4 +1,5 @@
 import { Button } from '@/components/ui/button';
+import { UserActionsMenu } from '@/components/user-actions-menu';
 import { JamGrid } from '@/features/profiles/jam-grid';
 import { auth } from '@/server/auth';
 import { api } from '@/trpc/server';
@@ -45,18 +46,23 @@ export default async function Page({ params }: Props) {
                 <div className="relative space-y-8 p-15">
                     <div className="z-30">
                         {/* Profile Picture */}
-                        {session?.user.id === candidate.userId && (
-                            <Button
-                                variant="outline"
-                                size="icon"
-                                className="absolute top-4 right-4"
-                                asChild
-                            >
-                                <Link href={`/users/${candidate.userId}/edit`}>
-                                    <PencilIcon className="h-6 w-6" />
-                                </Link>
-                            </Button>
-                        )}
+                        <div className="absolute top-4 right-4 flex gap-2">
+                            {session?.user.id === candidate.userId && (
+                                <Button
+                                    variant="outline"
+                                    size="icon"
+                                    asChild
+                                >
+                                    <Link href={`/users/${candidate.userId}/edit`}>
+                                        <PencilIcon className="h-6 w-6" />
+                                    </Link>
+                                </Button>
+                            )}
+                            <UserActionsMenu
+                                reportedUserId={candidate.userId}
+                                reportedUserName={candidate.displayName}
+                            />
+                        </div>
                         <Image
                             src={candidate.imageURL ?? 'https://placehold.co/100.png'}
                             className="relative z-20 -mt-30 box-content rounded-xl border-6 border-(--color-background)"
