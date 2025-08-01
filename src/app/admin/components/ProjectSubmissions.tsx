@@ -2,8 +2,8 @@
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import Link from 'next/dist/client/link';
 import type { RouterOutputs } from '@/trpc/react';
+import Link from 'next/dist/client/link';
 
 type ProjectSubmission = RouterOutputs['projectSubmission']['getAll'][number];
 
@@ -47,17 +47,13 @@ export function ProjectSubmissions({ submissions }: ProjectSubmissionsProps) {
                                     size="sm"
                                     className="rounded-lg border-0 bg-orange-600/10 text-orange-400 hover:bg-orange-500/50 px-3 py-1"
                                 >
-                                    <Link href={`/admin/submissions/${submission.id}`}>
-                                        Review
-                                    </Link>
+                                    <Link href={`/admin/submissions/${submission.id}`}>Review</Link>
                                 </Button>
                                 <Button
                                     size="sm"
                                     className="rounded-lg border-0 bg-green-900 text-green-400 hover:bg-green-800 px-3 py-1"
                                 >
-                                    <Link href={`/admin/submissions/${submission.id}/approve`}>
-                                        Approve
-                                    </Link>
+                                    <Link href={`/admin/submissions/${submission.id}/approve`}>Approve</Link>
                                 </Button>
                             </div>
                         </div>

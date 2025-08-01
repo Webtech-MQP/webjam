@@ -4,7 +4,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { api } from '@/trpc/react';
-import { ChevronDown, ChevronUp, ClipboardList, FolderOpen, Folders, Home, LogOut, Search, Users } from 'lucide-react';
+import { ChevronDown, ChevronUp, Folders, Home, LogOut, Search, Users } from 'lucide-react';
 import { signOut, useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
