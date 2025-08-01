@@ -1,9 +1,9 @@
 'use client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import type { RouterOutputs } from '@/trpc/react';
 import { Flag } from 'lucide-react';
 import Link from 'next/dist/client/link';
-import type { RouterOutputs } from '@/trpc/react';
 
 type Report = RouterOutputs['reports']['getAll'][number];
 
@@ -44,9 +44,7 @@ export function ReportsList({ reports }: ReportsListProps) {
                                 size="sm"
                                 className="rounded-lg border-0 bg-orange-600/10 text-orange-400 hover:bg-orange-500/50 px-3 py-1"
                             >
-                                <Link href={`/admin/reports/${report.id}`}>
-                                    Investigate
-                                </Link>
+                                <Link href={`/admin/reports/${report.id}`}>Investigate</Link>
                             </Button>
                         </div>
                     ))}
