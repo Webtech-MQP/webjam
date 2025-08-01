@@ -7,6 +7,7 @@ import Image from 'next/image';
 // import { CommitChart } from "@/features/github-integration/components/commit-chart";
 // import { DeploymentChart } from "@/features/aws-integration/components/deployment-chart";
 import CreateProjectSubmission from '@/components/create-project-submission';
+import { GitGraph } from '@/components/git-graph';
 import { UserActionsMenu } from '@/components/user-actions-menu';
 import { auth } from '@/server/auth';
 import { redirect } from 'next/navigation';
@@ -213,6 +214,10 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
                 </DashboardCard>
                 <DashboardCard className="flex-1 h-fit">
                     <h6 className="text-sm font-medium text-gray-300">GitHub</h6>
+                    <GitGraph
+                        owner={'Webtech-MQP'}
+                        repoName={'prototype-3'}
+                    />
                 </DashboardCard>
             </div>
         </div>
