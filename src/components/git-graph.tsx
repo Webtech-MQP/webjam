@@ -193,7 +193,7 @@ export const GitGraph = (props: GitGraphProps) => {
                     dataKey="__date__"
                     type="number"
                     domain={['dataMin', 'dataMax']}
-                    tickFormatter={(value) => new Date(value).toLocaleDateString()}
+                    tickFormatter={(value: number) => new Date(value).toLocaleDateString()}
                     tickLine={false}
                     axisLine={false}
                     tickMargin={8}
@@ -209,7 +209,7 @@ export const GitGraph = (props: GitGraphProps) => {
                     content={<ChartTooltipContent title="Commits" />}
                     labelFormatter={(value, payload) => {
                         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-                        const date = payload[0]?.payload.__date__;
+                        const date: number = payload[0]?.payload.__date__;
                         return 'Commits on ' + new Date(date).toLocaleDateString();
                     }}
                 />
