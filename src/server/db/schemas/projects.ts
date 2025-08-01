@@ -2,6 +2,7 @@ import { createId } from '@paralleldrive/cuid2';
 import { relations, sql } from 'drizzle-orm';
 import { primaryKey } from 'drizzle-orm/sqlite-core';
 import { createTable } from '../schema-util';
+import { users } from './auth';
 import { adminProfiles, candidateProfiles } from './profiles';
 
 export const projects = createTable('project', (d) => ({
@@ -90,13 +91,16 @@ export const projectSubmissions = createTable('projectSubmission', (d) => ({
         .notNull()
         .references(() => projects.id),
     submittedOn: d.integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
-    status: d.text({ enum: ['submitted', 'under-review', 'approved'] }).default('submitted'),
-    reviewedOn: d.integer({ mode: 'timestamp' }),
-    reviewedBy: d
-        .text({ length: 255 })
+    submittedBy: d
+        .text()
         .notNull()
-        .references(() => adminProfiles.userId),
-    notes: d.text({ length: 255 }),
+        .references(() => users.id),
+    status: d.text({ enum: ['submitted', 'under-review', 'approved', 'denied'] }).default('submitted'),
+    reviewedOn: d.integer({ mode: 'timestamp' }),
+    reviewedBy: d.text({ length: 255 }),
+    notes: d.text({ length: 1000 }),
+    repositoryURL: d.text({ length: 512 }),
+    deploymentURL: d.text({ length: 512 }),
 }));
 
 export const tags = createTable('tag', (d) => ({
@@ -148,6 +152,10 @@ export const projectSubmissionsRelations = relations(projectSubmissions, ({ one 
     reviewer: one(adminProfiles, {
         fields: [projectSubmissions.reviewedBy],
         references: [adminProfiles.userId],
+    }),
+    submitter: one(users, {
+        fields: [projectSubmissions.submittedBy],
+        references: [users.id],
     }),
 }));
 

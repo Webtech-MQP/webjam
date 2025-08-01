@@ -1,12 +1,46 @@
-import { adminProcedure, createTRPCRouter } from '@/server/api/trpc';
+import { adminProcedure, createTRPCRouter, protectedProcedure } from '@/server/api/trpc';
 import { projectSubmissions } from '@/server/db/schemas/projects';
 import { and, eq, gte, lt, sql } from 'drizzle-orm';
 import { z } from 'zod';
 
 export const projectSubmissionRouter = createTRPCRouter({
-    getOne: adminProcedure.input(z.object({ id: z.cuid2() })).query(async ({ ctx, input }) => {
+    getOne: protectedProcedure.input(z.object({ id: z.cuid2() })).query(async ({ ctx, input }) => {
         return ctx.db.query.projectSubmissions.findFirst({
             where: (projectSubmissions, { eq }) => eq(projectSubmissions.id, input.id),
+        });
+    }),
+
+    createOne: protectedProcedure
+        .input(
+            z.object({
+                id: z.cuid2(),
+                projectId: z.cuid2(),
+                submittedBy: z.cuid2(),
+                repositoryURL: z.url(),
+                deploymentURL: z.url(),
+                submittedOn: z.date(),
+                status: z.enum(['submitted', 'under-review', 'approved', 'denied']).default('submitted'),
+            })
+        )
+        .mutation(async ({ ctx, input }) => {
+            console.log(input);
+            await ctx.db.insert(projectSubmissions).values({
+                id: input.id,
+                projectId: input.projectId,
+                submittedBy: input.submittedBy,
+                repositoryURL: input.repositoryURL,
+                deploymentURL: input.deploymentURL,
+                submittedOn: input.submittedOn,
+                status: input.status,
+                reviewedBy: null,
+                reviewedOn: null,
+                notes: '',
+            });
+        }),
+
+    getAllSubmissionsForProject: protectedProcedure.input(z.object({ projectId: z.cuid2() })).query(async ({ ctx, input }) => {
+        return ctx.db.query.projectSubmissions.findMany({
+            where: (projectSubmissions, { eq }) => eq(projectSubmissions.projectId, input.projectId),
         });
     }),
 
@@ -45,7 +79,7 @@ export const projectSubmissionRouter = createTRPCRouter({
         return ctx.db
             .update(projectSubmissions)
             .set({
-                status: input.status as 'submitted' | 'under-review' | 'approved',
+                status: input.status as 'submitted' | 'under-review' | 'approved' | 'denied',
             })
             .where(eq(projectSubmissions.id, input.id));
     }),
