@@ -21,7 +21,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
 
     const { id } = await params;
 
-    const project = await api.projects.getOne({ id });
+    const projectInstance = await api.projectInstances.getOne({ id });
 
     const submissions = await api.projectSubmission.getAllSubmissionsForProject({ projectId: id });
 
@@ -30,13 +30,13 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
     return (
         <div className="flex flex-col gap-2 p-4">
             <DashboardCard>
-                <h1>{project.title}</h1>
+                <h1>{projectInstance.project.title}</h1>
                 <div className="flex gap-2">
                     <Badge className="bg-indigo-500">
-                        <Users /> {project.projectsToCandidateProfiles.length} members
+                        <Users /> {projectInstance.teamMembers.length} members
                     </Badge>
                     <Badge className="bg-indigo-500">
-                        <Clock /> {project.deadline?.toLocaleDateString()}
+                        <Clock /> {projectInstance.project.deadline?.toLocaleDateString()}
                     </Badge>
                 </div>
                 <div className="relative flex w-full gap-4">
@@ -110,7 +110,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
             <DashboardCard>
                 <h6 className="text-sm font-medium text-gray-300">Members</h6>
                 <div className="relative flex w-full flex-col gap-4">
-                    {project.projectsToCandidateProfiles.map((projectCandidate, index) => (
+                    {projectInstance.teamMembers.map((projectCandidate, index) => (
                         <div
                             key={index}
                             className="flex items-center gap-2"
