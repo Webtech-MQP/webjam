@@ -5,6 +5,7 @@ import { env } from '@/env';
 import * as authSchema from './schemas/auth';
 import * as usersSchema from './schemas/profiles';
 import * as projectsSchema from './schemas/projects';
+import * as projectRegistrationSchema from './schemas/project-registration'
 
 /**
  * Cache the database connection in development. This avoids creating a new connection on every HMR
@@ -18,5 +19,5 @@ export const client = globalForDb.client ?? createClient({ url: env.DATABASE_URL
 if (env.NODE_ENV !== 'production') globalForDb.client = client;
 
 export const db = drizzle(client, {
-    schema: { ...usersSchema, ...projectsSchema, ...authSchema },
+    schema: { ...usersSchema, ...projectsSchema, ...authSchema, ...projectRegistrationSchema },
 });
