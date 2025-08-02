@@ -19,6 +19,7 @@ export const projects = createTable('project', (d) => ({
     imageUrl: d.text({ length: 256 }),
     status: d.text({ enum: ['in-progress', 'completed', 'upcoming'] }).default('upcoming'),
     deadline: d.integer({ mode: 'timestamp' }),
+    numberOfMembers: d.integer().notNull().default(1),
     // NOTE: The start and end date are soon to disappear! Do not use!
     startDateTime: d.integer({ mode: 'timestamp' }).notNull(),
     endDateTime: d.integer({ mode: 'timestamp' }).notNull(),
@@ -38,7 +39,6 @@ export const projectsRelations = relations(projects, ({ one, many }) => ({
         fields: [projects.id],
         references: [projectSubmissions.projectInstanceId],
     }),
-    projectsToCandidateProfiles: many(candidateProfilesToProjectInstances),
     projectsToTags: many(projectsTags),
     creator: one(adminProfiles, {
         fields: [projects.createdBy],
@@ -118,7 +118,7 @@ export const tags = createTable('tag', (d) => ({
 }));
 
 export const candidateProfilesToProjectInstances = createTable(
-    'candidate_profiles_to_projects',
+    'candidate_profiles_to_project_instances',
     (d) => ({
         candidateId: d
             .text('candidate_id')

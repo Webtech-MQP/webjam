@@ -249,7 +249,7 @@ export default function JamFinderClient() {
                                             title={project.title ?? 'Untitled Jam'}
                                             startDateTime={project.startDateTime ?? new Date()}
                                             endDateTime={project.endDateTime ?? new Date()}
-                                            numberOfTeammates={project.projectsToCandidateProfiles?.length}
+                                            numberOfTeammates={project.numberOfMembers}
                                             imageUrl={project.imageUrl ?? 'https://placehold.co/150/png'}
                                             tags={project.projectsToTags?.map((pt) => pt.tag) ?? []}
                                             onClick={() => {
@@ -309,7 +309,7 @@ export default function JamFinderClient() {
                                             title={project.title ?? 'Untitled Jam'}
                                             startDateTime={project.startDateTime ?? new Date()}
                                             endDateTime={project.endDateTime ?? new Date()}
-                                            numberOfTeammates={project.projectsToCandidateProfiles?.length}
+                                            numberOfTeammates={project.numberOfMembers}
                                             imageUrl={project.imageUrl ?? 'https://placehold.co/150/png'}
                                             tags={project.projectsToTags?.map((pt) => pt.tag) ?? []}
                                             onClick={() => {
