@@ -37,7 +37,7 @@ CREATE TABLE `prototype-3_admin_profile` (
 	`displayName` text(255) NOT NULL,
 	`adminRole` text DEFAULT 'Reg',
 	`bio` text(255),
-	`imageURL` text(255),
+	`imageUrl` text(255),
 	`contactEmail` text(255),
 	FOREIGN KEY (`userId`) REFERENCES `prototype-3_user`(`id`) ON UPDATE no action ON DELETE cascade
 );
@@ -53,7 +53,7 @@ CREATE TABLE `prototype-3_candidate_profile` (
 	`githubUsername` text(255),
 	`portfolioURL` text(255),
 	`linkedinURL` text(255),
-	`imageURL` text(255),
+	`imageUrl` text(255),
 	FOREIGN KEY (`userId`) REFERENCES `prototype-3_user`(`id`) ON UPDATE cascade ON DELETE cascade
 );
 --> statement-breakpoint
@@ -65,7 +65,7 @@ CREATE TABLE `prototype-3_recruiter_profile` (
 	`bio` text(255),
 	`companyWebsite` text(255),
 	`linkedinURL` text(255),
-	`imageURL` text(255),
+	`imageUrl` text(255),
 	`publicEmail` text(255),
 	FOREIGN KEY (`userId`) REFERENCES `prototype-3_user`(`id`) ON UPDATE no action ON DELETE cascade
 );
@@ -88,7 +88,7 @@ CREATE TABLE `__new_prototype-3_project` (
 	`description` text(256),
 	`instructions` text(256),
 	`requirements` text(256),
-	`imageURL` text(256),
+	`imageUrl` text(256),
 	`status` text DEFAULT 'in-progress',
 	`deadline` integer,
 	`startDateTime` integer,
@@ -99,7 +99,7 @@ CREATE TABLE `__new_prototype-3_project` (
 	FOREIGN KEY (`createdBy`) REFERENCES `prototype-3_admin_profile`(`userId`) ON UPDATE no action ON DELETE set null
 );
 --> statement-breakpoint
-INSERT INTO `__new_prototype-3_project`("id", "title", "subTitle", "description", "instructions", "requirements", "imageURL", "status", "deadline", "startDateTime", "endDateTime", "createdAt", "updatedAt", "createdBy") SELECT "id", "title", "subTitle", "description", "instructions", "requirements", "imageURL", "status", "deadline", "startDateTime", "endDateTime", "createdAt", "updatedAt", "createdBy" FROM `prototype-3_project`;--> statement-breakpoint
+INSERT INTO `__new_prototype-3_project`("id", "title", "subTitle", "description", "instructions", "requirements", "imageUrl", "status", "deadline", "startDateTime", "endDateTime", "createdAt", "updatedAt", "createdBy") SELECT "id", "title", "subTitle", "description", "instructions", "requirements", "imageURL", "status", "deadline", "startDateTime", "endDateTime", "createdAt", "updatedAt", "createdBy" FROM `prototype-3_project`;--> statement-breakpoint
 DROP TABLE `prototype-3_project`;--> statement-breakpoint
 ALTER TABLE `__new_prototype-3_project` RENAME TO `prototype-3_project`;--> statement-breakpoint
 PRAGMA foreign_keys=ON;--> statement-breakpoint

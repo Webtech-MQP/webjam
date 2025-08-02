@@ -250,7 +250,7 @@ export default function JamFinderClient() {
                                             startDateTime={project.startDateTime ?? new Date()}
                                             endDateTime={project.endDateTime ?? new Date()}
                                             numberOfTeammates={project.projectsToCandidateProfiles?.length}
-                                            imageUrl={project.imageURL ?? 'https://placehold.co/150/png'}
+                                            imageUrl={project.imageUrl ?? 'https://placehold.co/150/png'}
                                             tags={project.projectsToTags?.map((pt) => pt.tag) ?? []}
                                             onClick={() => {
                                                 setSelectedProject(project.id);
@@ -266,7 +266,7 @@ export default function JamFinderClient() {
                                                 ends={project.endDateTime ? format(project.endDateTime, 'MMM dd, yyyy') : 'Present'}
                                                 signups={123}
                                                 description={project.description ?? 'No description available'}
-                                                imageUrl={project.imageURL ?? 'https://placehold.co/1080x1920.png'}
+                                                imageUrl={project.imageUrl ?? 'https://placehold.co/1080x1920.png'}
                                                 requirements={project.requirements ?? 'No requirements specified'}
                                                 tags={project.projectsToTags?.map((pt) => pt.tag.name) ?? []}
                                                 onSignup={function (): void {
@@ -310,7 +310,7 @@ export default function JamFinderClient() {
                                             startDateTime={project.startDateTime ?? new Date()}
                                             endDateTime={project.endDateTime ?? new Date()}
                                             numberOfTeammates={project.projectsToCandidateProfiles?.length}
-                                            imageUrl={project.imageURL ?? 'https://placehold.co/150/png'}
+                                            imageUrl={project.imageUrl ?? 'https://placehold.co/150/png'}
                                             tags={project.projectsToTags?.map((pt) => pt.tag) ?? []}
                                             onClick={() => {
                                                 setSelectedProject(project.id);
@@ -326,7 +326,7 @@ export default function JamFinderClient() {
                                                 ends={project.endDateTime ? format(project.endDateTime, 'MMM dd, yyyy') : 'Present'}
                                                 signups={123}
                                                 description={project.description ?? 'No description available'}
-                                                imageUrl={project.imageURL ?? 'https://placehold.co/1080x1920.png'}
+                                                imageUrl={project.imageUrl ?? 'https://placehold.co/1080x1920.png'}
                                                 requirements={project.requirements ?? 'No requirements specified'}
                                                 tags={project.projectsToTags?.map((pt) => pt.tag.name) ?? []}
                                                 onSignup={function (): void {

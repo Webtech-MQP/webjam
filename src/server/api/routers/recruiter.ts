@@ -32,7 +32,7 @@ export const recruiterRouter = createTRPCRouter({
                 bio: z.string().optional(),
                 companyWebsite: z.string().optional(),
                 linkedinURL: z.string().optional(),
-                imageURL: z.string().optional(),
+                imageUrl: z.string().optional(),
                 publicEmail: z.string().optional(),
             })
         )
@@ -51,7 +51,7 @@ export const recruiterRouter = createTRPCRouter({
                 bio: z.string().optional(),
                 companyWebsite: z.string().optional(),
                 linkedinURL: z.string().optional(),
-                imageURL: z.string().optional(),
+                imageUrl: z.string().optional(),
                 publicEmail: z.string().optional(),
             })
         )

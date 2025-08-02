@@ -117,7 +117,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
                         >
                             <div className="relative aspect-square w-8">
                                 <Image
-                                    src={projectCandidate.candidateProfile.imageURL ?? ''}
+                                    src={projectCandidate.candidateProfile.imageUrl ?? ''}
                                     alt={projectCandidate.candidateProfile.displayName}
                                     fill
                                     objectFit="cover"

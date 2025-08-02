@@ -141,7 +141,7 @@ export default function Page() {
                                         experience={candidate.experience ?? undefined}
                                         githubUsername={candidate.user.githubUsername ?? undefined}
                                         linkedinURL={candidate.linkedinURL ?? undefined}
-                                        imageURL={candidate.imageURL ?? undefined}
+                                        imageUrl={candidate.imageURL ?? undefined}
                                         projectCount={candidate.candidateProfilesToProjects.length}
                                         onClick={() => router.push(`/users/${candidate.userId}`)}
                                     />

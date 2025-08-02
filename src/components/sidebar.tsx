@@ -4,7 +4,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { api } from '@/trpc/react';
-import { ChevronDown, ChevronUp, Folders, Home, LogOut, Search, Users } from 'lucide-react';
+import { ChevronDown, ChevronUp, Folder, Home, LogOut, Search, Users } from 'lucide-react';
 import { signOut, useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -15,11 +15,6 @@ const ROUTES = [
         name: 'Home',
         href: '/dashboard',
         icon: Home,
-    },
-    {
-        name: 'Projects',
-        href: '/dashboard/projects',
-        icon: Folders,
     },
     {
         name: 'Find a Jam',
@@ -38,6 +33,11 @@ const ADMIN_ROUTES = [
         name: 'Dashboard',
         href: '/admin',
         icon: Home,
+    },
+    {
+        name: 'Projects',
+        href: '/admin/projects',
+        icon: Folder,
     },
 ];
 
@@ -60,7 +60,7 @@ export function Sidebar() {
 
     return (
         <div className="border-accent flex h-full w-64 flex-col border-r p-4">
-            <h1 className="text-primary font-bold">mqp</h1>
+            <h1 className="text-primary font-bold">webjam</h1>
             <nav className="flex-1">
                 {ROUTES.map((route) => (
                     <Link
@@ -74,7 +74,7 @@ export function Sidebar() {
                 ))}
                 {isAdmin && (
                     <>
-                        <div className="my-4 border-t border-gray-200" />
+                        <div className="my-4 border-t border-muted" />
                         <div className="mb-2 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Admin</div>
                         {ADMIN_ROUTES.map((route) => (
                             <Link

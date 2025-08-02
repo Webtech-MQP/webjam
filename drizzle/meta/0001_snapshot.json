@@ -430,8 +430,8 @@
                     "notNull": false,
                     "autoincrement": false
                 },
-                "imageURL": {
-                    "name": "imageURL",
+                "imageUrl": {
+                    "name": "imageUrl",
                     "type": "text(256)",
                     "primaryKey": false,
                     "notNull": false,
@@ -603,8 +603,8 @@
                     "notNull": false,
                     "autoincrement": false
                 },
-                "imageURL": {
-                    "name": "imageURL",
+                "imageUrl": {
+                    "name": "imageUrl",
                     "type": "text(255)",
                     "primaryKey": false,
                     "notNull": false,
@@ -727,8 +727,8 @@
                     "notNull": false,
                     "autoincrement": false
                 },
-                "imageURL": {
-                    "name": "imageURL",
+                "imageUrl": {
+                    "name": "imageUrl",
                     "type": "text(255)",
                     "primaryKey": false,
                     "notNull": false,
@@ -844,8 +844,8 @@
                     "notNull": false,
                     "autoincrement": false
                 },
-                "imageURL": {
-                    "name": "imageURL",
+                "imageUrl": {
+                    "name": "imageUrl",
                     "type": "text(255)",
                     "primaryKey": false,
                     "notNull": false,

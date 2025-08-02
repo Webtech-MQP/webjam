@@ -14,7 +14,7 @@ interface ReportsListProps {
 export function ReportsList({ reports }: ReportsListProps) {
     const previewReports = reports.slice(0, 3);
     return (
-        <Card className="bg-stone-950 border-b border-gray-700">
+        <Card className="bg-stone-950 border-b border-gray-700 h-full">
             <CardHeader>
                 <div className="flex items-center justify-between">
                     <CardTitle className="text-lg text-white">Priority Alerts</CardTitle>

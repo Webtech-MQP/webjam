@@ -124,7 +124,7 @@ CREATE TABLE `__new_prototype-3_project` (
 	FOREIGN KEY (`createdBy`) REFERENCES `prototype-3_admin_profile`(`adminId`) ON UPDATE no action ON DELETE set null
 );
 --> statement-breakpoint
-INSERT INTO `__new_prototype-3_project`("id", "title", "subTitle", "description", "instructions", "requirements", "imageURL", "status", "deadline", "startDateTime", "endDateTime", "createdAt", "updatedAt", "createdBy") SELECT "id", "title", "subTitle", "description", "instructions", "requirements", "imageURL", "status", "deadline", "startDateTime", "endDateTime", "createdAt", "updatedAt", "createdBy" FROM `prototype-3_project`;--> statement-breakpoint
+INSERT INTO `__new_prototype-3_project`("id", "title", "subTitle", "description", "instructions", "requirements", "imageUrl", "status", "deadline", "startDateTime", "endDateTime", "createdAt", "updatedAt", "createdBy") SELECT "id", "title", "subTitle", "description", "instructions", "requirements", "imageURL", "status", "deadline", "startDateTime", "endDateTime", "createdAt", "updatedAt", "createdBy" FROM `prototype-3_project`;--> statement-breakpoint
 DROP TABLE `prototype-3_project`;--> statement-breakpoint
 ALTER TABLE `__new_prototype-3_project` RENAME TO `prototype-3_project`;--> statement-breakpoint
 PRAGMA foreign_keys=ON;--> statement-breakpoint

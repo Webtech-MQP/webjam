@@ -64,7 +64,7 @@ export default async function Page({ params }: Props) {
                             />
                         </div>
                         <Image
-                            src={candidate.imageURL ?? 'https://placehold.co/100.png'}
+                            src={candidate.imageUrl ?? 'https://placehold.co/100.png'}
                             className="relative z-20 -mt-30 box-content rounded-xl border-6 border-(--color-background)"
                             alt="Profile picture"
                             height={100}

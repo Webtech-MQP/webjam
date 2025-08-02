@@ -1,5 +1,7 @@
-import { createTRPCRouter, protectedProcedure, publicProcedure } from '@/server/api/trpc';
-import { projects, projectsTags, tags } from '@/server/db/schemas/projects';
+import { adminProcedure, createTRPCRouter, protectedProcedure, publicProcedure } from '@/server/api/trpc';
+import { candidateProfiles } from '@/server/db/schemas/profiles';
+import { projectRegistrations, projects, projectsTags, tags } from '@/server/db/schemas/projects';
+import { TRPCError } from '@trpc/server';
 import { eq } from 'drizzle-orm';
 import { z } from 'zod';
 
@@ -12,7 +14,7 @@ export const projectRouter = createTRPCRouter({
                 subtitle: z.string().min(0).max(256),
                 description: z.string().min(0).max(10000),
                 requirements: z.string().min(0).max(10000),
-                imageURL: z.string().min(0).max(256),
+                imageUrl: z.string().min(0).max(256),
                 starts: z.date(),
                 ends: z.date(),
                 tags: z.array(z.string().min(1).max(256)).optional(),
@@ -26,7 +28,7 @@ export const projectRouter = createTRPCRouter({
                 description: input.description,
                 instructions: '',
                 requirements: input.requirements,
-                imageURL: input.imageURL,
+                imageUrl: input.imageUrl,
                 status: 'upcoming',
                 deadline: new Date(0),
                 startDateTime: input.starts,
@@ -49,17 +51,18 @@ export const projectRouter = createTRPCRouter({
         return ctx.db.query.projects.findFirst({
             where: (projects, { eq }) => eq(projects.id, input.id),
             with: {
-                projectsToCandidateProfiles: {
-                    with: {
-                        candidateProfile: true,
-                    },
-                },
                 projectsToTags: {
                     with: {
                         tag: true,
                     },
                 },
                 creator: true,
+                registrations: {
+                    with: {
+                        candidateProfile: true,
+                    },
+                },
+                projectInstances: true,
             },
         });
     }),
@@ -67,11 +70,6 @@ export const projectRouter = createTRPCRouter({
     getAll: publicProcedure.query(async ({ ctx }) => {
         return ctx.db.query.projects.findMany({
             with: {
-                projectsToCandidateProfiles: {
-                    with: {
-                        candidateProfile: true,
-                    },
-                },
                 projectsToTags: {
                     with: {
                         tag: true,
@@ -90,7 +88,7 @@ export const projectRouter = createTRPCRouter({
                 subtitle: z.string().min(0).max(1000),
                 description: z.string().min(0).max(10000),
                 requirements: z.string().min(0).max(10000),
-                imageURL: z.string().min(0).max(1000),
+                imageUrl: z.string().min(0).max(1000),
                 starts: z.date(),
                 ends: z.date(),
                 tags: z.array(z.string().min(1).max(1000)).optional(),
@@ -105,7 +103,7 @@ export const projectRouter = createTRPCRouter({
                     description: input.description,
                     instructions: '',
                     requirements: input.requirements,
-                    imageURL: input.imageURL,
+                    imageUrl: input.imageUrl,
                     status: 'upcoming',
                     deadline: new Date(0),
                     startDateTime: input.starts,
@@ -158,11 +156,6 @@ export const projectRouter = createTRPCRouter({
                     return and(...conditions);
                 },
                 with: {
-                    projectsToCandidateProfiles: {
-                        with: {
-                            candidateProfile: true,
-                        },
-                    },
                     projectsToTags: {
                         with: {
                             tag: true,
@@ -172,7 +165,7 @@ export const projectRouter = createTRPCRouter({
             });
 
             return q.filter((p) => {
-                if (input.groupSize && p.projectsToCandidateProfiles.length !== input.groupSize) {
+                if (input.groupSize && p.numberOfMembers !== input.groupSize) {
                     return false;
                 }
                 if (!input.tags || input.tags.length === 0) return true;
@@ -203,5 +196,11 @@ export const projectRouter = createTRPCRouter({
 
     deleteTag: protectedProcedure.input(z.object({ id: z.string() })).mutation(async ({ ctx, input }) => {
         return ctx.db.delete(tags).where(eq(tags.id, input.id));
+    }),
+
+    initializeJamCreation: adminProcedure.input(z.object({ id: z.cuid2() })).query(async ({ input, ctx }) => {
+        const project = (await ctx.db.select().from(projects).where(eq(projects.id, input.id)))[0];
+        if (!project) throw new TRPCError({ code: 'NOT_FOUND', message: 'Project not found' });
+        const registrations = await ctx.db.select().from(projectRegistrations).innerJoin(candidateProfiles, eq(candidateProfiles.userId, projectRegistrations.candidateId)).where(eq(projectRegistrations.projectId, input.id));
     }),
 });
