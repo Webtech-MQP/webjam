@@ -1,7 +1,7 @@
 import * as authSchema from '@/server/db/schemas/auth';
 import * as userSchema from '@/server/db/schemas/profiles';
-import * as projectSchema from '@/server/db/schemas/projects';
 import * as registrationSchema from '@/server/db/schemas/project-registration';
+import * as projectSchema from '@/server/db/schemas/projects';
 import { createId } from '@paralleldrive/cuid2';
 import { drizzle } from 'drizzle-orm/libsql';
 import { reset } from 'drizzle-seed';
@@ -288,11 +288,7 @@ async function main() {
         createdBy: userMattH.id,
     };
 
-    await db.insert(schema.projectRegistrationQuestions).values([
-        timeQuestion,
-        toolsQuestion,
-        teamQuestion
-    ]);
+    await db.insert(schema.projectRegistrationQuestions).values([timeQuestion, toolsQuestion, teamQuestion]);
     console.log('Registration questions seeded!');
 
     console.log('Connecting questions to project...');
