@@ -95,7 +95,9 @@ export const ArrayInput = (props: ArrayInputProps) => {
             {props.allowCreate && (
                 <Button
                     size="icon"
+                    variant="secondary"
                     onClick={createEntry}
+                    className="w-full"
                 >
                     <Plus />
                 </Button>

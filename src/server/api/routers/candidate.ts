@@ -1,7 +1,7 @@
 import { adminProcedure, createTRPCRouter, protectedProcedure, publicProcedure } from '@/server/api/trpc';
 import { users } from '@/server/db/schemas/auth';
 import { candidateProfiles } from '@/server/db/schemas/profiles';
-import { candidateProfilesToProjects } from '@/server/db/schemas/projects';
+import { candidateProfilesToProjectInstances } from '@/server/db/schemas/projects';
 import { TRPCError } from '@trpc/server';
 import { and, eq, inArray, like, or, sql } from 'drizzle-orm';
 import { z } from 'zod';
@@ -60,7 +60,7 @@ export const candidateRouter = createTRPCRouter({
                     githubUsername: z.string(),
                     portfolioURL: z.string(),
                     linkedinURL: z.string(),
-                    imageURL: z.string(),
+                    imageUrl: z.string(),
                 })
                 .partial()
                 .required({ id: true })
@@ -94,7 +94,7 @@ export const candidateRouter = createTRPCRouter({
                     linkedinURL: z.url().startsWith('https://linkedin.com/in/', {
                         message: 'Must be a valid LinkedIn URL',
                     }),
-                    imageURL: z.url(),
+                    imageUrl: z.url(),
                 })
                 .partial()
         )
@@ -136,12 +136,12 @@ export const candidateRouter = createTRPCRouter({
 
     changeProjectVisibility: protectedProcedure.input(z.object({ projectId: z.string(), visible: z.boolean() })).mutation(async ({ input, ctx }) => {
         const q = await ctx.db
-            .update(candidateProfilesToProjects)
+            .update(candidateProfilesToProjectInstances)
             .set({ visible: input.visible })
-            .where(and(eq(candidateProfilesToProjects.projectId, input.projectId), eq(candidateProfilesToProjects.candidateId, ctx.session.user.id)))
+            .where(and(eq(candidateProfilesToProjectInstances.projectId, input.projectId), eq(candidateProfilesToProjectInstances.candidateId, ctx.session.user.id)))
             .returning({
-                newVisible: candidateProfilesToProjects.visible,
-                projectId: candidateProfilesToProjects.projectId,
+                newVisible: candidateProfilesToProjectInstances.visible,
+                projectId: candidateProfilesToProjectInstances.projectId,
             });
 
         if (!q) throw new TRPCError({ code: 'NOT_FOUND' });

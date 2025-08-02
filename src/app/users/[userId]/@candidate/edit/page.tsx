@@ -104,7 +104,7 @@ export default function Page() {
                     <div className="z-30 -mt-30 flex flex-col gap-4">
                         {/* Profile Picture */}
                         <Image
-                            src={candidate?.imageURL ?? 'https://placehold.co/100.png'}
+                            src={candidate?.imageUrl ?? 'https://placehold.co/100.png'}
                             className="relative z-20 box-content rounded-xl border-6 border-(--color-background)"
                             alt="Profile picture"
                             height={100}
