@@ -214,10 +214,20 @@ async function main() {
     ]);
     console.log('Project-tag links seeded!');
 
+    console.log('Seeding project instances...');
+    const projectInstanceId = createId();
+    await db.insert(schema.projectInstances).values({
+        id: projectInstanceId,
+        teamName: 'Team Alpha',
+        repoUrl: 'https://github.com/example/todo-reimagined',
+        projectId: projectId,
+    });
+    console.log('Project instances seeded!');
+
     console.log('Seeding project candidate profiles...');
     await db.insert(schema.candidateProfilesToProjectInstances).values([
-        { projectId, candidateId: userBrian.id },
-        { projectId, candidateId: userTyler.id },
+        { projectInstanceId, candidateId: userBrian.id },
+        { projectInstanceId, candidateId: userTyler.id },
     ]);
     console.log('Project candidate profiles seeded!');
 
@@ -225,7 +235,7 @@ async function main() {
     await db.insert(schema.projectSubmissions).values([
         {
             id: createId(),
-            projectId: projectId,
+            projectInstanceId: projectInstanceId,
             submittedOn: new Date(),
             status: 'submitted',
             reviewedOn: new Date(),
