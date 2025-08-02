@@ -57,7 +57,7 @@ export const projectInstances = createTable('project_instance', (d) => ({
         .primaryKey(),
     teamName: d.text({ length: 256 }),
     repoUrl: d.text({ length: 256 }),
-    projectId: d.text(),
+    projectId: d.text().notNull(),
 }));
 
 export const projectInstanceRelations = relations(projectInstances, ({ one, many }) => ({
@@ -65,7 +65,7 @@ export const projectInstanceRelations = relations(projectInstances, ({ one, many
         fields: [projectInstances.projectId],
         references: [projects.id],
     }),
-    candidateProfiles: many(candidateProfilesToProjectInstances),
+    teamMembers: many(candidateProfilesToProjectInstances),
 }));
 
 export const projectEvent = createTable('project_timeline_event', (d) => ({

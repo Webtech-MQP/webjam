@@ -15,7 +15,11 @@ export const candidateRouter = createTRPCRouter({
                     user: true,
                     candidateProfilesToProjectInstances: {
                         with: {
-                            projectInstance: true,
+                            projectInstance: {
+                                with: {
+                                    project: true,
+                                },
+                            },
                         },
                     },
                 },
@@ -38,7 +42,11 @@ export const candidateRouter = createTRPCRouter({
                     },
                     candidateProfilesToProjectInstances: {
                         with: {
-                            projectInstance: true,
+                            projectInstance: {
+                                with: {
+                                    project: true,
+                                },
+                            },
                         },
                     },
                 },
@@ -127,6 +135,11 @@ export const candidateRouter = createTRPCRouter({
                                         },
                                     },
                                 },
+                                teamMembers: {
+                                    with: {
+                                        candidateProfile: true,
+                                    },
+                                },
                             },
                         },
                     },
@@ -134,7 +147,7 @@ export const candidateRouter = createTRPCRouter({
             },
         });
         if (!candidateProfile) return null;
-        return candidateProfile.candidateProfilesToProjectInstances.filter((p) => p.visible).map((p) => p.projectInstance.project);
+        return candidateProfile.candidateProfilesToProjectInstances.filter((p) => p.visible);
     }),
 
     changeProjectVisibility: protectedProcedure.input(z.object({ projectInstanceId: z.string(), visible: z.boolean() })).mutation(async ({ input, ctx }) => {

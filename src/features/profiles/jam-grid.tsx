@@ -12,7 +12,7 @@ export function JamGrid({ jams, name }: Props) {
         <div>
             {jams?.map((j) => (
                 <div
-                    key={j.id}
+                    key={j.projectInstanceId}
                     className="relative"
                 >
                     <JamCard
@@ -20,12 +20,12 @@ export function JamGrid({ jams, name }: Props) {
                             .looseObject({})
                             .transform((x) => (!!x ? x : undefined))
                             .parse(j)}
-                        imageUrl={j.imageUrl ?? 'Never'}
-                        title={j.title ?? 'Never'}
-                        numberOfTeammates={j.projectsToCandidateProfiles.length}
-                        tags={j.projectsToTags.map((t) => t.tag)}
-                        startDateTime={j.startDateTime}
-                        endDateTime={j.endDateTime}
+                        imageUrl={j.projectInstance.project.imageUrl ?? 'Never'}
+                        title={j.projectInstance.project.title ?? 'Never'}
+                        numberOfTeammates={j.projectInstance.teamMembers.length}
+                        tags={j.projectInstance.project.projectsToTags.map((t) => t.tag)}
+                        startDateTime={j.projectInstance.project.startDateTime}
+                        endDateTime={j.projectInstance.project.endDateTime}
                     />
                 </div>
             ))}

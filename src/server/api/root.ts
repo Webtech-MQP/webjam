@@ -6,6 +6,7 @@ import { projectSubmissionRouter } from '@/server/api/routers/projectSubmission'
 import { recruiterRouter } from '@/server/api/routers/recruiter';
 import { userRouter } from '@/server/api/routers/user';
 import { createCallerFactory, createTRPCRouter } from '@/server/api/trpc';
+import { projectInstanceRouter } from './routers/projectInstance';
 import { reportRouter } from './routers/reports';
 /**
  * This is the primary router for your server.
@@ -18,6 +19,7 @@ export const appRouter = createTRPCRouter({
     recruiters: recruiterRouter,
     admins: adminRouter,
     projects: projectRouter,
+    projectInstances: projectInstanceRouter,
     projectSubmission: projectSubmissionRouter,
     projectRegistration: projectRegistrationRouter,
     reports: reportRouter,
