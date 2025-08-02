@@ -1,11 +1,12 @@
 import * as authSchema from '@/server/db/schemas/auth';
 import * as userSchema from '@/server/db/schemas/profiles';
 import * as projectSchema from '@/server/db/schemas/projects';
+import * as registrationSchema from '@/server/db/schemas/project-registration';
 import { createId } from '@paralleldrive/cuid2';
 import { drizzle } from 'drizzle-orm/libsql';
 import { reset } from 'drizzle-seed';
 
-const schema = { ...authSchema, ...userSchema, ...projectSchema };
+const schema = { ...authSchema, ...userSchema, ...projectSchema, ...registrationSchema };
 
 async function main() {
     const db = drizzle(process.env.DATABASE_URL!);
@@ -260,6 +261,82 @@ async function main() {
         },
     ]);
     console.log('Project submissions seeded!');
+
+    console.log('Seeding registration questions...');
+    const timeQuestion = {
+        id: createId(),
+        question: 'How much time per week are you willing to dedicate to this project?',
+        type: 'select' as const,
+        options: JSON.stringify(['0-5 hours', '5-10 hours', '10-20 hours', '20+ hours']),
+        required: true,
+        createdBy: userMattH.id,
+    };
+
+    const toolsQuestion = {
+        id: createId(),
+        question: 'What experience do you have with task management tools like Trello, Asana, or similar?',
+        type: 'text' as const,
+        required: true,
+        createdBy: userMattH.id,
+    };
+
+    const teamQuestion = {
+        id: createId(),
+        question: 'Do you have any past experience working in a team?',
+        type: 'text' as const,
+        required: true,
+        createdBy: userMattH.id,
+    };
+
+    await db.insert(schema.projectRegistrationQuestions).values([
+        timeQuestion,
+        toolsQuestion,
+        teamQuestion
+    ]);
+    console.log('Registration questions seeded!');
+
+    console.log('Connecting questions to project...');
+    await db.insert(schema.projectsToRegistrationQuestions).values([
+        {
+            projectId: projectId,
+            questionId: timeQuestion.id,
+            order: 0,
+        },
+        {
+            projectId: projectId,
+            questionId: toolsQuestion.id,
+            order: 1,
+        },
+    ]);
+    // Note: question3 is intentionally not connected to any project
+    console.log('Questions connected to project!');
+
+    console.log('Creating a registration for Brian...');
+    const registration = {
+        id: createId(),
+        projectId: projectId,
+        candidateId: userBrian.id,
+        submittedAt: new Date(),
+        status: 'pending' as const,
+    };
+    await db.insert(schema.projectRegistrations).values(registration);
+
+    console.log('Adding registration answers...');
+    await db.insert(schema.projectRegistrationAnswer).values([
+        {
+            id: createId(),
+            registrationId: registration.id,
+            questionId: timeQuestion.id,
+            answer: '10-20 hours',
+        },
+        {
+            id: createId(),
+            registrationId: registration.id,
+            questionId: toolsQuestion.id,
+            answer: 'I have used Trello for personal projects and Asana during my internship. I am comfortable with both tools and understand the principles of task management and organization.',
+        },
+    ]);
+    console.log('Registration answers added!');
 }
 
 main()
