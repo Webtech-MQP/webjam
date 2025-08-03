@@ -34,11 +34,13 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
                             <Pencil />
                         </Link>
                     </Button>
-                    <Button asChild>
-                        <Link href={`/admin/projects/${project.id}/jamify`}>
-                            Create jams <ArrowRight />
-                        </Link>
-                    </Button>
+                    {project.projectInstances.length == 0 && (
+                        <Button asChild>
+                            <Link href={`/admin/projects/${project.id}/jamify`}>
+                                Create jams <ArrowRight />
+                            </Link>
+                        </Button>
+                    )}
                 </div>
                 <div className="relative flex w-full gap-4">
                     <div className="relative min-w-1/4 h-fill rounded-lg">

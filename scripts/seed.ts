@@ -347,6 +347,62 @@ async function main() {
         },
     ]);
     console.log('Registration answers added!');
+
+    console.log('Creating a registration for Tyler...');
+    const tylerRegistration = {
+        id: createId(),
+        projectId: projectId,
+        candidateId: userTyler.id,
+        submittedAt: new Date(),
+        status: 'pending' as const,
+        preferredRole: 'backend' as const,
+    };
+    await db.insert(schema.projectRegistrations).values(tylerRegistration);
+
+    console.log("Adding Tyler's registration answers...");
+    await db.insert(schema.projectRegistrationAnswer).values([
+        {
+            id: createId(),
+            registrationId: tylerRegistration.id,
+            questionId: timeQuestion.id,
+            answer: '5-10 hours',
+        },
+        {
+            id: createId(),
+            registrationId: tylerRegistration.id,
+            questionId: toolsQuestion.id,
+            answer: 'I have extensive experience with Jira, Asana, and Linear from my previous full-time role. I also built custom project management tools for my team.',
+        },
+    ]);
+    console.log("Tyler's registration answers added!");
+
+    console.log('Creating a registration for Johnny...');
+    const johnnyRegistration = {
+        id: createId(),
+        projectId: projectId,
+        candidateId: userJohnny.id,
+        submittedAt: new Date(),
+        status: 'pending' as const,
+        preferredRole: 'frontend' as const,
+    };
+    await db.insert(schema.projectRegistrations).values(johnnyRegistration);
+
+    console.log("Adding Johnny's registration answers...");
+    await db.insert(schema.projectRegistrationAnswer).values([
+        {
+            id: createId(),
+            registrationId: johnnyRegistration.id,
+            questionId: timeQuestion.id,
+            answer: '0-5 hours',
+        },
+        {
+            id: createId(),
+            registrationId: johnnyRegistration.id,
+            questionId: toolsQuestion.id,
+            answer: "I've only used basic to-do apps like Apple Reminders and Google Tasks. I'm eager to learn more sophisticated project management tools though!",
+        },
+    ]);
+    console.log("Johnny's registration answers added!");
 }
 
 main()
