@@ -1,6 +1,7 @@
 import { adminRouter } from '@/server/api/routers/admin';
 import { candidateRouter } from '@/server/api/routers/candidate';
 import { projectRouter } from '@/server/api/routers/project';
+import { projectRegistrationRouter } from '@/server/api/routers/projectRegistration';
 import { projectSubmissionRouter } from '@/server/api/routers/projectSubmission';
 import { recruiterRouter } from '@/server/api/routers/recruiter';
 import { userRouter } from '@/server/api/routers/user';
@@ -18,6 +19,7 @@ export const appRouter = createTRPCRouter({
     admins: adminRouter,
     projects: projectRouter,
     projectSubmission: projectSubmissionRouter,
+    projectRegistration: projectRegistrationRouter,
     reports: reportRouter,
 });
 
