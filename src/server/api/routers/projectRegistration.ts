@@ -1,7 +1,7 @@
 import { adminProcedure, createTRPCRouter, protectedProcedure } from '@/server/api/trpc';
 import { projectRegistrationAnswer, projectRegistrationQuestions, projectRegistrations, projectsToRegistrationQuestions } from '@/server/db/schemas/project-registration';
 import { createId } from '@paralleldrive/cuid2';
-import { and, eq, inArray } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 import { z } from 'zod';
 
 const questionTypeEnum = z.enum(['text', 'select']);
@@ -17,16 +17,14 @@ export const projectRegistrationRouter = createTRPCRouter({
             })
         )
         .mutation(async ({ ctx, input }) => {
-            await ctx.db
-                .insert(projectRegistrationQuestions)
-                .values({
-                    id: createId(),
-                    question: input.question,
-                    type: input.type,
-                    options: input.options,
-                    required: input.required,
-                    createdBy: ctx.session.user.id,
-                })
+            await ctx.db.insert(projectRegistrationQuestions).values({
+                id: createId(),
+                question: input.question,
+                type: input.type,
+                options: input.options,
+                required: input.required,
+                createdBy: ctx.session.user.id,
+            });
         }),
 
     updateQuestionsToProject: adminProcedure
@@ -37,12 +35,10 @@ export const projectRegistrationRouter = createTRPCRouter({
             })
         )
         .mutation(async ({ ctx, input }) => {
-            // Step 1: Delete all existing connections for the project
-            await ctx.db
-                .delete(projectsToRegistrationQuestions)
-                .where(eq(projectsToRegistrationQuestions.projectId, input.projectId));
+            //delete all existing connections for the project
+            await ctx.db.delete(projectsToRegistrationQuestions).where(eq(projectsToRegistrationQuestions.projectId, input.projectId));
 
-            // Step 2: Insert the new set of connections
+            //insert the new set of connections
             if (input.questionIds.length > 0) {
                 await ctx.db.insert(projectsToRegistrationQuestions).values(
                     input.questionIds.map((questionId, index) => ({
@@ -54,42 +50,6 @@ export const projectRegistrationRouter = createTRPCRouter({
             }
 
             return { connected: input.questionIds.length };
-        }),
-
-    connectQuestionsToProject: adminProcedure
-        .input(
-            z.object({
-                projectId: z.string(),
-                questionIds: z.array(z.string()),
-            })
-        )
-        .mutation(async ({ ctx, input }) => {
-            //check for existing connections
-            const existing = await ctx.db
-                .select()
-                .from(projectsToRegistrationQuestions)
-                .where(
-                    and(
-                        eq(projectsToRegistrationQuestions.projectId, input.projectId),
-                        inArray(projectsToRegistrationQuestions.questionId, input.questionIds)
-                    )
-                );
-            //filter out already connected question IDs
-            const existingIds = new Set(existing.map((e) => e.questionId));
-            const newQuestionIds = input.questionIds.filter((id) => !existingIds.has(id));
-
-            //insert new connections
-            if (newQuestionIds.length > 0) {
-                await ctx.db.insert(projectsToRegistrationQuestions).values(
-                    newQuestionIds.map((questionId, index) => ({
-                        projectId: input.projectId,
-                        questionId,
-                        order: index + existing.length, // Optional: consider fetching max(order) instead
-                    }))
-                );
-            }
-
-            return { connected: newQuestionIds.length };
         }),
 
     getProjectQuestions: protectedProcedure.input(z.object({ projectId: z.string() })).query(async ({ ctx, input }) => {
@@ -155,7 +115,7 @@ export const projectRegistrationRouter = createTRPCRouter({
             .from(projectRegistrationAnswer)
             .where(eq(projectRegistrationAnswer.registrationId, registrations[0]?.id ?? ''));
 
-        // Combine the data
+        //combine the data
         return registrations.map((registration) => ({
             ...registration,
             answers: answers.filter((a) => a.registrationId === registration.id),
