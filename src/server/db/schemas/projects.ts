@@ -103,8 +103,11 @@ export const projectSubmissions = createTable('project_submission', (d) => ({
         .references(() => users.id),
     status: d.text({ enum: ['submitted', 'under-review', 'approved', 'denied'] }).default('submitted'),
     reviewedOn: d.integer({ mode: 'timestamp' }),
-    reviewedBy: d.text({ length: 255 }),
-    notes: d.text({ length: 1000 }),
+    reviewedBy: d
+        .text({ length: 255 })
+        .notNull()
+        .references(() => adminProfiles.userId),
+    notes: d.text({ length: 255 }),
     repositoryURL: d.text({ length: 512 }),
     deploymentURL: d.text({ length: 512 }),
 }));

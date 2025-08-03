@@ -1,6 +1,5 @@
 import { adminProcedure, createTRPCRouter, protectedProcedure, publicProcedure } from '@/server/api/trpc';
-import { candidateProfiles } from '@/server/db/schemas/profiles';
-import { projectRegistrations, projects, projectsTags, tags } from '@/server/db/schemas/projects';
+import { projects, projectsTags, tags } from '@/server/db/schemas/projects';
 import { TRPCError } from '@trpc/server';
 import { eq } from 'drizzle-orm';
 import { z } from 'zod';
@@ -59,7 +58,7 @@ export const projectRouter = createTRPCRouter({
                 creator: true,
                 registrations: {
                     with: {
-                        candidateProfile: true,
+                        candidate: true,
                     },
                 },
                 projectInstances: true,
@@ -199,8 +198,69 @@ export const projectRouter = createTRPCRouter({
     }),
 
     initializeJamCreation: adminProcedure.input(z.object({ id: z.cuid2() })).query(async ({ input, ctx }) => {
-        const project = (await ctx.db.select().from(projects).where(eq(projects.id, input.id)))[0];
+        const project = await ctx.db.query.projects.findFirst({
+            where: (projects, { eq }) => eq(projects.id, input.id),
+            with: {
+                registrations: {
+                    with: {
+                        answers: {
+                            with: {
+                                question: true,
+                            },
+                        },
+                        candidate: true,
+                    },
+                },
+                questions: {
+                    with: {
+                        question: true,
+                    },
+                },
+            },
+        });
+
         if (!project) throw new TRPCError({ code: 'NOT_FOUND', message: 'Project not found' });
-        const registrations = await ctx.db.select().from(projectRegistrations).innerJoin(candidateProfiles, eq(candidateProfiles.userId, projectRegistrations.candidateId)).where(eq(projectRegistrations.projectId, input.id));
+
+        const registrations = project.registrations;
+
+        const preppedRegistrations = registrations.map((r) => ({
+            id: r.candidate.userId,
+            skills: r.answers.map((a) => ({
+                name: a.question.skill,
+                level: a.level,
+            })),
+            preferred_role: r.preferredRole,
+            // TODO: Use actual learning goals
+            learning_goals: ['React', 'JavaScript'],
+            experience_level: 'Intermediate',
+        }));
+
+        const response = await fetch('http://localhost:8000/api/match', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                users: preppedRegistrations,
+                jam: {
+                    id: project.id,
+                    required_skills: new Set(project.questions.map((q) => q.question.skill)).values(),
+                    team_size: Math.floor(registrations.length / project.numberOfMembers),
+                },
+                weights: {
+                    skill_diversity: 1,
+                    experience_balance: 1,
+                    learning_opportunity: 1,
+                    role_preference: 1,
+                },
+            }),
+        });
+
+        if (!response.ok) {
+            throw new TRPCError({
+                code: 'INTERNAL_SERVER_ERROR',
+                message: 'Failed to initialize jam creation',
+            });
+        }
     }),
 });
