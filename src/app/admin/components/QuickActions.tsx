@@ -4,7 +4,6 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { BarChart3, FileText, Flag, Users } from 'lucide-react';
 import Link from 'next/link';
-import AdminCreateEditProject from './create-edit-project';
 
 export function QuickActions() {
     return (
@@ -13,7 +12,17 @@ export function QuickActions() {
                 <CardTitle className="text-lg text-white">Quick Actions</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-                <AdminCreateEditProject projectId={undefined} />
+                <Button
+                    asChild
+                    className="w-full justify-start rounded-lg border-0 bg-orange-600/20 text-orange-400 hover:bg-orange-500/50 px-3 py-2"
+                >
+                    <Link href="/admin/projects/create">
+                        <span className="w-6 h-6 rounded-lg flex items-center justify-center mr-3">
+                            <FileText className="w-4 h-4" />
+                        </span>
+                        Create Project
+                    </Link>
+                </Button>
                 <Button
                     asChild
                     className="w-full justify-start rounded-lg border-0 bg-orange-600/20 text-orange-400 hover:bg-orange-500/50 px-3 py-2"

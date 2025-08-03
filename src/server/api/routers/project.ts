@@ -223,6 +223,15 @@ export const projectRouter = createTRPCRouter({
 
         const registrations = project.registrations;
 
+        if (registrations.length == 0) {
+            throw new TRPCError({
+                code: 'BAD_REQUEST',
+                message: 'No registrations found for this project',
+            });
+        } else if (registrations.length < project.numberOfMembers) {
+            return { teams: [registrations.map((r) => r.candidate.userId)] };
+        }
+
         const preppedRegistrations = registrations.map((r) => ({
             id: r.candidate.userId,
             skills: r.answers.map((a) => ({

@@ -1,6 +1,7 @@
 import { DashboardCard } from '@/components/dashboard-card';
 import { api } from '@/trpc/server';
-import { Link } from 'next/link';
+import Link from 'next/link';
+import { notFound } from 'next/navigation';
 import { JamEditor } from './_components/jam-editor';
 
 export default async function Page({ params }: { params: Promise<{ id: string }> }) {
@@ -8,6 +9,8 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
     const matches = await api.projects.initializeJamCreation({ id });
     const profiles = await api.candidates.getMany({ ids: matches.teams.flat() });
     const project = await api.projects.getOne({ id });
+
+    if (!project) notFound();
 
     if (project?.projectInstances.length > 0) {
         return (

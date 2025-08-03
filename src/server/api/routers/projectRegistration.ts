@@ -1,10 +1,14 @@
 import { adminProcedure, createTRPCRouter, protectedProcedure } from '@/server/api/trpc';
 import { projectRegistrationAnswer, projectRegistrationQuestions, projectRegistrations, projectsToRegistrationQuestions } from '@/server/db/schemas/project-registration';
+import { GoogleGenAI, Type } from '@google/genai';
 import { createId } from '@paralleldrive/cuid2';
+import { TRPCError } from '@trpc/server';
 import { eq } from 'drizzle-orm';
-import { z } from 'zod';
+import { z, ZodError } from 'zod';
 
 const questionTypeEnum = z.enum(['text', 'select']);
+
+const ai = new GoogleGenAI({ apiKey: process.env.GOOGLE_API_KEY });
 
 export const projectRegistrationRouter = createTRPCRouter({
     createQuestion: adminProcedure
@@ -14,6 +18,7 @@ export const projectRegistrationRouter = createTRPCRouter({
                 type: questionTypeEnum,
                 options: z.string().optional(),
                 required: z.boolean().default(true),
+                skill: z.string(),
             })
         )
         .mutation(async ({ ctx, input }) => {
@@ -24,6 +29,7 @@ export const projectRegistrationRouter = createTRPCRouter({
                 options: input.options,
                 required: input.required,
                 createdBy: ctx.session.user.id,
+                skill: input.skill,
             });
         }),
 
@@ -82,6 +88,7 @@ export const projectRegistrationRouter = createTRPCRouter({
                         answer: z.string(),
                     })
                 ),
+                preferredRole: z.enum(['frontend', 'backend', 'fullstack']),
             })
         )
         .mutation(async ({ ctx, input }) => {
@@ -93,20 +100,108 @@ export const projectRegistrationRouter = createTRPCRouter({
                 candidateId: ctx.session.user.id,
                 submittedAt: new Date(),
                 status: 'pending',
+                preferredRole: input.preferredRole,
             });
 
-            await ctx.db.insert(projectRegistrationAnswer).values(
-                input.answers.map((answer) => ({
-                    id: createId(),
-                    registrationId,
-                    questionId: answer.questionId,
-                    answer: answer.answer,
-                }))
-            );
+            const questions = await ctx.db.query.projectRegistrationQuestions.findMany({
+                where: (projectRegistrationQuestions, { inArray }) =>
+                    inArray(
+                        projectRegistrationQuestions.id,
+                        input.answers.map((a) => a.questionId)
+                    ),
+            });
 
-            return ctx.db.select().from(projectRegistrations).where(eq(projectRegistrations.id, registrationId));
+            const answers = input.answers.map((answer) => ({
+                skill: questions.find((q) => q.id === answer.questionId)?.skill || 'unknown',
+                questionId: answer.questionId,
+                question: questions.find((q) => q.id === answer.questionId)?.question || '',
+                answer: answer.answer,
+            }));
+
+            const prompt = `You are a recruiter evaluating the skills of a candidate. Below, in JSON format, the candidate has responded to a list of questions related to a project registration. Your task is to analyze the answers and score the candidates answer related to the skill on a scale of 1 to 10.
+                  ANSWERS:
+                  ${JSON.stringify(answers, null, 2)}`;
+
+            const chat = ai.chats.create({
+                model: 'gemini-2.0-flash-001',
+                config: {
+                    systemInstruction: prompt,
+                    thinkingConfig: {
+                        thinkingBudget: 0,
+                    },
+                    responseMimeType: 'application/json',
+                    responseJsonSchema: {
+                        type: Type.ARRAY,
+                        items: {
+                            type: Type.OBJECT,
+                            properties: {
+                                questionId: { type: Type.STRING, enum: input.answers.map((a) => a.questionId) },
+                                score: { type: Type.NUMBER, minimum: 1, maximum: 10 },
+                            },
+                            required: ['questionId', 'score'],
+                        },
+                    },
+                },
+            });
+
+            let response = await chat.sendMessage({
+                message: JSON.stringify({ answers }),
+            });
+
+            while (true) {
+                console.log(response.text);
+
+                if (!response.text) {
+                    throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'No response from AI' });
+                }
+
+                try {
+                    const jsonResponse = JSON.parse(response.text) as unknown;
+
+                    const parsedResponse = z
+                        .array(
+                            z.strictObject({
+                                questionId: z.enum(input.answers.map((a) => a.questionId)),
+                                score: z.number().min(1).max(10),
+                            })
+                        )
+                        .superRefine((a, ctx) => {
+                            if (a.map((a) => a.questionId).length != new Set(a.map((a) => a.questionId)).size) {
+                                ctx.addIssue({ message: 'No duplicates allowed' });
+                            }
+
+                            if (!answers.map((x) => x.questionId).every((x) => a.map((y) => y.questionId).includes(x))) {
+                                ctx.addIssue({ message: 'All questions must be answered' });
+                            }
+                        })
+                        .parse(jsonResponse);
+
+                    const answerScores = parsedResponse.map((answer) => ({
+                        registrationId,
+                        questionId: answer.questionId,
+                        answer: input.answers.find((a) => a.questionId === answer.questionId)?.answer || '',
+                        level: answer.score,
+                    }));
+
+                    console.log('YOU SHOULD HAVE STOPPD');
+
+                    return ctx.db.insert(projectRegistrationAnswer).values(answerScores).returning();
+                } catch (e) {
+                    console.error(e);
+                    if (e instanceof ZodError) {
+                        response = await chat.sendMessage({
+                            message: `This was formatted incorrectly. See the Zod Error for context: ${e.issues.map((i) => i.path.join('.') + ':' + i.code).join(',')}. Try again with the same input. Do not include any additional explanation.`,
+                        });
+                        continue;
+                    } else {
+                        response = await chat.sendMessage({
+                            message: `Your response was not valid JSON. Try again with the same input. Do not include any additional explanation.`,
+                        });
+                        continue;
+                    }
+                }
+            }
         }),
-
     getProjectRegistrations: protectedProcedure.input(z.object({ projectId: z.string() })).query(async ({ ctx, input }) => {
         const registrations = await ctx.db.select().from(projectRegistrations).where(eq(projectRegistrations.projectId, input.projectId));
 

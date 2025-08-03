@@ -1,6 +1,6 @@
 import { createId } from '@paralleldrive/cuid2';
 import { relations, sql } from 'drizzle-orm';
-import { primaryKey } from 'drizzle-orm/sqlite-core';
+import { primaryKey, unique } from 'drizzle-orm/sqlite-core';
 import { createTable } from '../schema-util';
 import { adminProfiles, candidateProfiles } from './profiles';
 import { projects } from './projects';
@@ -23,27 +23,31 @@ export const projectRegistrationQuestionsRelations = relations(projectRegistrati
     answers: many(projectRegistrationAnswer),
 }));
 
-export const projectRegistrations = createTable('project_registration', (d) => ({
-    id: d
-        .text()
-        .$defaultFn(() => createId())
-        .primaryKey(),
-    projectId: d
-        .text()
-        .notNull()
-        .references(() => projects.id, { onDelete: 'cascade' }),
-    candidateId: d
-        .text()
-        .notNull()
-        .references(() => candidateProfiles.userId, { onDelete: 'cascade' }),
-    submittedAt: d.integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
-    status: d.text({ enum: ['pending', 'accepted', 'rejected'] }).default('pending'),
-    preferredRole: d.text({ enum: ['frontend', 'backend', 'fullstack'] }).notNull(),
-    learningGoals: d
-        .text({ mode: 'json' })
-        .$type<string[]>()
-        .default(sql`(json_array())`),
-}));
+export const projectRegistrations = createTable(
+    'project_registration',
+    (d) => ({
+        id: d
+            .text()
+            .$defaultFn(() => createId())
+            .primaryKey(),
+        projectId: d
+            .text()
+            .notNull()
+            .references(() => projects.id, { onDelete: 'cascade' }),
+        candidateId: d
+            .text()
+            .notNull()
+            .references(() => candidateProfiles.userId, { onDelete: 'cascade' }),
+        submittedAt: d.integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
+        status: d.text({ enum: ['pending', 'accepted', 'rejected'] }).default('pending'),
+        preferredRole: d.text({ enum: ['frontend', 'backend', 'fullstack'] }).notNull(),
+        learningGoals: d
+            .text({ mode: 'json' })
+            .$type<string[]>()
+            .default(sql`(json_array())`),
+    }),
+    (t) => [unique().on(t.projectId, t.candidateId)]
+);
 
 export const projectRegistrationRelations = relations(projectRegistrations, ({ one, many }) => ({
     project: one(projects, {

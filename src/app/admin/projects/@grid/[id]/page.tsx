@@ -14,6 +14,8 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
 
     if (!project) return <div>Not found!</div>;
 
+    const getDaysUntil = (targetDate: Date) => Math.ceil((targetDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
+
     return (
         <div className="h-full flex flex-col gap-2 p-4">
             <DashboardCard>
@@ -22,7 +24,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
                 <div className="flex gap-2 my-3">
                     <Badge className="bg-indigo-500">{project.registrations.length} registrations</Badge>
                     <Badge className="bg-indigo-500">
-                        <Clock /> TODO: how long until jam starts
+                        <Clock /> {getDaysUntil(project.startDateTime)} day{getDaysUntil(project.startDateTime) != 1 && 's'} until project starts
                     </Badge>
                     <Button
                         className="ml-auto"
@@ -34,7 +36,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
                             <Pencil />
                         </Link>
                     </Button>
-                    {project.projectInstances.length == 0 && (
+                    {project.projectInstances.length == 0 && project.registrations.length > 0 && (
                         <Button asChild>
                             <Link href={`/admin/projects/${project.id}/jamify`}>
                                 Create jams <ArrowRight />
@@ -42,7 +44,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
                         </Button>
                     )}
                 </div>
-                <div className="relative flex w-full gap-4">
+                <div className="relative flex w-full gap-8 pt-4">
                     <div className="relative min-w-1/4 h-fill rounded-lg">
                         <Image
                             src="https://placehold.co/150/png"
@@ -51,13 +53,6 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
                             objectFit="cover"
                             className="rounded"
                         />
-                        <a
-                            target="_blank"
-                            href="https://example.com"
-                            className="group absolute flex h-full w-full items-center bg-black/50 hover:bg-black/70"
-                        >
-                            <ExternalLink className="group-hover:stroke-primary mx-auto" />
-                        </a>
                     </div>
                     <div className="flex flex-col items-center justify-center gap-2">
                         <ClipboardPenLine className={cn(project.status === 'upcoming' && project.projectInstances.length == 0 && 'animate-pulse text-red-300')} />
@@ -68,7 +63,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
                         <MoveDown className="text-stone-500" />
                         <Gavel className={cn(project.status === 'completed' && 'animate-pulse text-red-300')} />
                     </div>
-                    <div>{project.description}</div>
+                    <div className="text-muted-foreground hover:text-white transition-colors">{project.description}</div>
                 </div>
             </DashboardCard>
             <div className="flex flex-1 gap-2 overflow-y-auto">
