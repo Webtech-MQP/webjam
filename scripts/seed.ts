@@ -280,6 +280,7 @@ async function main() {
         options: JSON.stringify(['0-5 hours', '5-10 hours', '10-20 hours', '20+ hours']),
         required: true,
         createdBy: userMattH.id,
+        skill: 'time-management',
     };
 
     const toolsQuestion = {
@@ -288,6 +289,7 @@ async function main() {
         type: 'text' as const,
         required: true,
         createdBy: userMattH.id,
+        skill: 'trello',
     };
 
     const teamQuestion = {
@@ -296,6 +298,7 @@ async function main() {
         type: 'text' as const,
         required: true,
         createdBy: userMattH.id,
+        skill: 'teamwork',
     };
 
     await db.insert(schema.projectRegistrationQuestions).values([timeQuestion, toolsQuestion, teamQuestion]);
@@ -324,6 +327,7 @@ async function main() {
         candidateId: userBrian.id,
         submittedAt: new Date(),
         status: 'pending' as const,
+        preferredRole: 'fullstack' as const,
     };
     await db.insert(schema.projectRegistrations).values(registration);
 

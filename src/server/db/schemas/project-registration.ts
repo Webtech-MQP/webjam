@@ -15,6 +15,7 @@ export const projectRegistrationQuestions = createTable('project_registration_qu
     options: d.text(),
     required: d.integer({ mode: 'boolean' }).default(true),
     createdBy: d.text({ length: 255 }).references(() => adminProfiles.userId, { onDelete: 'set null' }),
+    skill: d.text({ length: 255 }).notNull(),
 }));
 
 export const projectRegistrationQuestionsRelations = relations(projectRegistrationQuestions, ({ many }) => ({
@@ -37,6 +38,11 @@ export const projectRegistrations = createTable('project_registration', (d) => (
         .references(() => candidateProfiles.userId, { onDelete: 'cascade' }),
     submittedAt: d.integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
     status: d.text({ enum: ['pending', 'accepted', 'rejected'] }).default('pending'),
+    preferredRole: d.text({ enum: ['frontend', 'backend', 'fullstack'] }).notNull(),
+    learningGoals: d
+        .text({ mode: 'json' })
+        .$type<string[]>()
+        .default(sql`json_array()`),
 }));
 
 export const projectRegistrationRelations = relations(projectRegistrations, ({ one, many }) => ({
@@ -65,6 +71,8 @@ export const projectRegistrationAnswer = createTable('project_registration_answe
         .notNull()
         .references(() => projectRegistrationQuestions.id, { onDelete: 'cascade' }),
     answer: d.text({ length: 2048 }).notNull(),
+    // Gemini-determined level.
+    level: d.integer({ mode: 'number' }).default(0),
 }));
 
 export const projectRegistrationAnswerRelations = relations(projectRegistrationAnswer, ({ one }) => ({
