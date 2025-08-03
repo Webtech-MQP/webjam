@@ -353,6 +353,7 @@ export default function AdminCreateEditProject(props: AdminCreateEditProjectProp
                     })}
                 </div>
             )}
+            <ProjectRegistrationSection projectId={props.projectId} />
             <Button onClick={onSubmit}>{isNewProject ? 'Create' : 'Save Changes'}</Button>
             <Button
                 variant="secondary"

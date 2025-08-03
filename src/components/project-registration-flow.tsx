@@ -3,11 +3,11 @@
 import { api } from '@/trpc/react';
 import { Check, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 import { Button } from './ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from './ui/dialog';
 import { Label } from './ui/label';
 import { Textarea } from './ui/textarea';
-import { toast } from 'sonner';
 
 interface ProjectRegistrationFlowProps {
     projectId: string;
@@ -40,9 +40,9 @@ export function ProjectRegistrationFlow({ projectId, open, onClose }: ProjectReg
 
     const updateAnswer = (answer: string) => {
         if (!currentQuestion) return;
-        
-        setAnswers(prev => {
-            const existingIndex = prev.findIndex(a => a.questionId === currentQuestion.id);
+
+        setAnswers((prev) => {
+            const existingIndex = prev.findIndex((a) => a.questionId === currentQuestion.id);
             if (existingIndex >= 0) {
                 const newAnswers = [...prev];
                 newAnswers[existingIndex] = { questionId: currentQuestion.id, answer };
@@ -53,7 +53,7 @@ export function ProjectRegistrationFlow({ projectId, open, onClose }: ProjectReg
     };
 
     const getCurrentAnswer = () => {
-        return answers.find(a => a.questionId === currentQuestion?.id)?.answer ?? '';
+        return answers.find((a) => a.questionId === currentQuestion?.id)?.answer ?? '';
     };
 
     const canProceed = () => {
@@ -64,17 +64,19 @@ export function ProjectRegistrationFlow({ projectId, open, onClose }: ProjectReg
 
     const handleNext = () => {
         if (!canProceed()) return;
-        setStep(prev => prev + 1);
+        setStep((prev) => prev + 1);
     };
 
     const handleBack = () => {
-        setStep(prev => prev - 1);
+        setStep((prev) => prev - 1);
     };
 
     const handleSubmit = async () => {
         const promise = createRegistration.mutateAsync({
             projectId,
             answers,
+            //TODO: fix
+            preferredRole: 'fullstack',
         });
 
         toast.promise(promise, {
@@ -86,9 +88,7 @@ export function ProjectRegistrationFlow({ projectId, open, onClose }: ProjectReg
         try {
             await promise;
             onClose(true);
-        } catch (err) {
-
-        }
+        } catch (err) {}
     };
 
     const renderQuestionInput = () => {
@@ -103,7 +103,10 @@ export function ProjectRegistrationFlow({ projectId, open, onClose }: ProjectReg
                 return (
                     <div className="space-y-3">
                         {options.map((option) => (
-                            <div key={option} className="flex items-center space-x-3">
+                            <div
+                                key={option}
+                                className="flex items-center space-x-3"
+                            >
                                 <div className="relative flex items-center">
                                     <input
                                         type="radio"
@@ -116,8 +119,8 @@ export function ProjectRegistrationFlow({ projectId, open, onClose }: ProjectReg
                                     />
                                     <div className="pointer-events-none absolute top-1/2 left-1/2 h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#d37c04] opacity-0 transition-opacity peer-checked:opacity-100"></div>
                                 </div>
-                                <Label 
-                                    htmlFor={option} 
+                                <Label
+                                    htmlFor={option}
                                     className="text-sm font-normal cursor-pointer select-none text-stone-200 peer-checked:text-white"
                                 >
                                     {option}
@@ -145,23 +148,22 @@ export function ProjectRegistrationFlow({ projectId, open, onClose }: ProjectReg
             <div className="space-y-4">
                 <DialogHeader>
                     <DialogTitle>Review Your Answers</DialogTitle>
-                    <DialogDescription>
-                        Please review your answers before submitting.
-                    </DialogDescription>
+                    <DialogDescription>Please review your answers before submitting.</DialogDescription>
                 </DialogHeader>
 
                 <div className="space-y-4 max-h-[60vh] overflow-y-auto">
                     {questions.data.map((question, index) => {
-                        const answer = answers.find(a => a.questionId === question.id);
+                        const answer = answers.find((a) => a.questionId === question.id);
                         return (
-                            <div key={question.id} className="space-y-2">
+                            <div
+                                key={question.id}
+                                className="space-y-2"
+                            >
                                 <Label className="font-medium">
                                     {index + 1}. {question.question}
                                     {question.required && <span className="text-red-500 ml-1">*</span>}
                                 </Label>
-                                <p className="text-sm text-muted-foreground border p-2 rounded-md">
-                                    {answer?.answer || 'No answer provided'}
-                                </p>
+                                <p className="text-sm text-muted-foreground border p-2 rounded-md">{answer?.answer || 'No answer provided'}</p>
                             </div>
                         );
                     })}
@@ -197,8 +199,14 @@ export function ProjectRegistrationFlow({ projectId, open, onClose }: ProjectReg
     };
 
     return (
-        <Dialog open={open} onOpenChange={onClose}>
-            <DialogContent style={{ zIndex: 999 }} className="sm:max-w-[600px]">
+        <Dialog
+            open={open}
+            onOpenChange={onClose}
+        >
+            <DialogContent
+                style={{ zIndex: 999 }}
+                className="sm:max-w-[600px]"
+            >
                 {!showSummary ? (
                     questions.data && currentQuestion ? (
                         <div className="space-y-4">

@@ -1,15 +1,14 @@
 'use client';
 
-import { api } from '@/trpc/react';
-import { GripVertical } from 'lucide-react';
-import { Plus, X } from 'lucide-react';
-import { useState, useEffect, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
+import type { RouterOutputs } from '@/trpc/react';
+import { api } from '@/trpc/react';
+import { GripVertical, Plus, X } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 import CreateRegistrationQuestion from './CreateRegistrationQuestion';
-import type { RouterOutputs } from '@/trpc/react';
 
 type QuestionType = 'text' | 'select';
 
@@ -34,10 +33,7 @@ export default function ProjectRegistrationSection({ projectId, defaultQuestions
 
     const allQuestions = api.projectRegistration.getAllQuestions.useQuery();
     const connectQuestions = api.projectRegistration.updateQuestionsToProject.useMutation();
-    const projectQuestions = api.projectRegistration.getProjectQuestions.useQuery(
-        { projectId: projectId ?? '' },
-        { enabled: !!projectId }
-    );
+    const projectQuestions = api.projectRegistration.getProjectQuestions.useQuery({ projectId: projectId ?? '' }, { enabled: !!projectId });
 
     const utils = api.useUtils();
 
@@ -49,39 +45,26 @@ export default function ProjectRegistrationSection({ projectId, defaultQuestions
             type: q.type as QuestionType,
             options: q.options,
             required: q.required ?? true,
-            order: 'order' in q ? q.order : 0
+            order: 'order' in q ? q.order : 0,
         };
     };
 
     useEffect(() => {
         if (projectQuestions.data) {
-            const validQuestions = projectQuestions.data
-                .map(transformQuestion)
-                .filter((q): q is Question => q !== null);
-            
+            const validQuestions = projectQuestions.data.map(transformQuestion).filter((q): q is Question => q !== null);
+
             setSelectedQuestions(validQuestions);
         }
     }, [projectQuestions.data]);
 
-    const availableQuestions = useMemo(() => 
-        allQuestions.data?.map(transformQuestion)
-            .filter((q): q is Question => 
-                q !== null && !selectedQuestions.some(sq => sq.id === q.id)
-            ) ?? [], 
-    [allQuestions.data, selectedQuestions]);
+    const availableQuestions = useMemo(() => allQuestions.data?.map(transformQuestion).filter((q): q is Question => q !== null && !selectedQuestions.some((sq) => sq.id === q.id)) ?? [], [allQuestions.data, selectedQuestions]);
 
     const addQuestion = (question: Question) => {
-        setSelectedQuestions((prev) => [
-            ...prev,
-            { ...question, order: prev.length }
-        ]);
+        setSelectedQuestions((prev) => [...prev, { ...question, order: prev.length }]);
     };
 
     const removeQuestion = (questionId: string) => {
-        setSelectedQuestions((prev) => 
-            prev.filter((q) => q.id !== questionId)
-                .map((q, index) => ({ ...q, order: index }))
-        );
+        setSelectedQuestions((prev) => prev.filter((q) => q.id !== questionId).map((q, index) => ({ ...q, order: index })));
     };
 
     const moveQuestion = (fromIndex: number, toIndex: number) => {
@@ -100,7 +83,7 @@ export default function ProjectRegistrationSection({ projectId, defaultQuestions
 
         const promise = connectQuestions.mutateAsync({
             projectId,
-            questionIds: selectedQuestions.map(q => q.id),
+            questionIds: selectedQuestions.map((q) => q.id),
         });
 
         toast.promise(promise, {
@@ -112,17 +95,22 @@ export default function ProjectRegistrationSection({ projectId, defaultQuestions
         try {
             await promise;
             setDialogOpen(false);
-        } catch (err) {
-        }
+        } catch (err) {}
     };
 
     return (
         <div className="space-y-4">
             <div className="flex items-center justify-between">
                 <Label>Registration Questions</Label>
-                <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+                <Dialog
+                    open={dialogOpen}
+                    onOpenChange={setDialogOpen}
+                >
                     <DialogTrigger asChild>
-                        <Button variant="outline" size="sm">
+                        <Button
+                            variant="outline"
+                            size="sm"
+                        >
                             <Plus className="mr-2 h-4 w-4" />
                             Manage Questions
                         </Button>
@@ -130,9 +118,7 @@ export default function ProjectRegistrationSection({ projectId, defaultQuestions
                     <DialogContent className="max-w-2xl">
                         <DialogHeader>
                             <DialogTitle>Manage Registration Questions</DialogTitle>
-                            <DialogDescription>
-                                Add or remove questions that candidates need to answer when registering for this project.
-                            </DialogDescription>
+                            <DialogDescription>Add or remove questions that candidates need to answer when registering for this project.</DialogDescription>
                         </DialogHeader>
 
                         <div className="grid gap-6">
@@ -176,11 +162,7 @@ export default function ProjectRegistrationSection({ projectId, defaultQuestions
                                             </Button>
                                         </div>
                                     ))}
-                                    {selectedQuestions.length === 0 && (
-                                        <div className="p-4 text-center text-sm text-muted-foreground">
-                                            No questions selected
-                                        </div>
-                                    )}
+                                    {selectedQuestions.length === 0 && <div className="p-4 text-center text-sm text-muted-foreground">No questions selected</div>}
                                 </div>
                             </div>
 
@@ -207,11 +189,7 @@ export default function ProjectRegistrationSection({ projectId, defaultQuestions
                                             </Button>
                                         </div>
                                     ))}
-                                    {availableQuestions.length === 0 && (
-                                        <div className="p-4 text-center text-sm text-muted-foreground">
-                                            No available questions
-                                        </div>
-                                    )}
+                                    {availableQuestions.length === 0 && <div className="p-4 text-center text-sm text-muted-foreground">No available questions</div>}
                                 </div>
                             </div>
                         </div>
@@ -249,11 +227,7 @@ export default function ProjectRegistrationSection({ projectId, defaultQuestions
                         </div>
                     </div>
                 ))}
-                {selectedQuestions.length === 0 && (
-                    <div className="p-4 text-center text-sm text-muted-foreground">
-                        No registration questions set up yet
-                    </div>
-                )}
+                {selectedQuestions.length === 0 && <div className="p-4 text-center text-sm text-muted-foreground">No registration questions set up yet</div>}
             </div>
         </div>
     );

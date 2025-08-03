@@ -1,15 +1,15 @@
 'use client';
 
-import { api } from '@/trpc/react';
-import { Plus, X } from 'lucide-react';
-import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogOverlay, DialogPortal, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
+import { Textarea } from '@/components/ui/textarea';
+import { api } from '@/trpc/react';
+import { Plus, X } from 'lucide-react';
+import { useState } from 'react';
 import { toast } from 'sonner';
 
 interface QuestionFormState {
@@ -17,6 +17,7 @@ interface QuestionFormState {
     type: 'text' | 'select';
     options: string[];
     required: boolean;
+    skill: string;
 }
 
 const defaultForm: QuestionFormState = {
@@ -24,6 +25,7 @@ const defaultForm: QuestionFormState = {
     type: 'text',
     options: [],
     required: true,
+    skill: '',
 };
 
 export default function CreateRegistrationQuestion() {
@@ -36,18 +38,18 @@ export default function CreateRegistrationQuestion() {
 
     const addOption = () => {
         if (optionInput.trim()) {
-            setFormState(prev => ({
+            setFormState((prev) => ({
                 ...prev,
-                options: [...prev.options, optionInput.trim()]
+                options: [...prev.options, optionInput.trim()],
             }));
             setOptionInput('');
         }
     };
 
     const removeOption = (index: number) => {
-        setFormState(prev => ({
+        setFormState((prev) => ({
             ...prev,
-            options: prev.options.filter((_, i) => i !== index)
+            options: prev.options.filter((_, i) => i !== index),
         }));
     };
 
@@ -57,6 +59,7 @@ export default function CreateRegistrationQuestion() {
             type: formState.type,
             options: formState.options.length > 0 ? JSON.stringify(formState.options) : undefined,
             required: formState.required,
+            skill: formState.skill,
         });
 
         toast.promise(promise, {
@@ -70,7 +73,7 @@ export default function CreateRegistrationQuestion() {
             await utils.projectRegistration.getAllQuestions.invalidate();
             onClose();
         } catch (err) {
-
+            console.error(err);
         }
     };
 
@@ -81,7 +84,10 @@ export default function CreateRegistrationQuestion() {
     };
 
     return (
-        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <Dialog
+            open={dialogOpen}
+            onOpenChange={setDialogOpen}
+        >
             <DialogTrigger asChild>
                 <Button
                     variant="outline"
@@ -97,9 +103,7 @@ export default function CreateRegistrationQuestion() {
                 <DialogContent>
                     <DialogHeader>
                         <DialogTitle>Create Registration Question</DialogTitle>
-                        <DialogDescription>
-                            Create a new question for project registration forms.
-                        </DialogDescription>
+                        <DialogDescription>Create a new question for project registration forms.</DialogDescription>
                     </DialogHeader>
 
                     <div className="grid gap-4 py-4">
@@ -109,7 +113,17 @@ export default function CreateRegistrationQuestion() {
                                 id="question"
                                 placeholder="Enter your question..."
                                 value={formState.question}
-                                onChange={(e) => setFormState(prev => ({ ...prev, question: e.target.value }))}
+                                onChange={(e) => setFormState((prev) => ({ ...prev, question: e.target.value }))}
+                            />
+                        </div>
+
+                        <div className="grid gap-2">
+                            <Label htmlFor="skill">Skill Category</Label>
+                            <Input
+                                id="skill"
+                                placeholder="e.g., Programming, Design, Communication..."
+                                value={formState.skill}
+                                onChange={(e) => setFormState((prev) => ({ ...prev, skill: e.target.value }))}
                             />
                         </div>
 
@@ -117,9 +131,7 @@ export default function CreateRegistrationQuestion() {
                             <Label htmlFor="type">Question Type</Label>
                             <Select
                                 value={formState.type}
-                                onValueChange={(value: 'text' | 'select' ) => 
-                                    setFormState(prev => ({ ...prev, type: value }))
-                                }
+                                onValueChange={(value: 'text' | 'select') => setFormState((prev) => ({ ...prev, type: value }))}
                             >
                                 <SelectTrigger id="type">
                                     <SelectValue placeholder="Select a question type" />
@@ -131,7 +143,7 @@ export default function CreateRegistrationQuestion() {
                             </Select>
                         </div>
 
-                        {(formState.type === 'select') && (
+                        {formState.type === 'select' && (
                             <div className="grid gap-2">
                                 <Label>Options</Label>
                                 <div className="flex gap-2">
@@ -178,9 +190,7 @@ export default function CreateRegistrationQuestion() {
                             <Switch
                                 id="required"
                                 checked={formState.required}
-                                onCheckedChange={(checked) => 
-                                    setFormState(prev => ({ ...prev, required: checked }))
-                                }
+                                onCheckedChange={(checked) => setFormState((prev) => ({ ...prev, required: checked }))}
                             />
                             <Label htmlFor="required">Required Question</Label>
                         </div>
@@ -195,9 +205,7 @@ export default function CreateRegistrationQuestion() {
                         </Button>
                         <Button
                             onClick={onSubmit}
-                            disabled={!formState.question.trim() || 
-                                    ((formState.type === 'select') &&
-                                     formState.options.length === 0)}
+                            disabled={!formState.question.trim() || (formState.type === 'select' && formState.options.length === 0)}
                         >
                             Create Question
                         </Button>
