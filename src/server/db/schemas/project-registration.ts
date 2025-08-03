@@ -11,7 +11,7 @@ export const projectRegistrationQuestions = createTable('project_registration_qu
         .$defaultFn(() => createId())
         .primaryKey(),
     question: d.text({ length: 512 }).notNull(),
-    type: d.text({ enum: ['text', 'select', 'multi-select'] }).default('text'),
+    type: d.text({ enum: ['text', 'select'] }).default('text'),
     options: d.text(),
     required: d.integer({ mode: 'boolean' }).default(true),
     createdBy: d.text({ length: 255 }).references(() => adminProfiles.userId, { onDelete: 'set null' }),
