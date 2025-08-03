@@ -19,6 +19,7 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState, type ChangeEvent } from 'react';
 import { toast } from 'sonner';
+import ProjectRegistrationSection from './ProjectRegistrationSection';
 
 interface CreateProjectFormSchema {
     title: string;
@@ -370,6 +371,7 @@ export default function AdminCreateEditProject(props: AdminCreateEditProjectProp
                                 })}
                             </div>
                         )}
+                        <ProjectRegistrationSection projectId={props.projectId}/>
                         <Button onClick={onSubmit}>{isNewProject ? 'Create' : 'Save Changes'}</Button>
                         <Button
                             variant="secondary"

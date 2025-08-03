@@ -259,6 +259,7 @@ export default function JamFinderClient() {
                                         />
                                         {isModalOpen && selectedProject === project.id && (
                                             <ProjectModal
+                                                id = {project.id}
                                                 title={project.title ?? 'Untitled Jam'}
                                                 subtitle={project.subtitle ?? ''}
                                                 starts={format(project.startDateTime ?? new Date(), 'MMM dd, yyyy')}
@@ -318,6 +319,7 @@ export default function JamFinderClient() {
                                         />
                                         {isModalOpen && selectedProject === project.id && (
                                             <ProjectModal
+                                                id = {project.id}
                                                 title={project.title ?? 'Untitled Jam'}
                                                 subtitle={project.subtitle ?? ''}
                                                 starts={format(project.startDateTime ?? new Date(), 'MMM dd, yyyy')}
