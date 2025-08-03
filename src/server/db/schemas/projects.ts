@@ -23,6 +23,7 @@ export const projects = createTable('project', (d) => ({
     // NOTE: The start and end date are soon to disappear! Do not use!
     startDateTime: d.integer({ mode: 'timestamp' }).notNull(),
     endDateTime: d.integer({ mode: 'timestamp' }).notNull(),
+    registerBy: d.integer({ mode: 'timestamp' }),
     createdAt: d
         .integer({ mode: 'timestamp' })
         .notNull()

@@ -229,7 +229,7 @@ export const projectRouter = createTRPCRouter({
                 name: a.question.skill,
                 level: a.level,
             })),
-            preferred_role: r.preferredRole,
+            role_preference: r.preferredRole,
             // TODO: Use actual learning goals
             learning_goals: ['React', 'JavaScript'],
             experience_level: 'Intermediate',
@@ -244,8 +244,8 @@ export const projectRouter = createTRPCRouter({
                 users: preppedRegistrations,
                 jam: {
                     id: project.id,
-                    required_skills: new Set(project.questions.map((q) => q.question.skill)).values(),
-                    team_size: Math.floor(registrations.length / project.numberOfMembers),
+                    required_skills: project.questions.map((q) => q.question.skill),
+                    team_size: project.numberOfMembers,
                 },
                 weights: {
                     skill_diversity: 1,
@@ -262,5 +262,11 @@ export const projectRouter = createTRPCRouter({
                 message: 'Failed to initialize jam creation',
             });
         }
+
+        const body = (await response.json()) as { teams: string[][] };
+
+        console.log(body);
+
+        return body;
     }),
 });

@@ -284,6 +284,12 @@ export const candidateRouter = createTRPCRouter({
                 },
             };
         }),
+
+    getMany: publicProcedure.input(z.object({ ids: z.array(z.string()) })).query(({ input, ctx }) => {
+        return ctx.db.query.candidateProfiles.findMany({
+            where: (candidateProfiles, { inArray }) => inArray(candidateProfiles.userId, input.ids),
+        });
+    }),
 });
 
 export default candidateRouter;

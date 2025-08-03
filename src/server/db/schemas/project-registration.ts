@@ -42,7 +42,7 @@ export const projectRegistrations = createTable('project_registration', (d) => (
     learningGoals: d
         .text({ mode: 'json' })
         .$type<string[]>()
-        .default(sql`json_array()`),
+        .default(sql`(json_array())`),
 }));
 
 export const projectRegistrationRelations = relations(projectRegistrations, ({ one, many }) => ({
