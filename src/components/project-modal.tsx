@@ -3,8 +3,8 @@ import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import { MessyButton } from './messy-button';
 import { MessyTag } from './messy-tag';
-import { Button } from './ui/button';
 import { ProjectRegistrationFlow } from './project-registration-flow';
+import { Button } from './ui/button';
 
 interface ProjectModalProps {
     id: string;
@@ -25,7 +25,7 @@ export const ProjectModal = (props: ProjectModalProps) => {
     const [visible, setVisible] = useState(false);
     const [showRegistration, setShowRegistration] = useState(false);
     const [registrationCompleted, setRegistrationCompleted] = useState(false);
-    
+
     useEffect(() => {
         setVisible(true);
         document.body.style.overflowY = 'hidden';
@@ -153,10 +153,14 @@ export const ProjectModal = (props: ProjectModalProps) => {
                         <div className="w-full text-center p-8">
                             <h2 className="text-2xl font-bold text-white">Registration successful</h2>
                             <p className="text-stone-300 mt-2">Thanks for signing up. We&#39;ll be in touch soon.</p>
-                            <Button onClick={props.onClose} className="mt-4">Close</Button>
+                            <Button
+                                onClick={props.onClose}
+                                className="mt-4"
+                            >
+                                Close
+                            </Button>
                         </div>
                     )}
-                    
                 </div>
             </div>
         </div>

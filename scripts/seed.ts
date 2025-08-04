@@ -181,8 +181,8 @@ async function main() {
     const project1 = {
         id: projectId,
         title: 'Reinvent The To-do List',
-        subtitle: 'The goal of this project is to design and build a modern task and work management platform that breaks away from traditional models like static to-do lists, calendars, and Kanban boards. Your app should explore new ways of organizing, prioritizing, and completing tasks—whether through innovative UI/UX, smart automation, collaboration tools, or integrations with other services.\n' + 'You should aim to improve how users think about and interact with their work. This could mean introducing adaptive workflows, using AI to assist with prioritization, or designing systems that account for context like focus level, urgency, or energy. Think beyond existing tools like Trello, Todoist, or Notion—what should task management look like if we started from scratch?',
-        description: 'Create a full-stack webapp that rethinks how we go about managing our tasks and work',
+        subtitle: 'Create a full-stack webapp that rethinks how we go about managing our tasks and work',
+        description: 'The goal of this project is to design and build a modern task and work management platform that breaks away from traditional models like static to-do lists, calendars, and Kanban boards. Your app should explore new ways of organizing, prioritizing, and completing tasks—whether through innovative UI/UX, smart automation, collaboration tools, or integrations with other services.\n' + 'You should aim to improve how users think about and interact with their work. This could mean introducing adaptive workflows, using AI to assist with prioritization, or designing systems that account for context like focus level, urgency, or energy. Think beyond existing tools like Trello, Todoist, or Notion—what should task management look like if we started from scratch?',
         requirements: 'Full-stack implementation (frontend, backend, database)\n' + 'Support for creating, editing, and managing tasks\n' + 'Some form of prioritization or workflow structure\n' + 'A clearly explained "rethinking" approach: what makes your app different',
         imageUrl: 'https://placehold.co/1080x1920.png',
         status: 'upcoming' as 'in-progress' | 'completed' | 'upcoming',
@@ -247,7 +247,7 @@ async function main() {
         },
         {
             id: createId(),
-            projectId: projectId,
+            projectInstanceId: projectInstanceId,
             submittedOn: new Date(),
             status: 'under-review',
             reviewedOn: new Date(),
@@ -259,7 +259,7 @@ async function main() {
         },
         {
             id: createId(),
-            projectId: projectId,
+            projectInstanceId: projectInstanceId,
             submittedOn: new Date(),
             status: 'approved',
             reviewedOn: new Date(),

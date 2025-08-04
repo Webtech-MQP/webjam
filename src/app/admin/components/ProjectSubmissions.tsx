@@ -35,14 +35,14 @@ export function ProjectSubmissions({ submissions }: ProjectSubmissionsProps) {
                         >
                             <div className="flex-1">
                                 <div className="flex items-center gap-2 mb-1">
-                                    <h4 className="font-medium text-white">{submission.project?.title ?? 'Untitled Project'}</h4>
+                                    <h4 className="font-medium text-white">{submission.projectInstance?.project.title ?? 'Untitled Project'}</h4>
                                     <span className="bg-orange-200/10 text-orange-400 border-0 text-xs px-2 py-1 rounded-lg flex items-center justify-center">{submission.status}</span>
                                 </div>
                                 <p className="text-sm text-gray-400">
                                     Reviewed by {submission.reviewer?.displayName ?? 'Unknown'} •{submission.submittedOn ? new Date(submission.submittedOn).toLocaleString() : 'Unknown date'}
                                 </p>
                             </div>
-                            <div className="flex gap-2">
+                            {/*<div className="flex gap-2">
                                 <Button
                                     size="sm"
                                     className="rounded-lg border-0 bg-orange-600/10 text-orange-400 hover:bg-orange-500/50 px-3 py-1"
@@ -55,7 +55,7 @@ export function ProjectSubmissions({ submissions }: ProjectSubmissionsProps) {
                                 >
                                     <Link href={`/admin/submissions/${submission.id}/approve`}>Approve</Link>
                                 </Button>
-                            </div>
+                            </div>*/}
                         </div>
                     ))}
                 </div>

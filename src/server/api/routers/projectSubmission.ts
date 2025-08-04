@@ -14,7 +14,7 @@ export const projectSubmissionRouter = createTRPCRouter({
         .input(
             z.object({
                 id: z.cuid2(),
-                projectId: z.cuid2(),
+                projectInstanceId: z.cuid2(),
                 submittedBy: z.cuid2(),
                 repositoryURL: z.url(),
                 deploymentURL: z.url(),
@@ -26,28 +26,38 @@ export const projectSubmissionRouter = createTRPCRouter({
             console.log(input);
             await ctx.db.insert(projectSubmissions).values({
                 id: input.id,
-                projectId: input.projectId,
+                projectInstanceId: input.projectInstanceId,
                 submittedBy: input.submittedBy,
                 repositoryURL: input.repositoryURL,
                 deploymentURL: input.deploymentURL,
                 submittedOn: input.submittedOn,
                 status: input.status,
-                reviewedBy: null,
-                reviewedOn: null,
                 notes: '',
             });
         }),
 
-    getAllSubmissionsForProject: protectedProcedure.input(z.object({ projectId: z.cuid2() })).query(async ({ ctx, input }) => {
+    getAllSubmissionsForProject: protectedProcedure.input(z.object({ projectInstanceId: z.cuid2() })).query(async ({ ctx, input }) => {
         return ctx.db.query.projectSubmissions.findMany({
-            where: (projectSubmissions, { eq }) => eq(projectSubmissions.projectId, input.projectId),
+            where: (projectSubmissions, { eq }) => eq(projectSubmissions.projectInstanceId, input.projectInstanceId),
+            with: {
+                projectInstance: {
+                    with: {
+                        project: true,
+                    },
+                },
+                reviewer: true,
+            },
         });
     }),
 
     getAll: adminProcedure.query(async ({ ctx }) => {
         return ctx.db.query.projectSubmissions.findMany({
             with: {
-                project: true,
+                projectInstance: {
+                    with: {
+                        project: true,
+                    },
+                },
                 reviewer: true,
             },
         });
@@ -57,7 +67,11 @@ export const projectSubmissionRouter = createTRPCRouter({
         return ctx.db.query.projectSubmissions.findMany({
             where: (projectSubmissions, { inArray }) => inArray(projectSubmissions.status, ['submitted', 'under-review']),
             with: {
-                project: true,
+                projectInstance: {
+                    with: {
+                        project: true,
+                    },
+                },
                 reviewer: true,
             },
         });

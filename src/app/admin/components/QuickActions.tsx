@@ -2,7 +2,7 @@
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { BarChart3, FileText, Flag, Users } from 'lucide-react';
+import { FileText, Flag } from 'lucide-react';
 import Link from 'next/link';
 
 export function QuickActions() {
@@ -23,7 +23,7 @@ export function QuickActions() {
                         Create Project
                     </Link>
                 </Button>
-                <Button
+                {/*<Button
                     asChild
                     className="w-full justify-start rounded-lg border-0 bg-orange-600/20 text-orange-400 hover:bg-orange-500/50 px-3 py-2"
                 >
@@ -33,7 +33,7 @@ export function QuickActions() {
                         </span>
                         Review Submissions
                     </Link>
-                </Button>
+                </Button>*/}
                 <Button
                     asChild
                     className="w-full justify-start rounded-lg border-0 bg-orange-600/20 text-orange-400 hover:bg-orange-500/50 px-3 py-2"
@@ -45,7 +45,7 @@ export function QuickActions() {
                         Handle Reports
                     </Link>
                 </Button>
-                <Button
+                {/*<Button
                     asChild
                     className="w-full justify-start rounded-lg border-0 bg-green-900 text-green-400 hover:bg-green-800 hover:text-green-500 px-3 py-2"
                 >
@@ -62,7 +62,7 @@ export function QuickActions() {
                         <BarChart3 className="w-4 h-4 mr-3" />
                         View Analytics
                     </Link>
-                </Button>
+                </Button>*/}
             </CardContent>
         </Card>
     );

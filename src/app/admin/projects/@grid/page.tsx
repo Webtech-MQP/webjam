@@ -17,7 +17,7 @@ export default async function Page() {
                         key={p.id}
                     >
                         <Link
-                            href={`/dashboard/projects/${p.id}`}
+                            href={`/admin/projects/${p.id}`}
                             className="w-full"
                         >
                             <JamCard
@@ -38,10 +38,10 @@ export default async function Page() {
                             </DropdownMenuTrigger>
                             <DropdownMenuContent>
                                 <div className="flex flex-col gap-2">
-                                    <Link href={`/dashboard/projects/${p.id}`}>
+                                    <Link href={`/admin/projects/${p.id}`}>
                                         <DropdownMenuItem className="hover:cursor-pointer">View Project</DropdownMenuItem>
                                     </Link>
-                                    <Link href={`/dashboard/projects/${p.id}/edit`}>
+                                    <Link href={`/admin/projects/${p.id}/edit`}>
                                         <DropdownMenuItem className="hover:cursor-pointer">Edit Project</DropdownMenuItem>
                                     </Link>
                                     {/*TODO: This*/}
