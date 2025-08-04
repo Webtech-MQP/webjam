@@ -36,10 +36,6 @@ export const projects = createTable('project', (d) => ({
 }));
 
 export const projectsRelations = relations(projects, ({ one, many }) => ({
-    submission: one(projectSubmissions, {
-        fields: [projects.id],
-        references: [projectSubmissions.projectInstanceId],
-    }),
     projectsToTags: many(projectsTags),
     creator: one(adminProfiles, {
         fields: [projects.createdBy],
@@ -67,6 +63,10 @@ export const projectInstanceRelations = relations(projectInstances, ({ one, many
         references: [projects.id],
     }),
     teamMembers: many(candidateProfilesToProjectInstances),
+    submission: one(projectSubmissions, {
+        fields: [projectInstances.id],
+        references: [projectSubmissions.projectInstanceId],
+    }),
 }));
 
 export const projectEvent = createTable('project_timeline_event', (d) => ({
@@ -104,10 +104,7 @@ export const projectSubmissions = createTable('project_submission', (d) => ({
         .references(() => users.id),
     status: d.text({ enum: ['submitted', 'under-review', 'approved', 'denied'] }).default('submitted'),
     reviewedOn: d.integer({ mode: 'timestamp' }),
-    reviewedBy: d
-        .text({ length: 255 })
-        .notNull()
-        .references(() => adminProfiles.userId),
+    reviewedBy: d.text({ length: 255 }).references(() => adminProfiles.userId),
     notes: d.text({ length: 255 }),
     repositoryURL: d.text({ length: 512 }),
     deploymentURL: d.text({ length: 512 }),
@@ -155,9 +152,9 @@ export const candidateProfilesToProjectsRelations = relations(candidateProfilesT
 }));
 
 export const projectSubmissionsRelations = relations(projectSubmissions, ({ one }) => ({
-    project: one(projects, {
+    projectInstance: one(projectInstances, {
         fields: [projectSubmissions.projectInstanceId],
-        references: [projects.id],
+        references: [projectInstances.id],
     }),
     reviewer: one(adminProfiles, {
         fields: [projectSubmissions.reviewedBy],

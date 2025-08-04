@@ -22,19 +22,19 @@ const defaultForm: CreateSubmissionFormSchema = {
 };
 
 interface CreateProjectSubmissionProps {
-    projectId: string;
+    projectInstanceId: string;
     submitter: string;
 }
 
 export default function CreateProjectSubmission(props: CreateProjectSubmissionProps) {
     const [dialogueOpen, setDialogueOpen] = useState<boolean>(false);
-    const project = api.projects.getOne.useQuery({ id: props.projectId }, { enabled: !!props.projectId });
-    const [formState, setFormState] = useState<CreateSubmissionFormSchema>({ ...defaultForm, repositoryURL: project.data?.repoURL ?? '' });
+    const projectInstance = api.projectInstances.getOne.useQuery({ id: props.projectInstanceId }, { enabled: !!props.projectInstanceId });
+    const [formState, setFormState] = useState<CreateSubmissionFormSchema>({ ...defaultForm, repositoryURL: projectInstance.data?.repoUrl ?? '' });
     const createProject = api.projectSubmission.createOne.useMutation();
 
     async function onSubmit() {
-        if (!props.projectId || !props.submitter) {
-            toast.error('Project ID and submitter are required.');
+        if (!props.projectInstanceId || !props.submitter) {
+            toast.error('Project Instance ID and submitter are required.');
             return;
         }
 
@@ -49,7 +49,7 @@ export default function CreateProjectSubmission(props: CreateProjectSubmissionPr
         const id = createId();
         const promise = createProject.mutateAsync({
             id,
-            projectId: props.projectId,
+            projectInstanceId: props.projectInstanceId,
             submittedBy: props.submitter,
             repositoryURL: formState.repositoryURL,
             deploymentURL: formState.deploymentURL,
@@ -71,7 +71,7 @@ export default function CreateProjectSubmission(props: CreateProjectSubmissionPr
 
     function onDiscard() {
         setDialogueOpen(false);
-        if (!props.projectId) {
+        if (!props.projectInstanceId) {
             setFormState(defaultForm);
         }
     }
