@@ -16,13 +16,13 @@ interface CandidateCardProps {
     experience?: string;
     githubUsername?: string;
     linkedinURL?: string;
-    imageURL?: string;
+    imageUrl?: string;
     projectCount?: number;
     onClick?: () => void;
     className?: string;
 }
 
-export function CandidateCard({ displayName, bio, location, language, experience, githubUsername, linkedinURL, imageURL, projectCount = 0, onClick, className }: CandidateCardProps) {
+export function CandidateCard({ displayName, bio, location, language, experience, githubUsername, linkedinURL, imageUrl, projectCount = 0, onClick, className }: CandidateCardProps) {
     return (
         <DashboardCard
             onClick={onClick}
@@ -30,7 +30,7 @@ export function CandidateCard({ displayName, bio, location, language, experience
         >
             <div className="relative -mt-6 mb-0 h-32 w-full rounded-t-lg">
                 <Image
-                    src={imageURL ?? 'https://placehold.co/400x128/png'}
+                    src={imageUrl ?? 'https://placehold.co/400x128/png'}
                     alt={`${displayName} banner`}
                     fill
                     className="object-cover"
@@ -39,7 +39,7 @@ export function CandidateCard({ displayName, bio, location, language, experience
             <div className="group-hover:bg-primary flex w-full flex-1 flex-col items-start rounded-b-lg p-4 transition-colors duration-300">
                 <div className="mb-3 flex w-full flex-col items-start gap-3">
                     <Avatar className="border-background -mt-12 h-12 w-12 border-4">
-                        <AvatarImage src={imageURL} />
+                        <AvatarImage src={imageUrl} />
                         <AvatarFallback>
                             {displayName
                                 .split(' ')

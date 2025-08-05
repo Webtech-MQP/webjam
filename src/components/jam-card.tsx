@@ -10,12 +10,11 @@ type Tag = RouterOutputs['projects']['getAll'][number]['projectsToTags'][number]
 
 interface JamCardProps {
     title: string;
-    startDateTime?: Date;
-    endDateTime?: Date;
+    startDateTime: Date;
+    endDateTime: Date;
     numberOfTeammates?: number;
-    //TODO: Change DB schema to mage imageUrl instead of imageURL
-    imageUrl: string;
-    rating?: number;
+    imageUrl?: string | null;
+    rating?: number | null;
     numberOfRatings?: number;
     tags?: Tag[];
     onClick?: () => void;
@@ -29,12 +28,16 @@ export function JamCard({ title, startDateTime, endDateTime, numberOfTeammates, 
             className={cn('group flex h-96 cursor-pointer flex-col items-start overflow-hidden px-0 pb-0', className)}
         >
             <div className="relative -mt-6 mb-0 w-full flex-1 rounded-t-lg">
-                <Image
-                    src={imageUrl}
-                    alt={`${title} image`}
-                    fill
-                    className="object-cover"
-                />
+                {imageUrl ? (
+                    <Image
+                        src={imageUrl}
+                        alt={`${title} image`}
+                        fill
+                        className="object-cover"
+                    />
+                ) : (
+                    <div className="w-full h-full bg-primary flex-1 rounded-t-lg" />
+                )}
             </div>
             <div className="group-hover:bg-primary flex w-full flex-0 flex-col items-start rounded-b-lg p-3 transition-colors duration-300">
                 <div className="flex w-full items-center justify-between">

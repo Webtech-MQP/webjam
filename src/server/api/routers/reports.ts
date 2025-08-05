@@ -1,10 +1,40 @@
 import { candidateProfiles, candidateReport } from '@/server/db/schemas/profiles';
 import { TRPCError } from '@trpc/server';
-import { eq } from 'drizzle-orm';
+import { and, eq, gte, lt, sql } from 'drizzle-orm';
 import z from 'zod';
-import { adminProcedure, createTRPCRouter } from '../trpc';
+import { adminProcedure, createTRPCRouter, protectedProcedure } from '../trpc';
 
 export const reportRouter = createTRPCRouter({
+    create: protectedProcedure
+        .input(
+            z.object({
+                candidateId: z.cuid2(),
+                reason: z.string().min(1).max(500),
+                description: z.string().min(1).max(1000),
+            })
+        )
+        .mutation(async ({ ctx, input }) => {
+            const candidate = await ctx.db.query.candidateProfiles.findFirst({
+                where: (candidateProfiles, { eq }) => eq(candidateProfiles.userId, input.candidateId),
+            });
+
+            if (!candidate) {
+                throw new TRPCError({ code: 'NOT_FOUND', message: 'Candidate not found' });
+            }
+
+            const report = await ctx.db
+                .insert(candidateReport)
+                .values({
+                    candidateId: input.candidateId,
+                    reason: input.reason,
+                    additionalDetails: input.description,
+                    reporterId: ctx.session.user.id,
+                })
+                .returning();
+
+            return report;
+        }),
+
     getAll: adminProcedure.query(async ({ ctx }) => {
         const reports = await ctx.db.query.candidateReport.findMany({
             with: {
@@ -16,6 +46,18 @@ export const reportRouter = createTRPCRouter({
         });
 
         return reports;
+    }),
+
+    getTodayCount: adminProcedure.query(async ({ ctx }) => {
+        const now = new Date();
+        const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        const startOfTomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+
+        return ctx.db
+            .select({ count: sql<number>`count(*)` })
+            .from(candidateReport)
+            .where(and(gte(candidateReport.createdAt, startOfToday), lt(candidateReport.createdAt, startOfTomorrow)))
+            .get();
     }),
 
     archiveReport: adminProcedure.input(z.object({ id: z.cuid2() })).mutation(async ({ ctx, input }) => {

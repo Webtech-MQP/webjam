@@ -29,7 +29,7 @@ export const adminRouter = createTRPCRouter({
                 adminRole: z.enum(['Reg', 'Mod', 'Super', 'idk']).optional(),
                 displayName: z.string().optional(),
                 bio: z.string().optional(),
-                imageURL: z.string().optional(),
+                imageUrl: z.string().optional(),
                 contactEmail: z.string().optional(),
             })
         )
@@ -44,7 +44,7 @@ export const adminRouter = createTRPCRouter({
                 id: z.cuid2(),
                 displayName: z.string().optional(),
                 bio: z.string().optional(),
-                imageURL: z.string().optional(),
+                imageUrl: z.string().optional(),
                 contactEmail: z.string().optional(),
                 adminRole: z.enum(['Reg', 'Mod', 'Super', 'idk']).optional(),
             })

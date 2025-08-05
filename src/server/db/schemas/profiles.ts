@@ -3,8 +3,8 @@ import { relations, sql } from 'drizzle-orm';
 import { primaryKey } from 'drizzle-orm/sqlite-core';
 import { createTable } from '../schema-util';
 import { users } from './auth';
+import { candidateProfilesToProjectInstances } from './projects';
 import { candidateAward } from './awards';
-import { candidateProfilesToProjects } from './projects';
 
 export const candidateProfiles = createTable('candidate_profile', (d) => ({
     userId: d
@@ -29,7 +29,7 @@ export const candidateProfiles = createTable('candidate_profile', (d) => ({
     portfolioURL: d.text({ length: 255 }),
     linkedinURL: d.text({ length: 255 }),
     // This is different from user.image (user.image is github image)
-    imageURL: d.text({ length: 255 }),
+    imageUrl: d.text({ length: 255 }),
 }));
 
 export const candidateProfilesRelations = relations(candidateProfiles, ({ one, many }) => ({
@@ -37,7 +37,7 @@ export const candidateProfilesRelations = relations(candidateProfiles, ({ one, m
         fields: [candidateProfiles.userId],
         references: [users.id],
     }),
-    candidateProfilesToProjects: many(candidateProfilesToProjects),
+    candidateProfilesToProjectInstances: many(candidateProfilesToProjectInstances),
     reports: many(candidateReport),
     awards: many(candidateAward),
 }));
@@ -62,7 +62,7 @@ export const recruiterProfiles = createTable('recruiter_profile', (d) => ({
     bio: d.text({ length: 255 }).notNull().default(''),
     companyWebsite: d.text({ length: 255 }).notNull().default(''),
     linkedinURL: d.text({ length: 255 }).notNull().default(''),
-    imageURL: d.text({ length: 255 }),
+    imageUrl: d.text({ length: 255 }),
 }));
 
 export const recruiterProfilesRelations = relations(recruiterProfiles, ({ one }) => ({
@@ -86,7 +86,7 @@ export const adminProfiles = createTable('admin_profile', (d) => ({
 
     // Extended profile info
     bio: d.text({ length: 255 }),
-    imageURL: d.text({ length: 255 }),
+    imageUrl: d.text({ length: 255 }),
     contactEmail: d.text({ length: 255 }),
 }));
 

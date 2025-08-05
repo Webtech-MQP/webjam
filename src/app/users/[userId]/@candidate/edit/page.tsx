@@ -44,7 +44,7 @@ export default function Page() {
                 },
                 {
                     ...prev,
-                    candidateProfilesToProjects: prev.candidateProfilesToProjects.map((p) => (p.projectId === d.projectId ? { ...p, visible: d.visible } : p)),
+                    candidateProfilesToProjectInstances: prev.candidateProfilesToProjectInstances?.map((p) => (p.projectInstanceId === d.projectInstanceId ? { ...p, visible: d.visible } : p)) ?? [],
                 }
             );
 
@@ -119,7 +119,7 @@ export default function Page() {
                     <div className="z-30 -mt-30 flex flex-col gap-4">
                         {/* Profile Picture */}
                         <Image
-                            src={candidate?.imageURL ?? 'https://placehold.co/100.png'}
+                            src={candidate?.imageUrl ?? 'https://placehold.co/100.png'}
                             className="relative z-20 box-content rounded-xl border-6 border-(--color-background)"
                             alt="Profile picture"
                             height={100}
@@ -191,15 +191,15 @@ export default function Page() {
                     <div>
                         <h2>Jams</h2>
                         <div className="grid">
-                            {candidate?.candidateProfilesToProjects.map((cp) => (
+                            {candidate?.candidateProfilesToProjectInstances.map((cp) => (
                                 <div
                                     className="flex items-center gap-2 rounded-md border p-4"
-                                    key={cp.projectId}
+                                    key={cp.projectInstanceId}
                                 >
                                     <Button
                                         onClick={() =>
                                             changeProjectVisibility.mutate({
-                                                projectId: cp.projectId,
+                                                projectInstanceId: cp.projectInstanceId,
                                                 visible: !cp.visible,
                                             })
                                         }
@@ -209,7 +209,7 @@ export default function Page() {
                                     >
                                         {cp.visible ? <EyeIcon className="h-6 w-6" /> : <EyeOffIcon className="h-6 w-6" />}
                                     </Button>
-                                    <p className={cn(!cp.visible && 'line-through')}>{cp.project.title}</p>
+                                    <p className={cn(!cp.visible && 'line-through')}>{cp.projectInstance.project.title}</p>
                                 </div>
                             ))}
                         </div>

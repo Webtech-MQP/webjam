@@ -1,10 +1,12 @@
 import { adminRouter } from '@/server/api/routers/admin';
 import { candidateRouter } from '@/server/api/routers/candidate';
 import { projectRouter } from '@/server/api/routers/project';
+import { projectRegistrationRouter } from '@/server/api/routers/projectRegistration';
 import { projectSubmissionRouter } from '@/server/api/routers/projectSubmission';
 import { recruiterRouter } from '@/server/api/routers/recruiter';
 import { userRouter } from '@/server/api/routers/user';
 import { createCallerFactory, createTRPCRouter } from '@/server/api/trpc';
+import { projectInstanceRouter } from './routers/projectInstance';
 import { reportRouter } from './routers/reports';
 import { awardsRouter } from './routers/awards';
 /**
@@ -18,7 +20,9 @@ export const appRouter = createTRPCRouter({
     recruiters: recruiterRouter,
     admins: adminRouter,
     projects: projectRouter,
+    projectInstances: projectInstanceRouter,
     projectSubmission: projectSubmissionRouter,
+    projectRegistration: projectRegistrationRouter,
     reports: reportRouter,
     awards: awardsRouter,
 });

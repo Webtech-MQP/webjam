@@ -1,12 +1,13 @@
 import * as authSchema from '@/server/db/schemas/auth';
 import * as awardsSchema from '@/server/db/schemas/awards';
 import * as userSchema from '@/server/db/schemas/profiles';
+import * as registrationSchema from '@/server/db/schemas/project-registration';
 import * as projectSchema from '@/server/db/schemas/projects';
 import { createId } from '@paralleldrive/cuid2';
 import { drizzle } from 'drizzle-orm/libsql';
 import { reset } from 'drizzle-seed';
 
-const schema = { ...authSchema, ...userSchema, ...projectSchema, ...awardsSchema };
+const schema = { ...authSchema, ...userSchema, ...projectSchema, ...registrationSchema, ...awardsSchema };
 
 async function main() {
     const db = drizzle(process.env.DATABASE_URL!);
@@ -72,7 +73,7 @@ async function main() {
             resumeURL: 'https://brian.dev/resume.pdf',
             portfolioURL: 'https://brian.dev',
             linkedinURL: 'https://linkedin.com/in/brian',
-            imageURL: 'https://placehold.co/100.png',
+            imageUrl: 'https://placehold.co/100.png',
         },
         {
             userId: userTyler.id,
@@ -83,7 +84,7 @@ async function main() {
             resumeURL: 'https://tyler.dev/resume.pdf',
             portfolioURL: 'https://tyler.dev',
             linkedinURL: 'https://linkedin.com/in/tyler',
-            imageURL: 'https://placehold.co/100.png',
+            imageUrl: 'https://placehold.co/100.png',
         },
         {
             userId: userJohnny.id,
@@ -94,7 +95,7 @@ async function main() {
             resumeURL: 'https://johnny.dev/resume.pdf',
             portfolioURL: 'https://johnny.dev',
             linkedinURL: 'https://linkedin.com/in/johnny',
-            imageURL: 'https://placehold.co/100.png',
+            imageUrl: 'https://placehold.co/100.png',
         },
     ]);
     console.log('Candidate profiles seeded!');
@@ -125,7 +126,7 @@ async function main() {
             bio: 'Connecting top tech talent with innovative companies.',
             companyWebsite: 'https://sushiInc.com',
             linkedinURL: 'https://linkedin.com/in/sallysushi',
-            imageURL: 'https://placehold.co/100.png',
+            imageUrl: 'https://placehold.co/100.png',
             displayEmail: 'sally@recruit.com',
         },
     ]);
@@ -139,7 +140,7 @@ async function main() {
             displayName: 'Ace Beattie',
             adminRole: 'Super' as adminRoles,
             bio: '',
-            imageURL: 'https://placehold.co/100.png',
+            imageUrl: 'https://placehold.co/100.png',
             contactEmail: 'ace@contactadmin.com',
         },
         {
@@ -147,7 +148,7 @@ async function main() {
             displayName: 'Matt Hagger',
             adminRole: 'Super' as adminRoles,
             bio: '',
-            imageURL: 'https://placehold.co/100.png',
+            imageUrl: 'https://placehold.co/100.png',
             contactEmail: 'matt@contactadmin.com',
         },
         {
@@ -155,7 +156,7 @@ async function main() {
             displayName: 'Matthew Franco',
             adminRole: 'Super' as adminRoles,
             bio: '',
-            imageURL: 'https://placehold.co/100.png',
+            imageUrl: 'https://placehold.co/100.png',
             contactEmail: 'matthewF@contactadmin.com',
         },
     ]);
@@ -181,11 +182,12 @@ async function main() {
     const project1 = {
         id: projectId,
         title: 'Reinvent The To-do List',
-        subTitle: 'The goal of this project is to design and build a modern task and work management platform that breaks away from traditional models like static to-do lists, calendars, and Kanban boards. Your app should explore new ways of organizing, prioritizing, and completing tasks—whether through innovative UI/UX, smart automation, collaboration tools, or integrations with other services.\n' + 'You should aim to improve how users think about and interact with their work. This could mean introducing adaptive workflows, using AI to assist with prioritization, or designing systems that account for context like focus level, urgency, or energy. Think beyond existing tools like Trello, Todoist, or Notion—what should task management look like if we started from scratch?',
-        description: 'Create a full-stack webapp that rethinks how we go about managing our tasks and work',
+        subtitle: 'Create a full-stack webapp that rethinks how we go about managing our tasks and work',
+        description: 'The goal of this project is to design and build a modern task and work management platform that breaks away from traditional models like static to-do lists, calendars, and Kanban boards. Your app should explore new ways of organizing, prioritizing, and completing tasks—whether through innovative UI/UX, smart automation, collaboration tools, or integrations with other services.\n' + 'You should aim to improve how users think about and interact with their work. This could mean introducing adaptive workflows, using AI to assist with prioritization, or designing systems that account for context like focus level, urgency, or energy. Think beyond existing tools like Trello, Todoist, or Notion—what should task management look like if we started from scratch?',
         requirements: 'Full-stack implementation (frontend, backend, database)\n' + 'Support for creating, editing, and managing tasks\n' + 'Some form of prioritization or workflow structure\n' + 'A clearly explained "rethinking" approach: what makes your app different',
-        imageURL: 'https://placehold.co/1080x1920.png',
+        imageUrl: 'https://placehold.co/1080x1920.png',
         status: 'upcoming' as 'in-progress' | 'completed' | 'upcoming',
+        repoURL: 'https://github.com/Webtech-MQP/prototype-3',
         deadline: new Date('2025-11-17T00:00:00Z'),
         startDateTime: new Date('2025-08-17T00:00:00Z'),
         endDateTime: new Date('2025-11-24T00:00:00Z'),
@@ -213,12 +215,195 @@ async function main() {
     ]);
     console.log('Project-tag links seeded!');
 
+    console.log('Seeding project instances...');
+    const projectInstanceId = createId();
+    await db.insert(schema.projectInstances).values({
+        id: projectInstanceId,
+        teamName: 'Team Alpha',
+        repoUrl: 'https://github.com/example/todo-reimagined',
+        projectId: projectId,
+    });
+    console.log('Project instances seeded!');
+
     console.log('Seeding project candidate profiles...');
-    await db.insert(schema.candidateProfilesToProjects).values([
-        { projectId, candidateId: userBrian.id },
-        { projectId, candidateId: userTyler.id },
+    await db.insert(schema.candidateProfilesToProjectInstances).values([
+        { projectInstanceId, candidateId: userBrian.id },
+        { projectInstanceId, candidateId: userTyler.id },
     ]);
     console.log('Project candidate profiles seeded!');
+
+    console.log('Seeding project submissions...');
+    await db.insert(schema.projectSubmissions).values([
+        {
+            id: createId(),
+            projectInstanceId: projectInstanceId,
+            submittedOn: new Date(),
+            status: 'submitted',
+            reviewedOn: new Date(),
+            reviewedBy: userMattH.id,
+            notes: 'Initial submission for review.',
+            repositoryURL: 'https://github.com/Webtech-MQP/prototype-3',
+            deploymentURL: 'https://webjam.com',
+            submittedBy: userBrian.id,
+        },
+        {
+            id: createId(),
+            projectInstanceId: projectInstanceId,
+            submittedOn: new Date(),
+            status: 'under-review',
+            reviewedOn: new Date(),
+            reviewedBy: userMattH.id,
+            notes: 'Waiting for final review.',
+            repositoryURL: 'https://github.com/Webtech-MQP/prototype-3',
+            deploymentURL: 'https://webjam.com',
+            submittedBy: userTyler.id,
+        },
+        {
+            id: createId(),
+            projectInstanceId: projectInstanceId,
+            submittedOn: new Date(),
+            status: 'approved',
+            reviewedOn: new Date(),
+            reviewedBy: userMattH.id,
+            notes: 'Great app! Looking forward to seeing it in production.',
+            repositoryURL: 'https://github.com/Webtech-MQP/prototype-3',
+            deploymentURL: 'https://webjam.com',
+            submittedBy: userBrian.id,
+        },
+    ]);
+    console.log('Project submissions seeded!');
+
+    console.log('Seeding registration questions...');
+    const timeQuestion = {
+        id: createId(),
+        question: 'How much time per week are you willing to dedicate to this project?',
+        type: 'select' as const,
+        options: JSON.stringify(['0-5 hours', '5-10 hours', '10-20 hours', '20+ hours']),
+        required: true,
+        createdBy: userMattH.id,
+        skill: 'time-management',
+    };
+
+    const toolsQuestion = {
+        id: createId(),
+        question: 'What experience do you have with task management tools like Trello, Asana, or similar?',
+        type: 'text' as const,
+        required: true,
+        createdBy: userMattH.id,
+        skill: 'trello',
+    };
+
+    const teamQuestion = {
+        id: createId(),
+        question: 'Do you have any past experience working in a team?',
+        type: 'text' as const,
+        required: true,
+        createdBy: userMattH.id,
+        skill: 'teamwork',
+    };
+
+    await db.insert(schema.projectRegistrationQuestions).values([timeQuestion, toolsQuestion, teamQuestion]);
+    console.log('Registration questions seeded!');
+
+    console.log('Connecting questions to project...');
+    await db.insert(schema.projectsToRegistrationQuestions).values([
+        {
+            projectId: projectId,
+            questionId: timeQuestion.id,
+            order: 0,
+        },
+        {
+            projectId: projectId,
+            questionId: toolsQuestion.id,
+            order: 1,
+        },
+    ]);
+    // Note: question3 is intentionally not connected to any project
+    console.log('Questions connected to project!');
+
+    console.log('Creating a registration for Brian...');
+    const registration = {
+        id: createId(),
+        projectId: projectId,
+        candidateId: userBrian.id,
+        submittedAt: new Date(),
+        status: 'pending' as const,
+        preferredRole: 'fullstack' as const,
+    };
+    await db.insert(schema.projectRegistrations).values(registration);
+
+    console.log('Adding registration answers...');
+    await db.insert(schema.projectRegistrationAnswer).values([
+        {
+            id: createId(),
+            registrationId: registration.id,
+            questionId: timeQuestion.id,
+            answer: '10-20 hours',
+        },
+        {
+            id: createId(),
+            registrationId: registration.id,
+            questionId: toolsQuestion.id,
+            answer: 'I have used Trello for personal projects and Asana during my internship. I am comfortable with both tools and understand the principles of task management and organization.',
+        },
+    ]);
+    console.log('Registration answers added!');
+
+    console.log('Creating a registration for Tyler...');
+    const tylerRegistration = {
+        id: createId(),
+        projectId: projectId,
+        candidateId: userTyler.id,
+        submittedAt: new Date(),
+        status: 'pending' as const,
+        preferredRole: 'backend' as const,
+    };
+    await db.insert(schema.projectRegistrations).values(tylerRegistration);
+
+    console.log("Adding Tyler's registration answers...");
+    await db.insert(schema.projectRegistrationAnswer).values([
+        {
+            id: createId(),
+            registrationId: tylerRegistration.id,
+            questionId: timeQuestion.id,
+            answer: '5-10 hours',
+        },
+        {
+            id: createId(),
+            registrationId: tylerRegistration.id,
+            questionId: toolsQuestion.id,
+            answer: 'I have extensive experience with Jira, Asana, and Linear from my previous full-time role. I also built custom project management tools for my team.',
+        },
+    ]);
+    console.log("Tyler's registration answers added!");
+
+    console.log('Creating a registration for Johnny...');
+    const johnnyRegistration = {
+        id: createId(),
+        projectId: projectId,
+        candidateId: userJohnny.id,
+        submittedAt: new Date(),
+        status: 'pending' as const,
+        preferredRole: 'frontend' as const,
+    };
+    await db.insert(schema.projectRegistrations).values(johnnyRegistration);
+
+    console.log("Adding Johnny's registration answers...");
+    await db.insert(schema.projectRegistrationAnswer).values([
+        {
+            id: createId(),
+            registrationId: johnnyRegistration.id,
+            questionId: timeQuestion.id,
+            answer: '0-5 hours',
+        },
+        {
+            id: createId(),
+            registrationId: johnnyRegistration.id,
+            questionId: toolsQuestion.id,
+            answer: "I've only used basic to-do apps like Apple Reminders and Google Tasks. I'm eager to learn more sophisticated project management tools though!",
+        },
+    ]);
+    console.log("Johnny's registration answers added!");
 
     console.log('Seeding awards...');
 
@@ -249,7 +434,7 @@ async function main() {
     await db.insert(schema.awards).values(awardsData);
     console.log('Awards seeded!');
 
-  
+
     const projectsAwardsData = [
         { projectId: project1.id, awardId: awardsData[0]!.id },
         { projectId: project1.id, awardId: awardsData[1]!.id },

@@ -1,5 +1,6 @@
 import { JamCard } from '@/components/jam-card';
 import type { RouterOutputs } from '@/trpc/react';
+import Link from 'next/link';
 import { z } from 'zod';
 
 type Props = {
@@ -11,18 +12,25 @@ export function JamGrid({ jams, name }: Props) {
     return (
         <div>
             {jams?.map((j) => (
-                <JamCard
-                    {...z
-                        .object({})
-                        .passthrough()
-                        .transform((x) => (!!x ? x : undefined))
-                        .parse(j)}
-                    key={j.id}
-                    imageUrl={j.imageURL ?? 'Never'}
-                    title={j.title ?? 'Never'}
-                    numberOfTeammates={j.projectsToCandidateProfiles.length}
-                    tags={j.projectsToTags.map((t) => t.tag)}
-                />
+                <div
+                    key={j.projectInstanceId}
+                    className="relative"
+                >
+                    <Link href={`/dashboard/jams/${j.projectInstanceId}`}>
+                        <JamCard
+                            {...z
+                                .looseObject({})
+                                .transform((x) => (!!x ? x : undefined))
+                                .parse(j)}
+                            imageUrl={j.projectInstance.project.imageUrl ?? 'Never'}
+                            title={j.projectInstance.project.title ?? 'Never'}
+                            numberOfTeammates={j.projectInstance.teamMembers.length}
+                            tags={j.projectInstance.project.projectsToTags.map((t) => t.tag)}
+                            startDateTime={j.projectInstance.project.startDateTime}
+                            endDateTime={j.projectInstance.project.endDateTime}
+                        />
+                    </Link>
+                </div>
             ))}
             {jams?.length === 0 && <p className="text-muted-foreground italic">{name ?? 'This user'} has no jams.</p>}
         </div>

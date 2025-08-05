@@ -1,7 +1,7 @@
 import { adminProcedure, createTRPCRouter, protectedProcedure, publicProcedure } from '@/server/api/trpc';
 import { users } from '@/server/db/schemas/auth';
 import { candidateProfiles } from '@/server/db/schemas/profiles';
-import { candidateProfilesToProjects } from '@/server/db/schemas/projects';
+import { candidateProfilesToProjectInstances } from '@/server/db/schemas/projects';
 import { TRPCError } from '@trpc/server';
 import { and, eq, inArray, like, or, sql } from 'drizzle-orm';
 import { z } from 'zod';
@@ -13,9 +13,13 @@ export const candidateRouter = createTRPCRouter({
                 where: (candidateProfiles, { eq }) => eq(candidateProfiles.userId, input.id),
                 with: {
                     user: true,
-                    candidateProfilesToProjects: {
+                    candidateProfilesToProjectInstances: {
                         with: {
-                            project: true,
+                            projectInstance: {
+                                with: {
+                                    project: true,
+                                },
+                            },
                         },
                     },
                 },
@@ -36,9 +40,13 @@ export const candidateRouter = createTRPCRouter({
                             githubUsername: true,
                         },
                     },
-                    candidateProfilesToProjects: {
+                    candidateProfilesToProjectInstances: {
                         with: {
-                            project: true,
+                            projectInstance: {
+                                with: {
+                                    project: true,
+                                },
+                            },
                         },
                     },
                 },
@@ -60,7 +68,7 @@ export const candidateRouter = createTRPCRouter({
                     githubUsername: z.string(),
                     portfolioURL: z.string(),
                     linkedinURL: z.string(),
-                    imageURL: z.string(),
+                    imageUrl: z.string(),
                 })
                 .partial()
                 .required({ id: true })
@@ -94,7 +102,7 @@ export const candidateRouter = createTRPCRouter({
                     linkedinURL: z.url().startsWith('https://linkedin.com/in/', {
                         message: 'Must be a valid LinkedIn URL',
                     }),
-                    imageURL: z.url(),
+                    imageUrl: z.url(),
                 })
                 .partial()
         )
@@ -116,14 +124,22 @@ export const candidateRouter = createTRPCRouter({
         const candidateProfile = await ctx.db.query.candidateProfiles.findFirst({
             where: (candidateProfiles, { eq }) => eq(candidateProfiles.userId, input.userId),
             with: {
-                candidateProfilesToProjects: {
+                candidateProfilesToProjectInstances: {
                     with: {
-                        project: {
+                        projectInstance: {
                             with: {
-                                projectsToTags: {
-                                    with: { tag: true },
+                                project: {
+                                    with: {
+                                        projectsToTags: {
+                                            with: { tag: true },
+                                        },
+                                    },
                                 },
-                                projectsToCandidateProfiles: true,
+                                teamMembers: {
+                                    with: {
+                                        candidateProfile: true,
+                                    },
+                                },
                             },
                         },
                     },
@@ -131,17 +147,17 @@ export const candidateRouter = createTRPCRouter({
             },
         });
         if (!candidateProfile) return null;
-        return candidateProfile.candidateProfilesToProjects.filter((p) => p.visible).map((p) => p.project);
+        return candidateProfile.candidateProfilesToProjectInstances.filter((p) => p.visible);
     }),
 
-    changeProjectVisibility: protectedProcedure.input(z.object({ projectId: z.string(), visible: z.boolean() })).mutation(async ({ input, ctx }) => {
+    changeProjectVisibility: protectedProcedure.input(z.object({ projectInstanceId: z.string(), visible: z.boolean() })).mutation(async ({ input, ctx }) => {
         const q = await ctx.db
-            .update(candidateProfilesToProjects)
+            .update(candidateProfilesToProjectInstances)
             .set({ visible: input.visible })
-            .where(and(eq(candidateProfilesToProjects.projectId, input.projectId), eq(candidateProfilesToProjects.candidateId, ctx.session.user.id)))
+            .where(and(eq(candidateProfilesToProjectInstances.projectInstanceId, input.projectInstanceId), eq(candidateProfilesToProjectInstances.candidateId, ctx.session.user.id)))
             .returning({
-                newVisible: candidateProfilesToProjects.visible,
-                projectId: candidateProfilesToProjects.projectId,
+                newVisible: candidateProfilesToProjectInstances.visible,
+                projectInstanceId: candidateProfilesToProjectInstances.projectInstanceId,
             });
 
         if (!q) throw new TRPCError({ code: 'NOT_FOUND' });
@@ -215,9 +231,9 @@ export const candidateRouter = createTRPCRouter({
                                 githubUsername: true,
                             },
                         },
-                        candidateProfilesToProjects: {
+                        candidateProfilesToProjectInstances: {
                             with: {
-                                project: true,
+                                projectInstance: true,
                             },
                         },
                     },
@@ -241,9 +257,9 @@ export const candidateRouter = createTRPCRouter({
                                 githubUsername: true,
                             },
                         },
-                        candidateProfilesToProjects: {
+                        candidateProfilesToProjectInstances: {
                             with: {
-                                project: true,
+                                projectInstance: true,
                             },
                         },
                     },
@@ -268,6 +284,12 @@ export const candidateRouter = createTRPCRouter({
                 },
             };
         }),
+
+    getMany: publicProcedure.input(z.object({ ids: z.array(z.string()) })).query(({ input, ctx }) => {
+        return ctx.db.query.candidateProfiles.findMany({
+            where: (candidateProfiles, { inArray }) => inArray(candidateProfiles.userId, input.ids),
+        });
+    }),
 });
 
 export default candidateRouter;

@@ -4,7 +4,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { api } from '@/trpc/react';
-import { ChevronDown, ChevronUp, Folders, Home, LogOut, Search, Users } from 'lucide-react';
+import { ChevronDown, ChevronUp, Folder, Home, LogOut, Search, Users } from 'lucide-react';
 import { signOut, useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -15,11 +15,6 @@ const ROUTES = [
         name: 'Home',
         href: '/dashboard',
         icon: Home,
-    },
-    {
-        name: 'Projects',
-        href: '/dashboard/projects',
-        icon: Folders,
     },
     {
         name: 'Find a Jam',
@@ -33,13 +28,27 @@ const ROUTES = [
     },
 ];
 
+const ADMIN_ROUTES = [
+    {
+        name: 'Dashboard',
+        href: '/admin',
+        icon: Home,
+    },
+    {
+        name: 'Projects',
+        href: '/admin/projects',
+        icon: Folder,
+    },
+];
+
 export function Sidebar() {
     const path = usePathname();
     const { data: session } = useSession();
     const [profileOpen, setProfileOpen] = useState(false);
 
     const closestMatch = useCallback(() => {
-        return ROUTES.reduce(
+        const allRoutes = [...ROUTES, ...ADMIN_ROUTES];
+        return allRoutes.reduce(
             (a, b) => {
                 return path.startsWith(b.href) && b.href.length > a.href.length ? b : a;
             },
@@ -51,7 +60,7 @@ export function Sidebar() {
 
     return (
         <div className="border-accent flex h-full w-64 flex-col border-r p-4">
-            <h1 className="text-primary font-bold">mqp</h1>
+            <h1 className="text-primary font-bold">webjam</h1>
             <nav className="flex-1">
                 {ROUTES.map((route) => (
                     <Link
@@ -63,6 +72,22 @@ export function Sidebar() {
                         {route.name}
                     </Link>
                 ))}
+                {isAdmin && (
+                    <>
+                        <div className="my-4 border-t border-muted" />
+                        <div className="mb-2 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Admin</div>
+                        {ADMIN_ROUTES.map((route) => (
+                            <Link
+                                key={route.name}
+                                href={route.href}
+                                className={cn('hover:text-primary mb-4 flex items-center gap-3 p-4', closestMatch().href === route.href && 'border-primary border-b-4')}
+                            >
+                                <route.icon className="h-5 w-5" />
+                                {route.name}
+                            </Link>
+                        ))}
+                    </>
+                )}
             </nav>
             <div className="mt-auto">
                 <div className={cn('overflow-hidden transition-all duration-300', profileOpen ? 'translate-y-0 opacity-100' : 'pointer-events-none translate-y-4 opacity-0')}>
