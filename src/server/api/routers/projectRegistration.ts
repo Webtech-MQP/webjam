@@ -1,3 +1,4 @@
+import { env } from '@/env';
 import { adminProcedure, createTRPCRouter, protectedProcedure } from '@/server/api/trpc';
 import { projectRegistrationAnswer, projectRegistrationQuestions, projectRegistrations, projectsToRegistrationQuestions } from '@/server/db/schemas/project-registration';
 import { GoogleGenAI, Type } from '@google/genai';
@@ -8,7 +9,7 @@ import { z, ZodError } from 'zod';
 
 const questionTypeEnum = z.enum(['text', 'select']);
 
-const ai = new GoogleGenAI({ apiKey: process.env.GOOGLE_API_KEY });
+const ai = env.GEMINI_API_KEY ? new GoogleGenAI({ apiKey: env.GEMINI_API_KEY }) : null;
 
 export const projectRegistrationRouter = createTRPCRouter({
     createQuestion: adminProcedure
@@ -117,6 +118,10 @@ export const projectRegistrationRouter = createTRPCRouter({
                 question: questions.find((q) => q.id === answer.questionId)?.question || '',
                 answer: answer.answer,
             }));
+
+            if (!ai) {
+                throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'AI service is not configured' });
+            }
 
             const prompt = `You are a recruiter evaluating the skills of a candidate. Below, in JSON format, the candidate has responded to a list of questions related to a project registration. Your task is to analyze the answers and score the candidates answer related to the skill on a scale of 1 to 10.
                   ANSWERS:

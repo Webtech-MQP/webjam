@@ -11,7 +11,7 @@ export const env = createEnv({
         NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
         AUTH_GITHUB_ID: z.string(),
         AUTH_GITHUB_SECRET: z.string(),
-        GEMINI_API_KEY: z.string(),
+        GEMINI_API_KEY: z.string().optional(),
     },
 
     /**
