@@ -88,7 +88,21 @@ export function ProjectRegistrationFlow({ projectId, open, onClose }: ProjectReg
         try {
             await promise;
             onClose(true);
-        } catch (err) {}
+        } catch (err) {
+            if (err instanceof Error) {
+                if (
+                    err.message.includes("SQLITE_CONSTRAINT_UNIQUE") &&
+                    err.message.includes("prototype-3_project_registration.projectId") &&
+                    err.message.includes("prototype-3_project_registration.candidateId")
+                ) {
+                    alert("You have already registered.");
+                } else {
+                    alert(err.message);
+                }
+            } else {
+                alert("An unknown error occurred.");
+            }
+        }
     };
 
     const renderQuestionInput = () => {

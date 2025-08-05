@@ -32,7 +32,7 @@ const formSchema = z.object({
 
 type JamFinderForm = z.infer<typeof formSchema>;
 
-export default function JamFinderClient() {
+export default function JamFinderClient({ isCandidate }: { isCandidate: boolean }) {
     const unsortedTagsQuery = api.projects.getAllTags.useQuery();
     const tagsQuery = unsortedTagsQuery.data
         ? unsortedTagsQuery.data.sort((a, b) => {
@@ -275,6 +275,7 @@ export default function JamFinderClient() {
                                                 onClose={() => {
                                                     setIsModalOpen(false);
                                                 }}
+                                                isCandidate={isCandidate}
                                             />
                                         )}
                                     </div>
@@ -335,6 +336,7 @@ export default function JamFinderClient() {
                                                 onClose={() => {
                                                     setIsModalOpen(false);
                                                 }}
+                                                isCandidate={isCandidate}
                                             />
                                         )}
                                     </div>

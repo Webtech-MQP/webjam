@@ -19,6 +19,7 @@ interface ProjectModalProps {
     tags: string[];
     onSignup?: () => void;
     onClose?: () => void;
+    isCandidate: boolean;
 }
 
 export const ProjectModal = (props: ProjectModalProps) => {
@@ -69,38 +70,38 @@ export const ProjectModal = (props: ProjectModalProps) => {
                 }}
             >
                 <div className={`flex flex-col items-start gap-4 bg-stone-800 p-6 rounded-lg transition-all duration-300 ${showRegistration ? 'w-[600px] max-h-[90vh]' : 'w-[80vw] max-h-[90vh]'}`}>
-                    <div className="flex w-full flex-row flex-nowrap justify-between">
-                        <div className="flex flex-row flex-nowrap justify-start">
-                            {props.tags.map((tag, index) => {
-                                return (
-                                    <MessyTag
-                                        key={tag + index}
-                                        textClassName="text-xs text-white"
-                                        color="#d37c04"
-                                    >
-                                        {tag}
-                                    </MessyTag>
-                                );
-                            })}
-                        </div>
-                        <MessyButton
-                            variant="outline"
-                            shape="circle"
-                            onClick={() => {
-                                if (props.onClose) {
-                                    props.onClose();
-                                }
-                            }}
-                        >
-                            <X />
-                        </MessyButton>
-                    </div>
-                    <div>
-                        <h1>{props.title}</h1>
-                        <p>{props.subtitle}</p>
-                    </div>
                     {!showRegistration && !registrationCompleted && (
                         <>
+                            <div className="flex w-full flex-row flex-nowrap justify-between">
+                                <div className="flex flex-row flex-nowrap justify-start">
+                                    {props.tags.map((tag, index) => {
+                                        return (
+                                            <MessyTag
+                                                key={tag + index}
+                                                textClassName="text-xs text-white"
+                                                color="#d37c04"
+                                            >
+                                                {tag}
+                                            </MessyTag>
+                                        );
+                                    })}
+                                </div>
+                                <MessyButton
+                                    variant="outline"
+                                    shape="circle"
+                                    onClick={() => {
+                                        if (props.onClose) {
+                                            props.onClose();
+                                        }
+                                    }}
+                                >
+                                    <X />
+                                </MessyButton>
+                            </div>
+                            <div>
+                                <h1>{props.title}</h1>
+                                <p>{props.subtitle}</p>
+                            </div>
                             <div>
                                 <p className="flex flex-nowrap items-baseline gap-1 text-sm">
                                     <Calendar size={'1rem'} /> {props.starts} --- {props.ends}
@@ -116,7 +117,7 @@ export const ProjectModal = (props: ProjectModalProps) => {
                                         <p className="text-sm font-medium">Requirements:</p>
                                         <li className="list-inside list-disc text-sm">{props.requirements}</li>
                                     </ul>
-                                    <Button onClick={() => setShowRegistration(true)}>
+                                    <Button disabled={!props.isCandidate} onClick={() => setShowRegistration(true)}>
                                         <span className="flex items-center gap-2">
                                             Join Project <UserPlus className="h-4 w-4" />
                                         </span>
@@ -154,7 +155,10 @@ export const ProjectModal = (props: ProjectModalProps) => {
                             <h2 className="text-2xl font-bold text-white">Registration successful</h2>
                             <p className="text-stone-300 mt-2">Thanks for signing up. We&#39;ll be in touch soon.</p>
                             <Button
-                                onClick={props.onClose}
+                                onClick={() => {
+                                    setRegistrationCompleted(false);
+                                    props.onClose?.();
+                                }}
                                 className="mt-4"
                             >
                                 Close
