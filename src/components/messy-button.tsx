@@ -1,5 +1,5 @@
 'use client';
-import type { CSSProperties, ReactNode } from 'react';
+import type { CSSProperties, MouseEventHandler, ReactNode } from 'react';
 import { useEffect, useRef, useState } from 'react';
 import ReactRough, { Circle, Rectangle } from 'rough-react-wrapper';
 
@@ -14,7 +14,7 @@ interface MessyButtonProps {
     variant?: 'fill' | 'outline';
     shape?: 'rectangle' | 'circle';
 
-    onClick?: () => void;
+    onClick?: MouseEventHandler<HTMLButtonElement>;
     onMouseOver?: () => void;
     onMouseLeave?: () => void;
 }
@@ -41,10 +41,6 @@ export const MessyButton = (props: MessyButtonProps) => {
     const onDehover = () => {
         setHovered(false);
         if (props.onMouseLeave) props.onMouseLeave();
-    };
-
-    const onClick = () => {
-        if (props.onClick) props.onClick();
     };
 
     return (
@@ -89,7 +85,7 @@ export const MessyButton = (props: MessyButtonProps) => {
                 }}
                 onMouseOver={onHover}
                 onMouseLeave={onDehover}
-                onClick={onClick}
+                onClick={props.onClick}
                 aria-label={typeof props.children === 'string' ? props.children : 'button'}
             >
                 {/* @ts-expect-error this can have children.. weird type issue */}

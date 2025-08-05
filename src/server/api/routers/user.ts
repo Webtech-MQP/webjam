@@ -1,4 +1,4 @@
-import { adminProcedure, createTRPCRouter, protectedProcedure, publicProcedure } from '@/server/api/trpc';
+import { adminProcedure, createTRPCRouter, publicProcedure } from '@/server/api/trpc';
 import { users } from '@/server/db/schemas/auth';
 import { adminProfiles } from '@/server/db/schemas/profiles';
 import { eq } from 'drizzle-orm';
@@ -58,7 +58,11 @@ export const userRouter = createTRPCRouter({
         return ctx.db.delete(users);
     }),
 
-    isAdmin: protectedProcedure.query(async ({ ctx }) => {
+    isAdmin: publicProcedure.query(async ({ ctx }) => {
+        if (!ctx.session?.user?.id) {
+            return false;
+        }
+
         const isAdmin = !!(await ctx.db.select().from(users).innerJoin(adminProfiles, eq(users.id, adminProfiles.userId)).where(eq(users.id, ctx.session.user.id)).limit(1))[0];
         return isAdmin;
     }),

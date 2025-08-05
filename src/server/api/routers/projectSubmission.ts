@@ -1,6 +1,7 @@
 import { adminProcedure, createTRPCRouter, protectedProcedure } from '@/server/api/trpc';
-import { projectSubmissions } from '@/server/db/schemas/projects';
-import { and, eq, gte, lt, sql } from 'drizzle-orm';
+import { adminProfiles } from '@/server/db/schemas/profiles';
+import { projectInstances, projects, projectSubmissions } from '@/server/db/schemas/projects';
+import { and, eq, getTableColumns, gte, lt, sql } from 'drizzle-orm';
 import { z } from 'zod';
 
 export const projectSubmissionRouter = createTRPCRouter({
@@ -36,7 +37,7 @@ export const projectSubmissionRouter = createTRPCRouter({
             });
         }),
 
-    getAllSubmissionsForProject: protectedProcedure.input(z.object({ projectInstanceId: z.cuid2() })).query(async ({ ctx, input }) => {
+    getAllSubmissionsForProjectInstance: protectedProcedure.input(z.object({ projectInstanceId: z.cuid2() })).query(async ({ ctx, input }) => {
         return ctx.db.query.projectSubmissions.findMany({
             where: (projectSubmissions, { eq }) => eq(projectSubmissions.projectInstanceId, input.projectInstanceId),
             with: {
@@ -48,6 +49,18 @@ export const projectSubmissionRouter = createTRPCRouter({
                 reviewer: true,
             },
         });
+    }),
+
+    getAllSubmissionsForProject: adminProcedure.input(z.object({ projectId: z.cuid2() })).query(async ({ ctx, input }) => {
+        const submissions = await ctx.db
+            .select({ ...getTableColumns(projectSubmissions), projectInstance: projectInstances, reviewer: adminProfiles, project: projects })
+            .from(projectSubmissions)
+            .innerJoin(projectInstances, eq(projectInstances.id, projectSubmissions.projectInstanceId))
+            .innerJoin(projects, eq(projects.id, projectInstances.projectId))
+            .leftJoin(adminProfiles, eq(adminProfiles.userId, projectSubmissions.reviewedBy))
+            .where(eq(projectInstances.projectId, input.projectId));
+
+        return submissions.map((s) => ({ ...s, projectInstance: { ...s.projectInstance, project: s.project }, project: undefined }));
     }),
 
     getAll: adminProcedure.query(async ({ ctx }) => {

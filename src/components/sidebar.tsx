@@ -4,18 +4,19 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { api } from '@/trpc/react';
-import { ChevronDown, ChevronUp, Folder, Home, LogOut, Search, Users } from 'lucide-react';
+import { skipToken } from '@tanstack/react-query';
+import { ChevronDown, ChevronUp, Code, Folder, Home, LogOut, Search, Users } from 'lucide-react';
 import { signOut, useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useCallback, useState } from 'react';
 
 const ROUTES = [
-    {
-        name: 'Home',
-        href: '/dashboard',
-        icon: Home,
-    },
+    // {
+    //     name: 'Home',
+    //     href: '/dashboard',
+    //     icon: Home,
+    // },
     {
         name: 'Find a Jam',
         href: '/dashboard/jamFinder',
@@ -58,10 +59,37 @@ export function Sidebar() {
 
     const { data: isAdmin } = api.users.isAdmin.useQuery();
 
+    const { data: me } = api.candidates.getOne.useQuery(
+        session
+            ? {
+                  id: session.user.id,
+              }
+            : skipToken
+    );
+
+    const { data: myInstances } = api.projectInstances.getMyActive.useQuery();
+
     return (
         <div className="border-accent flex h-full w-64 flex-col border-r p-4">
             <h1 className="text-primary font-bold">webjam</h1>
             <nav className="flex-1">
+                {myInstances && myInstances.length > 0 && (
+                    <div className="p-4 border mb-4">
+                        <p className="font-mono text-muted-foreground">Running Jams</p>
+                        <div className="flex flex-col space-y-4">
+                            {myInstances.map((j) => (
+                                <Link
+                                    key={j.id}
+                                    href={`/dashboard/jams/${j.id}`}
+                                    className={cn('hover:text-primary flex items-center gap-3 p-4', path.startsWith(`/dashboard/jams/${j.id}`) && 'border-primary border-b-4')}
+                                >
+                                    <Code className="h-5 w-5" />
+                                    {j.teamName}
+                                </Link>
+                            ))}
+                        </div>
+                    </div>
+                )}
                 {ROUTES.map((route) => (
                     <Link
                         key={route.name}
@@ -97,18 +125,20 @@ export function Sidebar() {
                                 <Badge className="w-full bg-green-800 hover:bg-green-900">LOGGED IN AS ADMIN</Badge>
                             </Link>
                         )}
-                        <div className="hover:text-primary flex items-center gap-3">
-                            <Avatar className="h-5 w-5">
-                                <AvatarImage src={session?.user.image ?? undefined} />
-                                <AvatarFallback>{session?.user?.name?.split(' ')[0]?.charAt(0)}</AvatarFallback>
-                            </Avatar>
-                            <Link
-                                href={`/users/${session?.user.id}`}
-                                className="cursor-pointer text-left transition-colors"
-                            >
-                                View Profile
-                            </Link>
-                        </div>
+                        {me && (
+                            <div className="hover:text-primary flex items-center gap-3">
+                                <Avatar className="h-5 w-5">
+                                    <AvatarImage src={session?.user.image ?? undefined} />
+                                    <AvatarFallback>{session?.user?.name?.split(' ')[0]?.charAt(0)}</AvatarFallback>
+                                </Avatar>
+                                <Link
+                                    href={`/users/${session?.user.id}`}
+                                    className="cursor-pointer text-left transition-colors"
+                                >
+                                    View Profile
+                                </Link>
+                            </div>
+                        )}
                         <div className="hover:text-primary flex items-center gap-3">
                             <LogOut className="h-5 w-5" />
                             <button
