@@ -1,6 +1,22 @@
+import { auth } from '@/server/auth';
+import { api } from '@/trpc/server';
+import { redirect } from 'next/navigation';
 import { Sidebar } from '../../components/sidebar';
 
-export default function Layout({ children }: { children: React.ReactNode }) {
+export default async function Layout({ children }: { children: React.ReactNode }) {
+    const session = await auth();
+
+    if (!session) {
+        redirect('/signIn');
+    }
+
+    const user = await api.users.getOne({ id: session.user.id });
+    const profile = await api.candidates.getOne({ id: session.user.id });
+
+    if (!profile && user?.role == 'candidate') {
+        redirect('/onboard');
+    }
+
     return (
         <div className="flex h-screen">
             <Sidebar />

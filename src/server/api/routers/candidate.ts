@@ -99,9 +99,7 @@ export const candidateRouter = createTRPCRouter({
                     resumeURL: z.string(),
                     githubUsername: z.string(),
                     portfolioURL: z.string(),
-                    linkedinURL: z.url().startsWith('https://linkedin.com/in/', {
-                        message: 'Must be a valid LinkedIn URL',
-                    }),
+                    linkedinURL: z.url({ hostname: /^(www.)?linkedin.com$/, protocol: /^https$/ }).or(z.string().length(0)),
                     imageUrl: z.url(),
                 })
                 .partial()
@@ -292,9 +290,10 @@ export const candidateRouter = createTRPCRouter({
     }),
     createMe: protectedProcedure
         .input(
-            z.looseObject({
+            z.strictObject({
                 displayName: z.string(),
                 bio: z.string(),
+                location: z.string().default(''),
             })
         )
         .mutation(async ({ input, ctx }) => {
@@ -310,7 +309,7 @@ export const candidateRouter = createTRPCRouter({
                 userId: ctx.session.user.id,
                 displayName: input.displayName,
                 bio: input.bio,
-                location: '',
+                location: input.location,
             });
         }),
 });

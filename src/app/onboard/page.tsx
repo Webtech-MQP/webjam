@@ -1,26 +1,21 @@
-'use client';
-
 import { OnboardingWizard } from '@/features/profiles/onboarding/form';
-import { motion } from 'motion/react';
-import { useSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
+import { auth } from '@/server/auth';
+import { api } from '@/trpc/server';
+import { redirect } from 'next/navigation';
 
-export default function Page() {
-    const session = useSession();
-    const router = useRouter();
+export default async function Page() {
+    const session = await auth();
 
-    if (session.status === 'unauthenticated') void router.replace('/signIn');
+    if (!session) redirect('/signIn');
+
+    const user = await api.candidates.getOne({ id: session.user.id });
+
+    if (user) redirect(`/users/${session.user.id}/edit`);
 
     return (
         <div className="h-screen w-full flex items-center justify-center">
-            <div className="w-full max-w-md">
-                <motion.div
-                    animate={{ opacity: 1 }}
-                    className="opacity-0"
-                    transition={{ duration: 1 }}
-                >
-                    <OnboardingWizard />
-                </motion.div>
+            <div className="w-full max-w-lg">
+                <OnboardingWizard />
             </div>
         </div>
     );
