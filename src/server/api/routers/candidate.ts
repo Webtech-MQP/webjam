@@ -99,9 +99,7 @@ export const candidateRouter = createTRPCRouter({
                     resumeURL: z.string(),
                     githubUsername: z.string(),
                     portfolioURL: z.string(),
-                    linkedinURL: z.url().startsWith('https://linkedin.com/in/', {
-                        message: 'Must be a valid LinkedIn URL',
-                    }),
+                    linkedinURL: z.url({ hostname: /^(www.)?linkedin.com$/, protocol: /^https$/ }).or(z.string().length(0)),
                     imageUrl: z.url(),
                 })
                 .partial()
@@ -290,6 +288,30 @@ export const candidateRouter = createTRPCRouter({
             where: (candidateProfiles, { inArray }) => inArray(candidateProfiles.userId, input.ids),
         });
     }),
+    createMe: protectedProcedure
+        .input(
+            z.strictObject({
+                displayName: z.string(),
+                bio: z.string(),
+                location: z.string().default(''),
+            })
+        )
+        .mutation(async ({ input, ctx }) => {
+            const existingProfile = await ctx.db.query.candidateProfiles.findFirst({
+                where: (candidateProfiles, { eq }) => eq(candidateProfiles.userId, ctx.session.user.id),
+            });
+
+            if (existingProfile) {
+                throw new TRPCError({ code: 'CONFLICT', message: 'Profile already exists' });
+            }
+
+            return ctx.db.insert(candidateProfiles).values({
+                userId: ctx.session.user.id,
+                displayName: input.displayName,
+                bio: input.bio,
+                location: input.location,
+            });
+        }),
 });
 
 export default candidateRouter;
