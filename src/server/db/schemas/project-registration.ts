@@ -37,7 +37,7 @@ export const projectRegistrations = createTable(
         candidateId: d
             .text()
             .notNull()
-            .references(() => candidateProfiles.userId, { onDelete: 'cascade' }),
+            .references(() => candidateProfiles.userId, { onUpdate: 'cascade', onDelete: 'cascade' }),
         submittedAt: d.integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
         status: d.text({ enum: ['pending', 'accepted', 'rejected'] }).default('pending'),
         preferredRole: d.text({ enum: ['frontend', 'backend', 'fullstack'] }).notNull(),

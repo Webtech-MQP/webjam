@@ -63,6 +63,7 @@ export const authConfig = {
     }),
     callbacks: {
         session: async ({ session, user }) => {
+            console.log(session);
             return {
                 ...session,
                 user: {
