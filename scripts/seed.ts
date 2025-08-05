@@ -434,7 +434,6 @@ async function main() {
     await db.insert(schema.awards).values(awardsData);
     console.log('Awards seeded!');
 
-
     const projectsAwardsData = [
         { projectId: project1.id, awardId: awardsData[0]!.id },
         { projectId: project1.id, awardId: awardsData[1]!.id },

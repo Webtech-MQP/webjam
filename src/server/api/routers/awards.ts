@@ -1,6 +1,6 @@
-import { createTRPCRouter, protectedProcedure, adminProcedure } from '@/server/api/trpc';
+import { adminProcedure, createTRPCRouter, protectedProcedure } from '@/server/api/trpc';
 import { awards, candidateAward, projectAward } from '@/server/db/schemas/awards';
-import { and, eq, desc } from 'drizzle-orm';
+import { and, desc, eq } from 'drizzle-orm';
 import { z } from 'zod';
 
 export const awardsRouter = createTRPCRouter({
@@ -50,10 +50,7 @@ export const awardsRouter = createTRPCRouter({
 
     getVisibleUserAwards: protectedProcedure.input(z.object({ userId: z.cuid2() })).query(async ({ ctx, input }) => {
         return ctx.db.query.candidateAward.findMany({
-            where: (candidateAward, { and, eq }) => and(
-                eq(candidateAward.userId, input.userId),
-                eq(candidateAward.isVisible, true)
-            ),
+            where: (candidateAward, { and, eq }) => and(eq(candidateAward.userId, input.userId), eq(candidateAward.isVisible, true)),
             with: {
                 award: true,
             },
@@ -82,12 +79,16 @@ export const awardsRouter = createTRPCRouter({
         }),
 
     updateAwardVisibilities: protectedProcedure
-        .input(z.object({
-            updates: z.array(z.object({
-                id: z.cuid2(),
-                isVisible: z.boolean(),
-            }))
-        }))
+        .input(
+            z.object({
+                updates: z.array(
+                    z.object({
+                        id: z.cuid2(),
+                        isVisible: z.boolean(),
+                    })
+                ),
+            })
+        )
         .mutation(async ({ ctx, input }) => {
             const userId = ctx.session.user.id;
 
@@ -103,11 +104,9 @@ export const awardsRouter = createTRPCRouter({
             return true;
         }),
 
-    deleteAward: adminProcedure
-        .input(z.object({ awardId: z.cuid2() }))
-        .mutation(async ({ ctx, input }) => {
-            return ctx.db.delete(awards).where(eq(awards.id, input.awardId));
-        }),
+    deleteAward: adminProcedure.input(z.object({ awardId: z.cuid2() })).mutation(async ({ ctx, input }) => {
+        return ctx.db.delete(awards).where(eq(awards.id, input.awardId));
+    }),
 
     grantProjectAward: protectedProcedure
         .input(
@@ -118,12 +117,7 @@ export const awardsRouter = createTRPCRouter({
             })
         )
         .mutation(async ({ ctx, input }) => {
-            const existingAwards = await ctx.db
-                .select()
-                .from(candidateAward)
-                .where(eq(candidateAward.userId, input.userId))
-                .orderBy(desc(candidateAward.displayOrder))
-                .limit(1);
+            const existingAwards = await ctx.db.select().from(candidateAward).where(eq(candidateAward.userId, input.userId)).orderBy(desc(candidateAward.displayOrder)).limit(1);
             const displayOrder = (existingAwards[0]?.displayOrder ?? 0) + 1;
 
             return ctx.db.insert(candidateAward).values({

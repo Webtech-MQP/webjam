@@ -10,7 +10,7 @@ import { EyeIcon, EyeOffIcon, HandIcon, LinkedinIcon, LoaderCircle } from 'lucid
 import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import { useParams, useRouter } from 'next/navigation';
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 
 export default function Page() {
     const { userId: encodedUserId } = useParams();
@@ -58,13 +58,15 @@ export default function Page() {
     const { data: candidate, error, isLoading } = api.candidates.getOne.useQuery(userId.startsWith('@') ? { githubUsername: userId.slice(1) } : { id: userId });
     
     const awardEditorRef = useRef<AwardEditorHandle>(null);
-
+    const [isSaving, setIsSaving] = useState(false);
     const handleSaveAll = async () => {
         try {
+            setIsSaving(true);
             await form.handleSubmit();
             if (awardEditorRef.current?.hasChanges) {
                 await awardEditorRef.current.saveChanges();
             }
+            setIsSaving(false);
             router.push(`/users/${userId}`);
         } catch (err) {
             console.error('Error during save:', err);
@@ -167,7 +169,7 @@ export default function Page() {
                                     />
                                 )}
                             </form.Field>
-                            
+
                             {/* Awards Section */}
                             <AwardEditor
                                 ref={awardEditorRef}
@@ -179,11 +181,9 @@ export default function Page() {
                                 onClick={handleSaveAll}
                                 type="button"
                                 variant="outline"
-                                disabled={updateCandidate.isPending}
+                                disabled={updateCandidate.isPending || isSaving}
                             >
-                                {updateCandidate.isPending && (
-                                    <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
-                                )}
+                                {(updateCandidate.isPending || isSaving) && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
                                 Save All
                             </Button>
                         </form>

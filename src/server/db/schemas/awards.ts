@@ -54,25 +54,24 @@ export const candidateAwardRelations = relations(candidateAward, ({ one }) => ({
     }),
 }));
 
-
 export const projectAward = createTable('projects_awards', (d) => ({
-  projectId: d
-    .text('project_id')
-    .notNull()
-    .references(() => projects.id, { onDelete: 'cascade' }),
-  awardId: d
-    .text('award_id')
-    .notNull()
-    .references(() => awards.id, { onDelete: 'cascade' }),
+    projectId: d
+        .text('project_id')
+        .notNull()
+        .references(() => projects.id, { onDelete: 'cascade' }),
+    awardId: d
+        .text('award_id')
+        .notNull()
+        .references(() => awards.id, { onDelete: 'cascade' }),
 }));
 
 export const projectAwardRelations = relations(projectAward, ({ one }) => ({
-  project: one(projects, {
-    fields: [projectAward.projectId],
-    references: [projects.id],
-  }),
-  award: one(awards, {
-    fields: [projectAward.awardId],
-    references: [awards.id],
-  }),
+    project: one(projects, {
+        fields: [projectAward.projectId],
+        references: [projects.id],
+    }),
+    award: one(awards, {
+        fields: [projectAward.awardId],
+        references: [awards.id],
+    }),
 }));

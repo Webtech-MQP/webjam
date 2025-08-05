@@ -1,16 +1,10 @@
 'use client';
 
 import { api } from '@/trpc/react';
-import {
-    DndContext,
-    PointerSensor,
-    closestCenter,
-    useSensor,
-    useSensors
-} from '@dnd-kit/core';
-import { SortableContext, arrayMove } from '@dnd-kit/sortable';
-import React, { useState, useEffect, useImperativeHandle, forwardRef } from 'react';
 import type { DragEndEvent } from '@dnd-kit/core';
+import { DndContext, PointerSensor, closestCenter, useSensor, useSensors } from '@dnd-kit/core';
+import { SortableContext, arrayMove } from '@dnd-kit/sortable';
+import { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
 import { SortableAwardItem } from './sortable-award-item';
 
 interface AwardEditorProps {
@@ -25,10 +19,7 @@ export interface AwardEditorHandle {
 
 export const AwardEditor = forwardRef<AwardEditorHandle, AwardEditorProps>(({ userId, className = '' }, ref) => {
     const utils = api.useUtils();
-    const { data } = api.awards.getUserAwards.useQuery(
-        { userId: userId },
-        { enabled: !!userId }
-    );
+    const { data } = api.awards.getUserAwards.useQuery({ userId: userId }, { enabled: !!userId });
     const initialAwards = data ?? [];
 
     const [awards, setAwards] = useState(initialAwards);
@@ -45,11 +36,7 @@ export const AwardEditor = forwardRef<AwardEditorHandle, AwardEditorProps>(({ us
     }, [data]);
 
     const handleVisibilityToggle = (id: string) => {
-        setAwards(prev =>
-            prev.map(award =>
-                award.id === id ? { ...award, isVisible: !award.isVisible } : award
-            )
-        );
+        setAwards((prev) => prev.map((award) => (award.id === id ? { ...award, isVisible: !award.isVisible } : award)));
         setHasChanges(true);
     };
 
@@ -74,7 +61,7 @@ export const AwardEditor = forwardRef<AwardEditorHandle, AwardEditorProps>(({ us
 
     const saveChanges = async () => {
         if (!hasChanges) return;
-        
+
         try {
             await updateOrder.mutateAsync({
                 orders: awards.map((award, index) => ({
@@ -115,7 +102,7 @@ export const AwardEditor = forwardRef<AwardEditorHandle, AwardEditorProps>(({ us
                 collisionDetection={closestCenter}
                 onDragEnd={handleDragEnd}
             >
-                <SortableContext items={awards.map(award => award.id)}>
+                <SortableContext items={awards.map((award) => award.id)}>
                     <div className="max-h-[400px] space-y-2 overflow-y-auto pr-2">
                         {awards.map((award) => (
                             <SortableAwardItem
