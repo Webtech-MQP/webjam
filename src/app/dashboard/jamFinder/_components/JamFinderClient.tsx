@@ -1,7 +1,6 @@
 'use client';
 
 import { JamCard } from '@/components/jam-card';
-import { ProjectModal } from '@/components/project-modal';
 import { SkeletonCard } from '@/components/skeleton-card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -14,6 +13,7 @@ import { api } from '@/trpc/react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { format } from 'date-fns';
 import { ChevronDown, ChevronUp, Search, Sliders } from 'lucide-react';
+import Link from 'next/link';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -244,39 +244,21 @@ export default function JamFinderClient() {
                             <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
                                 {projects?.map((project) => (
                                     <div key={project.id}>
-                                        <JamCard
-                                            key={project.id}
-                                            title={project.title ?? 'Untitled Jam'}
-                                            startDateTime={project.startDateTime ?? new Date()}
-                                            endDateTime={project.endDateTime ?? new Date()}
-                                            numberOfTeammates={project.numberOfMembers}
-                                            imageUrl={project.imageUrl ?? 'https://placehold.co/150/png'}
-                                            tags={project.projectsToTags?.map((pt) => pt.tag) ?? []}
-                                            onClick={() => {
-                                                setSelectedProject(project.id);
-                                                setIsModalOpen(true);
-                                            }}
-                                        />
-                                        {isModalOpen && selectedProject === project.id && (
-                                            <ProjectModal
-                                                id={project.id}
+                                        <Link href={`/dashboard/projects/${project.id}`}>
+                                            <JamCard
+                                                key={project.id}
                                                 title={project.title ?? 'Untitled Jam'}
-                                                subtitle={project.subtitle ?? ''}
-                                                starts={format(project.startDateTime ?? new Date(), 'MMM dd, yyyy')}
-                                                ends={project.endDateTime ? format(project.endDateTime, 'MMM dd, yyyy') : 'Present'}
-                                                signups={123}
-                                                description={project.description ?? 'No description available'}
-                                                imageUrl={project.imageUrl ?? 'https://placehold.co/1080x1920.png'}
-                                                requirements={project.requirements ?? 'No requirements specified'}
-                                                tags={project.projectsToTags?.map((pt) => pt.tag.name) ?? []}
-                                                onSignup={function (): void {
-                                                    throw new Error('Function not implemented.');
-                                                }}
-                                                onClose={() => {
-                                                    setIsModalOpen(false);
+                                                startDateTime={project.startDateTime ?? new Date()}
+                                                endDateTime={project.endDateTime ?? new Date()}
+                                                numberOfTeammates={project.numberOfMembers}
+                                                imageUrl={project.imageUrl ?? 'https://placehold.co/150/png'}
+                                                tags={project.projectsToTags?.map((pt) => pt.tag) ?? []}
+                                                onClick={() => {
+                                                    setSelectedProject(project.id);
+                                                    setIsModalOpen(true);
                                                 }}
                                             />
-                                        )}
+                                        </Link>
                                     </div>
                                 ))}
                             </div>
@@ -304,39 +286,21 @@ export default function JamFinderClient() {
                             <div className="mt-4 grid grid-cols-1 gap-4 overflow-y-auto md:grid-cols-2 lg:grid-cols-3">
                                 {filteredProjectsQuery.data.map((project) => (
                                     <div key={project.id}>
-                                        <JamCard
-                                            key={project.id}
-                                            title={project.title ?? 'Untitled Jam'}
-                                            startDateTime={project.startDateTime ?? new Date()}
-                                            endDateTime={project.endDateTime ?? new Date()}
-                                            numberOfTeammates={project.numberOfMembers}
-                                            imageUrl={project.imageUrl ?? 'https://placehold.co/150/png'}
-                                            tags={project.projectsToTags?.map((pt) => pt.tag) ?? []}
-                                            onClick={() => {
-                                                setSelectedProject(project.id);
-                                                setIsModalOpen(true);
-                                            }}
-                                        />
-                                        {isModalOpen && selectedProject === project.id && (
-                                            <ProjectModal
-                                                id={project.id}
+                                        <Link href={`/dashboard/projects/${project.id}`}>
+                                            <JamCard
+                                                key={project.id}
                                                 title={project.title ?? 'Untitled Jam'}
-                                                subtitle={project.subtitle ?? ''}
-                                                starts={format(project.startDateTime ?? new Date(), 'MMM dd, yyyy')}
-                                                ends={project.endDateTime ? format(project.endDateTime, 'MMM dd, yyyy') : 'Present'}
-                                                signups={123}
-                                                description={project.description ?? 'No description available'}
-                                                imageUrl={project.imageUrl ?? 'https://placehold.co/1080x1920.png'}
-                                                requirements={project.requirements ?? 'No requirements specified'}
-                                                tags={project.projectsToTags?.map((pt) => pt.tag.name) ?? []}
-                                                onSignup={function (): void {
-                                                    throw new Error('Function not implemented.');
-                                                }}
-                                                onClose={() => {
-                                                    setIsModalOpen(false);
+                                                startDateTime={project.startDateTime ?? new Date()}
+                                                endDateTime={project.endDateTime ?? new Date()}
+                                                numberOfTeammates={project.numberOfMembers}
+                                                imageUrl={project.imageUrl ?? 'https://placehold.co/150/png'}
+                                                tags={project.projectsToTags?.map((pt) => pt.tag) ?? []}
+                                                onClick={() => {
+                                                    setSelectedProject(project.id);
+                                                    setIsModalOpen(true);
                                                 }}
                                             />
-                                        )}
+                                        </Link>
                                     </div>
                                 ))}
                             </div>

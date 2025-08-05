@@ -7,8 +7,8 @@ import { Sidebar } from '../../components/sidebar';
 export default async function Layout({ children }: { children: React.ReactNode }) {
     const session = await auth();
     const isAdmin = await api.users.isAdmin();
-    if (!session?.user && !isAdmin) {
-        redirect('/');
+    if (!session?.user || !isAdmin) {
+        redirect('/signIn');
     }
 
     return (

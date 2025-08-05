@@ -1,3 +1,13 @@
-export default function Layout({ children }: { children: React.ReactNode }) {
-    return <div className="h-full">{children}</div>;
+interface Props {
+    modal: React.ReactNode;
+    rest: React.ReactNode;
+}
+
+export default function Layout({ modal, rest }: Props) {
+    return (
+        <>
+            <div className="h-full">{rest}</div>
+            {modal}
+        </>
+    );
 }

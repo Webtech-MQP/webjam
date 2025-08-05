@@ -1,6 +1,7 @@
-import { createTRPCRouter, publicProcedure } from '@/server/api/trpc';
-import { candidateProfilesToProjectInstances, projectInstances } from '@/server/db/schemas/projects';
+import { createTRPCRouter, protectedProcedure, publicProcedure } from '@/server/api/trpc';
+import { candidateProfilesToProjectInstances, projectInstances, projects } from '@/server/db/schemas/projects';
 import { TRPCError } from '@trpc/server';
+import { and, eq, getTableColumns, gte } from 'drizzle-orm';
 import z from 'zod';
 
 export const projectInstanceRouter = createTRPCRouter({
@@ -72,5 +73,15 @@ export const projectInstanceRouter = createTRPCRouter({
                 },
             },
         });
+    }),
+    getMyActive: protectedProcedure.query(async ({ ctx }) => {
+        const instances = await ctx.db
+            .select(getTableColumns(projectInstances))
+            .from(projectInstances)
+            .innerJoin(candidateProfilesToProjectInstances, eq(candidateProfilesToProjectInstances.projectInstanceId, projectInstances.id))
+            .innerJoin(projects, eq(projectInstances.projectId, projects.id))
+            .where(and(eq(candidateProfilesToProjectInstances.candidateId, ctx.session.user.id), gte(projects.endDateTime, new Date())));
+
+        return instances;
     }),
 });

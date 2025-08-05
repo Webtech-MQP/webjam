@@ -8,6 +8,8 @@ export default async function DashboardPage() {
         redirect('/');
     }
 
+    redirect('/dashboard/jamFinder');
+
     return (
         <div className="flex h-full flex-col items-center justify-center">
             <h1 className="mb-4 text-2xl font-bold">Dashboard</h1>

@@ -25,7 +25,7 @@ export default async function Page({ params }: Props) {
     const candidate = await api.candidates.getOne(userId.startsWith('@') ? { githubUsername: userId.slice(1) } : { id: userId });
 
     if (!candidate) {
-        return <div>User not found</div>;
+        return <div className="flex items-center justify-center h-full w-full text-red-300">User not found</div>;
     }
 
     const projects = await api.candidates.getProjects({

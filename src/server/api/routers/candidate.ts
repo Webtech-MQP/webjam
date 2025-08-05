@@ -9,7 +9,7 @@ import { z } from 'zod';
 export const candidateRouter = createTRPCRouter({
     getOne: publicProcedure.input(z.union([z.object({ id: z.cuid2() }), z.object({ githubUsername: z.string() })])).query(async ({ ctx, input }) => {
         if ('id' in input) {
-            return ctx.db.query.candidateProfiles.findFirst({
+            const c = await ctx.db.query.candidateProfiles.findFirst({
                 where: (candidateProfiles, { eq }) => eq(candidateProfiles.userId, input.id),
                 with: {
                     user: true,
@@ -24,6 +24,8 @@ export const candidateRouter = createTRPCRouter({
                     },
                 },
             });
+
+            return c ?? null;
         } else {
             // Search by githubUsername - first find user, then get their profile
             const user = await ctx.db.query.users.findFirst({
@@ -297,6 +299,10 @@ export const candidateRouter = createTRPCRouter({
             })
         )
         .mutation(async ({ input, ctx }) => {
+            const user = await ctx.db.query.users.findFirst({
+                where: (users, { eq }) => eq(users.id, ctx.session.user.id),
+            });
+
             const existingProfile = await ctx.db.query.candidateProfiles.findFirst({
                 where: (candidateProfiles, { eq }) => eq(candidateProfiles.userId, ctx.session.user.id),
             });
@@ -310,6 +316,7 @@ export const candidateRouter = createTRPCRouter({
                 displayName: input.displayName,
                 bio: input.bio,
                 location: input.location,
+                imageUrl: user?.image,
             });
         }),
 });

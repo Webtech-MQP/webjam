@@ -33,7 +33,7 @@ export const projectRegistrations = createTable(
         projectId: d
             .text()
             .notNull()
-            .references(() => projects.id, { onDelete: 'cascade' }),
+            .references(() => projects.id, { onUpdate: 'cascade', onDelete: 'cascade' }),
         candidateId: d
             .text()
             .notNull()

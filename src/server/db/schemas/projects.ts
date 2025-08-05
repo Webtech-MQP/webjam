@@ -63,10 +63,7 @@ export const projectInstanceRelations = relations(projectInstances, ({ one, many
         references: [projects.id],
     }),
     teamMembers: many(candidateProfilesToProjectInstances),
-    submission: one(projectSubmissions, {
-        fields: [projectInstances.id],
-        references: [projectSubmissions.projectInstanceId],
-    }),
+    submission: many(projectSubmissions),
 }));
 
 export const projectEvent = createTable('project_timeline_event', (d) => ({
@@ -96,7 +93,7 @@ export const projectSubmissions = createTable('project_submission', (d) => ({
     projectInstanceId: d
         .text()
         .notNull()
-        .references(() => projectInstances.id),
+        .references(() => projectInstances.id, { onDelete: 'cascade', onUpdate: 'cascade' }),
     submittedOn: d.integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
     submittedBy: d
         .text()

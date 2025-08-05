@@ -207,23 +207,32 @@ export const projectRegistrationRouter = createTRPCRouter({
                 }
             }
         }),
-    getProjectRegistrations: protectedProcedure.input(z.object({ projectId: z.string() })).query(async ({ ctx, input }) => {
-        const registrations = await ctx.db.select().from(projectRegistrations).where(eq(projectRegistrations.projectId, input.projectId));
+    getProjectRegistrations: adminProcedure.input(z.object({ projectId: z.string() })).query(async ({ ctx, input }) => {
+        const registrations = await ctx.db.query.projectRegistrations.findMany({
+            where: eq(projectRegistrations.projectId, input.projectId),
+            with: {
+                answers: true,
+                candidate: true,
+            },
+        });
 
-        const answers = await ctx.db
-            .select()
-            .from(projectRegistrationAnswer)
-            .where(eq(projectRegistrationAnswer.registrationId, registrations[0]?.id ?? ''));
-
-        //combine the data
-        return registrations.map((registration) => ({
-            ...registration,
-            answers: answers.filter((a) => a.registrationId === registration.id),
-        }));
+        return registrations;
     }),
 
     deleteQuestion: adminProcedure.input(z.object({ questionId: z.string() })).mutation(async ({ ctx, input }) => {
         return ctx.db.delete(projectRegistrationQuestions).where(eq(projectRegistrationQuestions.id, input.questionId));
+    }),
+
+    removeRegistration: adminProcedure.input(z.object({ registrationId: z.string() })).mutation(async ({ ctx, input }) => {
+        return ctx.db.delete(projectRegistrations).where(eq(projectRegistrations.id, input.registrationId));
+    }),
+
+    haveIRegistered: protectedProcedure.input(z.object({ projectId: z.string() })).query(async ({ ctx, input }) => {
+        const registration = await ctx.db.query.projectRegistrations.findFirst({
+            where: (projectRegistrations, { and, eq }) => and(eq(projectRegistrations.projectId, input.projectId), eq(projectRegistrations.candidateId, ctx.session.user.id)),
+        });
+
+        return !!registration;
     }),
 });
 

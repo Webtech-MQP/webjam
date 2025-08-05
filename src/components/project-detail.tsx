@@ -16,9 +16,15 @@ export interface ProjectDetailProps {
 export const ProjectDetail = (props: ProjectDetailProps) => {
     const { data: project, isLoading } = api.projects.getOne.useQuery({ id: props.id });
 
-    const [visible, setVisible] = useState(false);
     const [showRegistration, setShowRegistration] = useState(false);
     const [registrationCompleted, setRegistrationCompleted] = useState(false);
+
+    const haveIRegistered = api.projectRegistration.haveIRegistered.useQuery(
+        { projectId: props.id },
+        {
+            enabled: !!props.id,
+        }
+    );
 
     if (!project && !isLoading) notFound();
 
@@ -26,6 +32,8 @@ export const ProjectDetail = (props: ProjectDetailProps) => {
         // TODO: Loading skeleton
         return null;
     }
+
+    const canRegister = project?.projectInstances.length == 0 && !haveIRegistered.data;
 
     return (
         <>
@@ -75,12 +83,16 @@ export const ProjectDetail = (props: ProjectDetailProps) => {
                         <li className="list-inside list-disc text-sm">{project.requirements}</li>
                     </ul>
                     <Button
-                        asChild
                         onClick={() => setShowRegistration(true)}
+                        disabled={!canRegister}
                     >
-                        <span>
-                            Join Project <UserPlus />
-                        </span>
+                        {canRegister ? (
+                            <span className="flex gap-2">
+                                Join Project <UserPlus />
+                            </span>
+                        ) : (
+                            'Not Accepting Registrations'
+                        )}
                     </Button>
                 </div>
                 {project.imageUrl ? (

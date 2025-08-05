@@ -1,4 +1,5 @@
 import { api } from '@/trpc/server';
+import { notFound } from 'next/navigation';
 
 type Params = {
     userId: string;
@@ -16,7 +17,7 @@ export default async function Layout({ candidate, params }: Props) {
     //TODO: If user is recruiter, render recruiter profile
 
     if (!c) {
-        return <div>User not found</div>;
+        notFound();
     }
 
     return candidate;
