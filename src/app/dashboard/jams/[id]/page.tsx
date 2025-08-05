@@ -239,7 +239,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
                         <h6 className="text-sm font-medium text-gray-300">GitHub</h6>
                         <GitGraph
                             owner={'Webtech-MQP'}
-                            repoName={'prototype-3'}
+                            repoName={'webjam'}
                         />
                     </DashboardCard>
                 </div>

@@ -10,6 +10,7 @@ export default async function Page() {
 
     return (
         <div>
+            <h1>Manage Projects</h1>
             <div className="grid grid-cols-3 gap-4 overflow-y-auto">
                 {projects.map((p) => (
                     <div

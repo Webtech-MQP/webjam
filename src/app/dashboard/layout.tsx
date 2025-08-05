@@ -10,10 +10,10 @@ export default async function Layout({ children }: { children: React.ReactNode }
         redirect('/signIn');
     }
 
-    const user = await api.users.getOne({ id: session.user.id });
+    const isAdmin = await api.users.isAdmin();
     const profile = await api.candidates.getOne({ id: session.user.id });
 
-    if (!profile && user?.role == 'candidate') {
+    if (!profile && !isAdmin) {
         redirect('/onboard');
     }
 

@@ -67,7 +67,9 @@ export function Sidebar() {
             : skipToken
     );
 
-    const { data: myInstances } = api.projectInstances.getMyActive.useQuery();
+    const { data: myInstances } = api.projectInstances.getMyActive.useQuery(undefined, {
+        throwOnError: false,
+    });
 
     return (
         <div className="border-accent flex h-full w-64 flex-col border-r p-4">
@@ -75,7 +77,7 @@ export function Sidebar() {
             <nav className="flex-1">
                 {myInstances && myInstances.length > 0 && (
                     <div className="p-4 border mb-4">
-                        <p className="font-mono text-muted-foreground">Running Jams</p>
+                        <p className="font-mono text-muted-foreground">My Jams</p>
                         <div className="flex flex-col space-y-4">
                             {myInstances.map((j) => (
                                 <Link
