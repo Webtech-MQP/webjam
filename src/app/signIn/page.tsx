@@ -2,7 +2,7 @@
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Github, Linkedin } from 'lucide-react';
+import { Github } from 'lucide-react';
 import { signIn } from 'next-auth/react';
 
 export default function SignInPage() {
@@ -23,13 +23,13 @@ export default function SignInPage() {
                         <Github />
                         Sign in with GitHub
                     </Button>
-                    <Button
+                    {/*<Button
                         variant="default"
                         className="w-full"
                         onClick={() => signIn('github', { redirectTo: '/dashboard' })}
                     >
                         <Linkedin /> Sign in with LinkedIn
-                    </Button>
+                    </Button>*/}
                 </CardFooter>
             </Card>
         </div>

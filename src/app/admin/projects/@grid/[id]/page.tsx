@@ -54,13 +54,19 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
                 </div>
                 <div className="relative flex w-full gap-8 pt-4">
                     <div className="relative min-w-1/4 h-fill rounded-lg">
-                        <Image
-                            src="https://placehold.co/150/png"
-                            alt="Project Image"
-                            fill
-                            objectFit="cover"
-                            className="rounded"
-                        />
+                        {project.imageUrl ? (
+                            <Image
+                                src={project.imageUrl}
+                                alt="Project Image"
+                                fill
+                                objectFit="cover"
+                                className="rounded"
+                            />
+                        ) : (
+                            <div className="w-full h-full bg-primary rounded flex items-center justify-center text-center">
+                                <span className="font-bold text-2xl italic text-orange-200">webjam</span>
+                            </div>
+                        )}
                     </div>
                     <div className="flex flex-col items-center justify-center gap-2">
                         <ClipboardPenLine className={cn(project.status === 'upcoming' && project.projectInstances.length == 0 && 'animate-pulse text-red-300')} />

@@ -18,12 +18,6 @@ export function ProjectSubmissions({ submissions }: ProjectSubmissionsProps) {
             <CardHeader>
                 <div className="flex items-center justify-between">
                     <CardTitle className="text-lg text-white">Pending Submissions</CardTitle>
-                    <Button
-                        size="sm"
-                        className="rounded-lg border-0 bg-orange-600/10 text-orange-400 hover:bg-orange-500/50 px-3 py-1"
-                    >
-                        <Link href="/admin/">View All</Link>
-                    </Button>
                 </div>
             </CardHeader>
             <CardContent>
