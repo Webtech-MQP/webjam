@@ -1,6 +1,6 @@
 import { adminProcedure, createTRPCRouter, protectedProcedure } from '@/server/api/trpc';
 import { adminProfiles } from '@/server/db/schemas/profiles';
-import { projectInstances, projects, projectSubmissions } from '@/server/db/schemas/projects';
+import { projectInstances, projects, projectSubmissionRating, projectSubmissions } from '@/server/db/schemas/projects';
 import { and, eq, getTableColumns, gte, lt, sql } from 'drizzle-orm';
 import { z } from 'zod';
 
@@ -118,6 +118,26 @@ export const projectSubmissionRouter = createTRPCRouter({
     deleteAll: adminProcedure.mutation(async ({ ctx }) => {
         // eslint-disable-next-line drizzle/enforce-delete-with-where
         return ctx.db.delete(projectSubmissions);
+    }),
+
+    rateSubmission: adminProcedure.input(z.object({ id: z.cuid2(), rating: z.number().min(1).max(10) })).mutation(async ({ ctx, input }) => {
+        const q = await ctx.db
+            .insert(projectSubmissionRating)
+            .values({
+                submissionId: input.id,
+                rating: input.rating,
+                ratedBy: ctx.session.user.id,
+            })
+            .onConflictDoUpdate({
+                target: [projectSubmissionRating.submissionId, projectSubmissionRating.ratedBy],
+                set: {
+                    rating: input.rating,
+                    ratedBy: ctx.session.user.id,
+                    ratedOn: sql`(unixepoch())`,
+                },
+            });
+
+        return q.rows[0];
     }),
 });
 
