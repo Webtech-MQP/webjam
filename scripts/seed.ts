@@ -1,4 +1,5 @@
 import * as authSchema from '@/server/db/schemas/auth';
+import * as awardSchema from '@/server/db/schemas/awards';
 import * as userSchema from '@/server/db/schemas/profiles';
 import * as registrationSchema from '@/server/db/schemas/project-registration';
 import * as projectSchema from '@/server/db/schemas/projects';
@@ -6,7 +7,7 @@ import { createId } from '@paralleldrive/cuid2';
 import { drizzle } from 'drizzle-orm/libsql';
 import { reset } from 'drizzle-seed';
 
-const schema = { ...authSchema, ...userSchema, ...projectSchema, ...registrationSchema };
+const schema = { ...authSchema, ...userSchema, ...projectSchema, ...registrationSchema, ...awardSchema };
 
 async function main() {
     const db = drizzle(process.env.DATABASE_URL!);
@@ -403,6 +404,55 @@ async function main() {
         },
     ]);
     console.log("Johnny's registration answers added!");
+
+    console.log('Seeding awards...');
+
+    const awardsData = [
+        {
+            id: createId(),
+            title: 'Innovative Workflow Designer',
+            description: 'Awarded for designing an innovative task workflow that enhances productivity and user engagement.',
+            imageURL: 'https://placehold.co/100x100/4CAF50/FFFFFF?text=🚀',
+            createdAt: new Date('2025-09-01'),
+        },
+        {
+            id: createId(),
+            title: 'Automation Master',
+            description: 'Recognized for implementing smart automation features that significantly reduce manual workload.',
+            imageURL: 'https://placehold.co/100x100/2196F3/FFFFFF?text=🤖',
+            createdAt: new Date('2025-09-15'),
+        },
+        {
+            id: createId(),
+            title: 'Healthcare Hero',
+            description: 'Awarded for building a robust and user-friendly patient management system that improves healthcare workflows.',
+            imageURL: 'https://placehold.co/100x100/FF5722/FFFFFF?text=❤️',
+            createdAt: new Date('2025-10-01'),
+        },
+    ];
+
+    await db.insert(schema.awards).values(awardsData);
+    console.log('Awards seeded!');
+
+    const projectsAwardsData = [
+        { projectId: project1.id, awardId: awardsData[0]!.id },
+        { projectId: project1.id, awardId: awardsData[1]!.id },
+    ];
+    await db.insert(schema.projectAward).values(projectsAwardsData);
+    console.log('Projects to awards seeded!');
+
+    const candidateAwardsData = awardsData.map(({ id }, index) => ({
+        id: createId(),
+        userId: userBrian.id,
+        awardId: id,
+        projectSubmissionId: null,
+        earnedAt: new Date('2024-03-15'),
+        displayOrder: index + 1,
+        isVisible: true,
+    }));
+
+    await db.insert(schema.candidateAward).values(candidateAwardsData);
+    console.log('Candidate awards seeded!');
 }
 
 main()

@@ -1,5 +1,6 @@
 'use client';
 
+import { AwardEditor, type AwardEditorHandle } from '@/components/awards/awards-display-editor';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/features/profiles/editor/input';
 import { cn } from '@/lib/utils';
@@ -9,6 +10,7 @@ import { EyeIcon, EyeOffIcon, HandIcon, LinkedinIcon, LoaderCircle } from 'lucid
 import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import { useParams, useRouter } from 'next/navigation';
+import { useRef, useState } from 'react';
 
 export default function Page() {
     const { userId: encodedUserId } = useParams();
@@ -55,6 +57,22 @@ export default function Page() {
     });
 
     const { data: candidate, error, isLoading } = api.candidates.getOne.useQuery(userId.startsWith('@') ? { githubUsername: userId.slice(1) } : { id: userId });
+
+    const awardEditorRef = useRef<AwardEditorHandle>(null);
+    const [isSaving, setIsSaving] = useState(false);
+    const handleSaveAll = async () => {
+        try {
+            setIsSaving(true);
+            await form.handleSubmit();
+            if (awardEditorRef.current?.hasChanges) {
+                await awardEditorRef.current.saveChanges();
+            }
+            setIsSaving(false);
+            router.push(`/users/${userId}`);
+        } catch (err) {
+            console.error('Error during save:', err);
+        }
+    };
 
     const form = useForm({
         defaultValues: {
@@ -152,12 +170,19 @@ export default function Page() {
                                     />
                                 )}
                             </form.Field>
+                            {/* Awards Section */}
+                            <AwardEditor
+                                ref={awardEditorRef}
+                                userId={userId}
+                                className="max-w-xl"
+                            />
                             <Button
-                                onClick={() => form.handleSubmit()}
-                                type="submit"
+                                onClick={handleSaveAll}
+                                type="button"
                                 variant="outline"
+                                disabled={updateCandidate.isPending || isSaving}
                             >
-                                {updateCandidate.isPending && <LoaderCircle className="animate-spin" />}
+                                {(updateCandidate.isPending || isSaving) && <LoaderCircle className="animate-spin" />}
                                 Save
                             </Button>
                         </form>

@@ -1,6 +1,6 @@
 import { adminProcedure, createTRPCRouter, protectedProcedure } from '@/server/api/trpc';
-import { awards, candidateAward, projectAward } from '@/server/db/schemas/awards';
-import { and, desc, eq } from 'drizzle-orm';
+import { awards, candidateAward } from '@/server/db/schemas/awards';
+import { and, eq } from 'drizzle-orm';
 import { z } from 'zod';
 
 export const awardRouter = createTRPCRouter({

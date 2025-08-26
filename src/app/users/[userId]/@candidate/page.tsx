@@ -1,3 +1,4 @@
+import { AwardsSection } from '@/components/awards/awards-display-section';
 import { Button } from '@/components/ui/button';
 import { UserActionsMenu } from '@/components/user-actions-menu';
 import { JamGrid } from '@/features/profiles/jam-grid';
@@ -29,6 +30,10 @@ export default async function Page({ params }: Props) {
     }
 
     const projects = await api.candidates.getProjects({
+        userId: candidate.userId,
+    });
+
+    const userAwards = await api.awards.getVisibleUserAwards({
         userId: candidate.userId,
     });
 
@@ -93,10 +98,20 @@ export default async function Page({ params }: Props) {
                             )}
                         </div>
                     </div>
-                    <div>
-                        <h2>Jams</h2>
-                        <div className="grid">
-                            <JamGrid jams={projects} />
+                    <div className="flex items-start justify-between gap-4">
+                        <div className="">
+                            <h2>Jams</h2>
+                            <div className="grid">
+                                <JamGrid jams={projects} />
+                            </div>
+                        </div>
+                        {/* Awards Section */}
+                        <div className="">
+                            <AwardsSection
+                                awards={userAwards}
+                                title="Achievements"
+                                size="md"
+                            />
                         </div>
                     </div>
                 </div>
