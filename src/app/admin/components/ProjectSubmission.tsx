@@ -61,7 +61,7 @@ export default function ProjectSubmission({ submission }: { submission: ProjectS
                                 rateSubmission.mutate({ id: submission.id, rating: 10 - index });
                                 console.log(`Rated ${10 - index} stars for submission ${submission.id}`);
                             }}
-                            className={cn('hover:cursor-pointer w-2.5 flex-0 peer hover:text-primary peer-hover:text-primary text-muted-foreground ml-1', index % 2 == 0 && 'rotate-y-180 ml-0', rating >= 10 - index ? 'text-primary fill-primary hover:text-orange-100 peer-hover:text-orange-100' : '')}
+                            className={cn('hover:cursor-pointer w-2.5 flex-0 peer hover:fill-primary peer-hover:fill-primary hover:text-primary peer-hover:text-primary text-muted-foreground ml-1', index % 2 == 0 && 'rotate-y-180 ml-0', rating >= 10 - index ? 'text-primary fill-primary group-hover:fill-none' : '')}
                         >
                             <StarHalf className={cn('w-5 h-5 pointer-events-none fill-inherit')} />
                         </button>
