@@ -139,6 +139,16 @@ export const projectSubmissionRouter = createTRPCRouter({
 
         return q.rows[0];
     }),
+
+    getMyRating: protectedProcedure.input(z.object({ submissionId: z.cuid2() })).query(async ({ ctx, input }) => {
+        return (
+            (
+                await ctx.db.query.projectSubmissionRating.findFirst({
+                    where: (rating, { and, eq }) => and(eq(rating.submissionId, input.submissionId), eq(rating.ratedBy, ctx.session.user.id)),
+                })
+            )?.rating ?? null
+        );
+    }),
 });
 
 export default projectSubmissionRouter;
