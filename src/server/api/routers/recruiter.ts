@@ -84,6 +84,36 @@ export const recruiterRouter = createTRPCRouter({
         }
         return ctx.db.delete(recruiterProfiles).where(eq(recruiterProfiles.userId, input.id));
     }),
+
+    createMe: protectedProcedure
+        .input(
+            z.strictObject({
+                displayName: z.string(),
+                bio: z.string(),
+                location: z.string().default(''),
+            })
+        )
+        .mutation(async ({ input, ctx }) => {
+            const user = await ctx.db.query.users.findFirst({
+                where: (users, { eq }) => eq(users.id, ctx.session.user.id),
+            });
+
+            const existingProfile = await ctx.db.query.recruiterProfiles.findFirst({
+                where: (recruiterProfiles, { eq }) => eq(recruiterProfiles.userId, ctx.session.user.id),
+            });
+
+            if (existingProfile) {
+                throw new TRPCError({ code: 'CONFLICT', message: 'Profile already exists' });
+            }
+
+        return ctx.db.insert(recruiterProfiles).values({
+                userId: ctx.session.user.id,
+                displayName: input.displayName,
+                bio: input.bio,
+                location: input.location,
+                imageUrl: user?.image,
+            });
+        }),
 });
 
 export default recruiterRouter;

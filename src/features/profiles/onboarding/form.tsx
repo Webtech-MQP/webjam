@@ -1,6 +1,8 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { api } from '@/trpc/react';
 import { useForm } from '@tanstack/react-form';
 import { LoaderCircle } from 'lucide-react';
@@ -12,9 +14,13 @@ import z from 'zod';
 import { TextField } from './text-input';
 
 const onboardingSchema = z.object({
+    isRecruiter: z.string().refine((val) => val === 'yes' || val === 'no', {
+        message: 'Please select recruiter status',
+    }),
     name: z.string().min(2, 'Name must be at least 2 characters'),
     bio: z.string(),
     location: z.string(),
+    company: z.string().optional(),
 });
 
 // Onboarding form component
@@ -27,10 +33,12 @@ export function OnboardingWizard() {
 
     const form = useForm({
         defaultValues: {
+            isRecruiter: '',
             name: '',
             bio: '',
             location: '',
-        } satisfies z.infer<typeof onboardingSchema>,
+            company: '',
+        },
         onSubmit: async ({ value }) => {
             console.log('Wizard completed:', value);
 
@@ -47,7 +55,7 @@ export function OnboardingWizard() {
             router.push(!!session.data?.user.id ? `/users/${session.data.user.id}` : '/dashboard');
         },
         validators: {
-            onChange: onboardingSchema,
+            onChange: onboardingSchema, 
         },
     });
 
@@ -62,9 +70,25 @@ export function OnboardingWizard() {
             transition={{ duration: 1 }}
         >
             <h1>Hi! We&apos;ll make this quick.</h1>
-            <div className="w-full max-w-2xl mx-auto">
+            <div className="w-full max-w-2xl mx-auto mt-2">
                 {/* Form content */}
                 <div className="space-y-6">
+                    <Label className="text-sm text-gray-700">Are you a recruiter?</Label>
+                    <form.Field name="isRecruiter">
+                        {(field) => (
+                            <RadioGroup
+                                value={field.state.value}
+                                onValueChange={field.handleChange}
+                                onBlur={field.handleBlur}
+                                className="flex"
+                            >
+                                <RadioGroupItem value="yes" />
+                                <Label>I am a recruiter</Label>
+                                <RadioGroupItem value="no" />
+                                <Label>No, I am not a recruiter</Label>
+                            </RadioGroup>
+                        )}
+                    </form.Field>
                     <form.Field name="name">
                         {(field) => (
                             <TextField
@@ -101,6 +125,20 @@ export function OnboardingWizard() {
                             />
                         )}
                     </form.Field>
+                    {form.state.values.isRecruiter === 'yes' && (
+                        <form.Field name="company">
+                            {(field) => (
+                                <TextField
+                                    label="Company"
+                                    placeholder="Enter your company name"
+                                    value={field.state.value}
+                                    onChange={field.handleChange}
+                                    onBlur={field.handleBlur}
+                                    error={field.state.meta.errors?.[0]}
+                                />
+                            )}
+                        </form.Field>
+                    )}
                 </div>
 
                 {/* Submit button */}
