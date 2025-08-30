@@ -4,13 +4,18 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import type { RouterOutputs } from '@/trpc/react';
 import ProjectSubmission from './ProjectSubmission';
 
-type ProjectSubmissionT = RouterOutputs['projectSubmission']['getAll'][number];
+type ProjectSubmissionT = RouterOutputs['projectSubmission']['getAll'][number] & { submissionNumber?: number };
 
 interface ProjectSubmissionsProps {
     submissions: ProjectSubmissionT[];
 }
 
 export function ProjectSubmissions({ submissions }: ProjectSubmissionsProps) {
+    const submissionsWithActionable = submissions.map((submission) => ({
+        ...submission,
+        actionable: submission.projectInstance.project.status === 'judging',
+    }));
+
     return (
         <Card className="bg-stone-950 border-b border-muted">
             <CardHeader>
@@ -20,7 +25,7 @@ export function ProjectSubmissions({ submissions }: ProjectSubmissionsProps) {
             </CardHeader>
             <CardContent>
                 <div className="space-y-4">
-                    {submissions.map((submission) => (
+                    {submissionsWithActionable.map((submission) => (
                         <ProjectSubmission
                             submission={submission}
                             key={submission.id}

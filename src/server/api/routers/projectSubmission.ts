@@ -1,7 +1,7 @@
 import { adminProcedure, createTRPCRouter, protectedProcedure } from '@/server/api/trpc';
-import { adminProfiles } from '@/server/db/schemas/profiles';
-import { projectInstances, projects, projectSubmissionRating, projectSubmissions } from '@/server/db/schemas/projects';
-import { and, eq, getTableColumns, gte, lt, sql } from 'drizzle-orm';
+import { projectInstances, projectSubmissionRating, projectSubmissions } from '@/server/db/schemas/projects';
+import { TRPCError } from '@trpc/server';
+import { and, eq, gte, lt, sql } from 'drizzle-orm';
 import { z } from 'zod';
 
 export const projectSubmissionRouter = createTRPCRouter({
@@ -47,20 +47,41 @@ export const projectSubmissionRouter = createTRPCRouter({
                     },
                 },
                 reviewer: true,
+                ratings: {
+                    columns: {
+                        ratedBy: false,
+                    },
+                },
             },
         });
     }),
 
     getAllSubmissionsForProject: adminProcedure.input(z.object({ projectId: z.cuid2() })).query(async ({ ctx, input }) => {
-        const submissions = await ctx.db
-            .select({ ...getTableColumns(projectSubmissions), projectInstance: projectInstances, reviewer: adminProfiles, project: projects })
-            .from(projectSubmissions)
-            .innerJoin(projectInstances, eq(projectInstances.id, projectSubmissions.projectInstanceId))
-            .innerJoin(projects, eq(projects.id, projectInstances.projectId))
-            .leftJoin(adminProfiles, eq(adminProfiles.userId, projectSubmissions.reviewedBy))
-            .where(eq(projectInstances.projectId, input.projectId));
+        // There has got to be a more performant way to do this that isn't insanely painful
+        const pi = await ctx.db.select().from(projectInstances).where(eq(projectInstances.projectId, input.projectId));
 
-        return submissions.map((s) => ({ ...s, projectInstance: { ...s.projectInstance, project: s.project }, project: undefined }));
+        const submissions = await ctx.db.query.projectSubmissions.findMany({
+            where: (projectSubmissions, { inArray }) =>
+                inArray(
+                    projectSubmissions.projectInstanceId,
+                    pi.map((p) => p.id)
+                ),
+            with: {
+                projectInstance: {
+                    with: {
+                        project: true,
+                    },
+                },
+                reviewer: true,
+                ratings: {
+                    columns: {
+                        ratedBy: false,
+                    },
+                },
+            },
+        });
+
+        return submissions;
     }),
 
     getAll: adminProcedure.query(async ({ ctx }) => {
@@ -72,6 +93,12 @@ export const projectSubmissionRouter = createTRPCRouter({
                     },
                 },
                 reviewer: true,
+
+                ratings: {
+                    columns: {
+                        ratedBy: false,
+                    },
+                },
             },
         });
     }),
@@ -86,6 +113,11 @@ export const projectSubmissionRouter = createTRPCRouter({
                     },
                 },
                 reviewer: true,
+                ratings: {
+                    columns: {
+                        ratedBy: false,
+                    },
+                },
             },
         });
     }),
@@ -121,6 +153,26 @@ export const projectSubmissionRouter = createTRPCRouter({
     }),
 
     rateSubmission: adminProcedure.input(z.object({ id: z.cuid2(), rating: z.number().min(1).max(10) })).mutation(async ({ ctx, input }) => {
+        const p = await ctx.db.query.projects.findFirst({
+            with: {
+                projectInstances: {
+                    with: {
+                        submission: {
+                            where: (submissions, { eq }) => eq(submissions.id, input.id),
+                        },
+                    },
+                },
+            },
+        });
+
+        if (!p) {
+            throw new TRPCError({ code: 'NOT_FOUND', message: 'Submission not found' });
+        }
+
+        if (p.status !== 'judging') {
+            throw new TRPCError({ code: 'BAD_REQUEST', message: 'Can only rate submissions in judgement status' });
+        }
+
         const q = await ctx.db
             .insert(projectSubmissionRating)
             .values({
@@ -140,7 +192,7 @@ export const projectSubmissionRouter = createTRPCRouter({
         return q.rows[0];
     }),
 
-    getMyRating: protectedProcedure.input(z.object({ submissionId: z.cuid2() })).query(async ({ ctx, input }) => {
+    getMyRating: adminProcedure.input(z.object({ submissionId: z.cuid2() })).query(async ({ ctx, input }) => {
         return (
             (
                 await ctx.db.query.projectSubmissionRating.findFirst({
@@ -148,6 +200,14 @@ export const projectSubmissionRouter = createTRPCRouter({
                 })
             )?.rating ?? null
         );
+    }),
+
+    getAvgRating: adminProcedure.input(z.object({ submissionId: z.cuid2() })).query(async ({ ctx, input }) => {
+        const ratings = await ctx.db.query.projectSubmissionRating.findMany({
+            where: (rating, { eq }) => eq(rating.submissionId, input.submissionId),
+        });
+
+        return ratings.reduce((acc, r) => acc + r.rating, 0) / (ratings.length || 1);
     }),
 });
 

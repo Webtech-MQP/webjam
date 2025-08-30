@@ -17,7 +17,10 @@ export const projects = createTable('project', (d) => ({
     instructions: d.text({ length: 256 }).notNull().default(''),
     requirements: d.text({ length: 256 }).notNull(),
     imageUrl: d.text({ length: 256 }),
-    status: d.text({ enum: ['in-progress', 'completed', 'upcoming'] }).default('upcoming'),
+    status: d
+        .text({ enum: ['created', 'judging', 'completed'] })
+        .notNull()
+        .default('created'),
     deadline: d.integer({ mode: 'timestamp' }),
     numberOfMembers: d.integer().notNull().default(1),
     // NOTE: The start and end date are soon to disappear! Do not use!

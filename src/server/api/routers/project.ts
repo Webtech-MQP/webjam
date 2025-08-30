@@ -28,7 +28,7 @@ export const projectRouter = createTRPCRouter({
                 instructions: '',
                 requirements: input.requirements,
                 imageUrl: input.imageUrl,
-                status: 'upcoming',
+                status: 'created',
                 deadline: new Date(0),
                 startDateTime: input.starts,
                 endDateTime: input.ends,
@@ -103,7 +103,6 @@ export const projectRouter = createTRPCRouter({
                     instructions: '',
                     requirements: input.requirements,
                     imageUrl: input.imageUrl,
-                    status: 'upcoming',
                     deadline: new Date(0),
                     startDateTime: input.starts,
                     endDateTime: input.ends,
@@ -277,5 +276,9 @@ export const projectRouter = createTRPCRouter({
         console.log(body);
 
         return body;
+    }),
+
+    updateStatus: adminProcedure.input(z.object({ id: z.cuid2(), status: z.enum(['created', 'judging', 'completed']) })).mutation(async ({ ctx, input }) => {
+        return ctx.db.update(projects).set({ status: input.status }).where(eq(projects.id, input.id));
     }),
 });

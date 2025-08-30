@@ -185,7 +185,7 @@ async function main() {
         description: 'The goal of this project is to design and build a modern task and work management platform that breaks away from traditional models like static to-do lists, calendars, and Kanban boards. Your app should explore new ways of organizing, prioritizing, and completing tasks—whether through innovative UI/UX, smart automation, collaboration tools, or integrations with other services.\n' + 'You should aim to improve how users think about and interact with their work. This could mean introducing adaptive workflows, using AI to assist with prioritization, or designing systems that account for context like focus level, urgency, or energy. Think beyond existing tools like Trello, Todoist, or Notion—what should task management look like if we started from scratch?',
         requirements: 'Full-stack implementation (frontend, backend, database)\n' + 'Support for creating, editing, and managing tasks\n' + 'Some form of prioritization or workflow structure\n' + 'A clearly explained "rethinking" approach: what makes your app different',
         imageUrl: 'https://placehold.co/1080x1920.png',
-        status: 'upcoming' as 'in-progress' | 'completed' | 'upcoming',
+        status: 'created' as const,
         repoURL: 'https://github.com/Webtech-MQP/prototype-3',
         deadline: new Date('2025-11-17T00:00:00Z'),
         startDateTime: new Date('2025-08-17T00:00:00Z'),
