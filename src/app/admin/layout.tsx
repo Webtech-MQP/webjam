@@ -14,7 +14,15 @@ export default async function Layout({ children }: { children: React.ReactNode }
     return (
         <div className="flex h-screen">
             <Sidebar />
-            <Toaster expand={true} />
+            <Toaster
+                closeButton
+                expand={true}
+                toastOptions={{
+                    classNames: {
+                        closeButton: '!text-white',
+                    },
+                }}
+            />
             <div className="max-h-screen w-full overflow-y-auto p-4">{children}</div>
         </div>
     );
