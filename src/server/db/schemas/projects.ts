@@ -5,6 +5,7 @@ import { createTable } from '../schema-util';
 import { users } from './auth';
 import { adminProfiles, candidateProfiles } from './profiles';
 import { projectRegistrations, projectsToRegistrationQuestions } from './project-registration';
+import { projectAward } from './awards';
 
 export const projects = createTable('project', (d) => ({
     id: d
@@ -45,6 +46,7 @@ export const projectsRelations = relations(projects, ({ one, many }) => ({
     registrations: many(projectRegistrations),
     projectInstances: many(projectInstances),
     events: many(projectEvent),
+    awards: many(projectAward),
 }));
 
 export const projectInstances = createTable('project_instance', (d) => ({
