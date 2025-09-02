@@ -1,5 +1,5 @@
 import { createTRPCRouter, protectedProcedure, publicProcedure } from '@/server/api/trpc';
-import { candidateProfilesToProjectInstances, projectInstances, projects } from '@/server/db/schemas/projects';
+import { candidateProfilesToProjectInstances, projectInstances, projects, projectInstanceRatings } from '@/server/db/schemas/projects';
 import { TRPCError } from '@trpc/server';
 import { and, eq, getTableColumns, gte } from 'drizzle-orm';
 import z from 'zod';
@@ -84,4 +84,49 @@ export const projectInstanceRouter = createTRPCRouter({
 
         return instances;
     }),
+
+    createOrUpdateRating: protectedProcedure
+        .input(z.object({ projectInstanceId: z.string(), rating: z.number().int().min(1).max(10) }))
+        .mutation(async ({ ctx, input }) => {
+            const userId = ctx.session.user.id;
+            const { projectInstanceId, rating } = input;
+            //checks
+            const member = await ctx.db.query.candidateProfilesToProjectInstances.findFirst({
+                where: (t, { and, eq }) => and(eq(t.projectInstanceId, input.projectInstanceId), eq(t.candidateId, userId)),
+            });
+            if (!member) throw new Error('Not a member of this project instance');
+            const projectInstance = await ctx.db.query.projectInstances.findFirst({
+                where: (i, { eq }) => eq(i.id, input.projectInstanceId),
+                with: { project: true },
+            });
+            if (!projectInstance) throw new Error('Project instance not found');
+
+            await ctx.db
+                .insert(projectInstanceRatings)
+                .values({
+                    projectInstanceId,
+                    ratedBy: userId,
+                    rating,
+                    ratedOn: new Date(),
+                })
+                .onConflictDoUpdate({
+                    target: [projectInstanceRatings.projectInstanceId, projectInstanceRatings.ratedBy],
+                    set: {
+                        rating,
+                        ratedOn: new Date(),
+                    },
+                });
+            return true;
+        }),
+
+    getMyProjectInstanceRating: protectedProcedure.input(z.object({ projectInstanceId: z.cuid2() })).query(async ({ ctx, input }) => {
+        return (
+            (
+                await ctx.db.query.projectInstanceRatings.findFirst({
+                    where: (rating, { and, eq }) => and(eq(rating.projectInstanceId, input.projectInstanceId), eq(rating.ratedBy, ctx.session.user.id)),
+                })
+            )?.rating ?? null
+        );
+    }),
+
 });
