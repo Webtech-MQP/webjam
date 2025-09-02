@@ -81,9 +81,9 @@ export const projectInstanceRatings = createTable(
 );
 
 export const projectInstanceRatingRelations = relations(projectInstanceRatings, ({ one }) => ({
-    projectInstance: one(projects, {
+    projectInstance: one(projectInstances, {
         fields: [projectInstanceRatings.projectInstanceId],
-        references: [projects.id],
+        references: [projectInstances.id],
     }),
     rater: one(candidateProfiles, {
         fields: [projectInstanceRatings.ratedBy],
