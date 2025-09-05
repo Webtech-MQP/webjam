@@ -1,5 +1,5 @@
-import { createTRPCRouter, protectedProcedure, publicProcedure } from '@/server/api/trpc';
-import { candidateProfilesToProjectInstances, projectInstances, projects, projectInstanceRatings } from '@/server/db/schemas/projects';
+import { createTRPCRouter, protectedProcedure, publicProcedure, adminProcedure } from '@/server/api/trpc';
+import { candidateProfilesToProjectInstances, projectInstanceRatings, projectInstances, projects } from '@/server/db/schemas/projects';
 import { TRPCError } from '@trpc/server';
 import { and, eq, getTableColumns, gte } from 'drizzle-orm';
 import z from 'zod';
@@ -122,5 +122,13 @@ export const projectInstanceRouter = createTRPCRouter({
                 })
             )?.rating ?? null
         );
+    }),
+
+    getAvgProjectInstanceRating: adminProcedure.input(z.object({ projectInstanceId: z.cuid2() })).query(async ({ ctx, input }) => {
+        const ratings = await ctx.db.query.projectInstanceRatings.findMany({
+            where: (rating, { eq }) => eq(rating.projectInstanceId, input.projectInstanceId),
+        });
+
+        return ratings.reduce((acc, r) => acc + r.rating, 0) / (ratings.length || 1);
     }),
 });

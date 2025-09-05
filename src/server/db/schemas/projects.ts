@@ -73,7 +73,7 @@ export const projectInstanceRatings = createTable(
         ratedBy: d
             .text()
             .notNull()
-            .references(() => candidateProfiles.userId, { onDelete: 'set null' }),
+            .references(() => candidateProfiles.userId, { onDelete: 'cascade', onUpdate: 'cascade' }),
         rating: d.integer().notNull(), // e.g., 1 to 10
         ratedOn: d.integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
     }),
