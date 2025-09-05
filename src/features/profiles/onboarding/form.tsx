@@ -20,15 +20,14 @@ const onboardingSchema = z.object({
     name: z.string().min(2, 'Name must be at least 2 characters'),
     bio: z.string(),
     location: z.string(),
-    company: z.string().optional(),
 });
 
 // Onboarding form component
 export function OnboardingWizard() {
-    const createProfile = api.candidates.createMe.useMutation();
+    const createRecruiterProfile = api.recruiters.createMe.useMutation();
+    const createCandidateProfile = api.candidates.createMe.useMutation();
 
     const router = useRouter();
-
     const session = useSession();
 
     const form = useForm({
@@ -37,12 +36,12 @@ export function OnboardingWizard() {
             name: '',
             bio: '',
             location: '',
-            company: '',
         },
         onSubmit: async ({ value }) => {
             console.log('Wizard completed:', value);
 
-            const p = createProfile.mutateAsync({
+            const mutation = value.isRecruiter === 'yes' ? createRecruiterProfile : createCandidateProfile;
+            const p = mutation.mutateAsync({
                 displayName: value.name,
                 bio: value.bio,
                 location: value.location,
@@ -52,10 +51,14 @@ export function OnboardingWizard() {
 
             await p;
 
-            router.push(!!session.data?.user.id ? `/users/${session.data.user.id}` : '/dashboard');
+            if (value.isRecruiter === 'no') {
+                router.push(!!session.data?.user.id ? `/users/${session.data.user.id}` : '/dashboard');
+            } else {
+                router.push('/dashboard');
+            }
         },
         validators: {
-            onChange: onboardingSchema, 
+            onBlur: onboardingSchema,
         },
     });
 
@@ -76,17 +79,20 @@ export function OnboardingWizard() {
                     <Label className="text-sm text-gray-700">Are you a recruiter?</Label>
                     <form.Field name="isRecruiter">
                         {(field) => (
-                            <RadioGroup
-                                value={field.state.value}
-                                onValueChange={field.handleChange}
-                                onBlur={field.handleBlur}
-                                className="flex"
-                            >
-                                <RadioGroupItem value="yes" />
-                                <Label>I am a recruiter</Label>
-                                <RadioGroupItem value="no" />
-                                <Label>No, I am not a recruiter</Label>
-                            </RadioGroup>
+                            <>
+                                <RadioGroup
+                                    value={field.state.value}
+                                    onValueChange={field.handleChange}
+                                    onBlur={field.handleBlur}
+                                    className="flex"
+                                >
+                                    <RadioGroupItem value="yes" />
+                                    <Label>Yes</Label>
+                                    <RadioGroupItem value="no" />
+                                    <Label>No</Label>
+                                </RadioGroup>
+                                {field.state.meta.errors?.[0] && <p className="text-sm text-red-400">{field.state.meta.errors?.[0].message}</p>}
+                            </>
                         )}
                     </form.Field>
                     <form.Field name="name">
@@ -125,20 +131,6 @@ export function OnboardingWizard() {
                             />
                         )}
                     </form.Field>
-                    {form.state.values.isRecruiter === 'yes' && (
-                        <form.Field name="company">
-                            {(field) => (
-                                <TextField
-                                    label="Company"
-                                    placeholder="Enter your company name"
-                                    value={field.state.value}
-                                    onChange={field.handleChange}
-                                    onBlur={field.handleBlur}
-                                    error={field.state.meta.errors?.[0]}
-                                />
-                            )}
-                        </form.Field>
-                    )}
                 </div>
 
                 {/* Submit button */}
@@ -156,7 +148,7 @@ export function OnboardingWizard() {
                                 disabled={!state.canSubmit || state.isSubmitting}
                                 onClick={handleSubmit}
                             >
-                                Complete Profile {createProfile.isPending && <LoaderCircle className="animate-spin" />}
+                                Complete Profile {form.state.values.isRecruiter === 'yes' ? createRecruiterProfile.isPending : createCandidateProfile.isPending && <LoaderCircle className="animate-spin" />}
                             </Button>
                         </div>
                     )}

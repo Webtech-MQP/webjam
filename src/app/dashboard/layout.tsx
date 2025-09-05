@@ -7,7 +7,7 @@ export default async function Layout({ children }: { children: React.ReactNode }
     const session = await auth();
 
     if (!session) {
-            redirect('/');
+        redirect('/');
     }
 
     const isAdmin = await api.users.isAdmin();

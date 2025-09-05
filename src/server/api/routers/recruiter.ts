@@ -106,7 +106,7 @@ export const recruiterRouter = createTRPCRouter({
                 throw new TRPCError({ code: 'CONFLICT', message: 'Profile already exists' });
             }
 
-        return ctx.db.insert(recruiterProfiles).values({
+            return ctx.db.insert(recruiterProfiles).values({
                 userId: ctx.session.user.id,
                 displayName: input.displayName,
                 bio: input.bio,
