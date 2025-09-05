@@ -55,18 +55,20 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
             <div className="flex flex-col gap-2 ">
                 <DashboardCard>
                     <h1>{projectInstance.project.title}</h1>
-                    <div className="flex gap-2">
-                        <Badge className="bg-indigo-500">
-                            <Users /> {projectInstance.teamMembers.length} members
-                        </Badge>
-                        <Badge className="bg-indigo-500">
-                            <Clock /> {projectInstance.project.deadline?.toLocaleDateString()}
-                        </Badge>
+                    <div className="flex justify-between items-center">
+                        <div className="flex gap-2">
+                            <Badge className="bg-indigo-500">
+                                <Users /> {projectInstance.teamMembers.length} members
+                            </Badge>
+                            <Badge className="bg-indigo-500">
+                                <Clock /> {projectInstance.project.deadline?.toLocaleDateString()}
+                            </Badge>
+                        </div>
+                        <ProjectInstanceRating
+                            projectInstanceId={projectInstance.id}
+                            isAdmin={isAdmin}
+                        />
                     </div>
-                    <ProjectInstanceRating
-                        projectInstanceId={projectInstance.id}
-                        isAdmin={isAdmin}
-                    />
                     <div className="relative flex w-full gap-4">
                         <div className="relative h-32 w-32 rounded-lg">
                             <Image
