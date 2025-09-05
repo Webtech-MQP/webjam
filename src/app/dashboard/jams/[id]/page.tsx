@@ -55,10 +55,6 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
             <div className="flex flex-col gap-2 ">
                 <DashboardCard>
                     <h1>{projectInstance.project.title}</h1>
-                    <ProjectInstanceRating
-                        projectInstanceId={projectInstance.id}
-                        isAdmin={isAdmin}
-                    />
                     <div className="flex gap-2">
                         <Badge className="bg-indigo-500">
                             <Users /> {projectInstance.teamMembers.length} members
@@ -67,6 +63,10 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
                             <Clock /> {projectInstance.project.deadline?.toLocaleDateString()}
                         </Badge>
                     </div>
+                    <ProjectInstanceRating
+                        projectInstanceId={projectInstance.id}
+                        isAdmin={isAdmin}
+                    />
                     <div className="relative flex w-full gap-4">
                         <div className="relative h-32 w-32 rounded-lg">
                             <Image
