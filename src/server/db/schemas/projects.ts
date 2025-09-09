@@ -98,7 +98,7 @@ export const projectInstanceRelations = relations(projectInstances, ({ one, many
     }),
     teamMembers: many(candidateProfilesToProjectInstances),
     submission: many(projectSubmissions),
-    ratings: many(projectInstanceRatings),
+    feedbackRatings: many(projectInstanceRatings),
 }));
 
 export const projectEvent = createTable('project_timeline_event', (d) => ({
