@@ -156,7 +156,7 @@ export const projectSubmissionRouter = createTRPCRouter({
             with: {
                 projectInstances: {
                     with: {
-                        submission: {
+                        submissions: {
                             where: (submissions, { eq }) => eq(submissions.id, input.id),
                         },
                     },
