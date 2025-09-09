@@ -44,6 +44,8 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
         );
     }
 
+    const rank = await api.projectInstances.getRank({ projectInstanceId: id });
+
     return (
         <>
             {isAdmin && (
@@ -53,7 +55,9 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
             )}
             <div className="flex flex-col gap-2 ">
                 <DashboardCard>
-                    <h1>{projectInstance.project.title}</h1>
+                    <h1>
+                        {projectInstance.project.title} {rank && <span className="bg-primary px-2 font-mono rounded">Placed #{rank}</span>}
+                    </h1>
                     <div className="flex gap-2">
                         <Badge className="bg-indigo-500">
                             <Users /> {projectInstance.teamMembers.length} members
@@ -228,12 +232,14 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
                         ) : (
                             <p>No submissions yet.</p>
                         )}
-                        <div className="mt-4">
-                            <CreateProjectSubmission
-                                projectInstanceId={projectInstance.id}
-                                submitter={session.user.id}
-                            />
-                        </div>
+                        {projectInstance.project.status !== 'completed' && (
+                            <div className="mt-4">
+                                <CreateProjectSubmission
+                                    projectInstanceId={projectInstance.id}
+                                    submitter={session.user.id}
+                                />
+                            </div>
+                        )}
                     </DashboardCard>
                     <DashboardCard className="flex-1 h-fit">
                         <h6 className="text-sm font-medium text-gray-300">GitHub</h6>

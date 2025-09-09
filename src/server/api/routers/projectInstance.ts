@@ -84,4 +84,16 @@ export const projectInstanceRouter = createTRPCRouter({
 
         return instances;
     }),
+
+    getRank: publicProcedure.input(z.object({ projectInstanceId: z.cuid2() })).query(async ({ ctx, input }) => {
+        const ranking = await ctx.db.query.projectInstanceRankings.findFirst({
+            where: (projectInstanceRankings, { eq }) => eq(projectInstanceRankings.projectInstanceId, input.projectInstanceId),
+        });
+
+        if (!ranking) {
+            throw new TRPCError({ code: 'NOT_FOUND', message: 'Ranking not found for the given project instance' });
+        }
+
+        return ranking.rank;
+    }),
 });

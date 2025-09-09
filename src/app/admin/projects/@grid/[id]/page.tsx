@@ -7,13 +7,14 @@ import { api } from '@/trpc/server';
 import { ArrowRight, ClipboardPenLine, Clock, CodeXml, ExternalLink, Gavel, LockIcon, MoveDown, Pencil } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { ProjectRankings } from './_components/project-rankings';
 import { ProjectRegistrations } from './_components/project-registrations';
 import { TransitionProjectButton } from './_components/transition-project-button';
 
 export default async function Page({ params }: { params: Promise<{ id: string }> }) {
     const { id } = await params;
 
-    const project = await api.projects.getOne({ id });
+    const project = await api.projects.adminGetOne({ id });
     const submissions = await api.projectSubmission.getAllSubmissionsForProject({ projectId: id });
 
     const latestSubmissions = submissions
@@ -28,7 +29,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
             return latestSubmission?.id === submission.id;
         })
         .map((submission) => {
-            const projectInstanceSubmissions = submissions.filter((s) => s.projectInstanceId === submission.projectInstanceId && s.submittedOn).sort((a, b) => new Date(a.submittedOn!).getTime() - new Date(b.submittedOn!).getTime());
+            const projectInstanceSubmissions = submissions.filter((s) => s.projectInstanceId === submission.projectInstanceId && s.submittedOn).sort((a, b) => new Date(a.submittedOn).getTime() - new Date(b.submittedOn).getTime());
             // Find the index of this submission in the sorted list
             const submissionNumber = projectInstanceSubmissions.findIndex((s) => s.id === submission.id) + 1;
             return {
@@ -42,7 +43,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
     const getDaysUntil = (targetDate: Date) => Math.ceil((targetDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
 
     return (
-        <div className="h-full flex flex-col gap-2 p-4">
+        <div className="flex flex-col gap-2 p-4">
             <DashboardCard>
                 <h1 className="mb-0">{project.title}</h1>
                 <p>{project.subtitle}</p>
@@ -108,9 +109,9 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
                 </div>
             </DashboardCard>
             <div className="flex flex-1 gap-2 overflow-y-auto">
-                <ProjectRegistrations projectId={id} />
+                {project.status === 'created' && <ProjectRegistrations projectId={id} />}
                 <DashboardCard className="flex-1">
-                    <h1>Active Jams</h1>
+                    <h1>Jams</h1>
                     {project.projectInstances.length == 0 && <p className="text-muted-foregoround">No Jams yet.</p>}
                     {project.projectInstances.map((j) => {
                         return (
@@ -139,6 +140,16 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
                 </DashboardCard>
             </div>
             <ProjectSubmissions submissions={latestSubmissions} />
+            <ProjectRankings
+                rankings={project.projectInstances.flatMap((instance, index) =>
+                    instance.ranking
+                        ? {
+                              projectInstance: instance,
+                              rank: instance.ranking.rank,
+                          }
+                        : []
+                )}
+            />
         </div>
     );
 }
