@@ -80,7 +80,6 @@ export default function JamFinderClient() {
 
     return (
         <div className="flex h-full flex-col">
-            <h1 className="mb-2">WebJam Finder</h1>
             <Form {...form}>
                 <form
                     onSubmit={form.handleSubmit(handleSubmit)}

@@ -18,10 +18,6 @@ export default async function Layout({ children }: { children: React.ReactNode }
         redirect('/onboard');
     }
 
-    if (recruiterProfile) {
-        redirect('/recruiters');
-    }
-
     // if (candidateProfile && recruiterProfile) {
     //     redirect('/dashboard/accounts');
     // }

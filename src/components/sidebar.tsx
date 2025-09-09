@@ -42,6 +42,14 @@ const ADMIN_ROUTES = [
     },
 ];
 
+const RECRUITER_ROUTES = [
+    {
+        name: 'Home',
+        href: '/recruiters',
+        icon: Home,
+    },
+];
+
 export function Sidebar() {
     const path = usePathname();
     const { data: session } = useSession();
@@ -93,6 +101,16 @@ export function Sidebar() {
                     </div>
                 )}
                 {ROUTES.map((route) => (
+                    <Link
+                        key={route.name}
+                        href={route.href}
+                        className={cn('hover:text-primary mb-4 flex items-center gap-3 p-4', closestMatch().href === route.href && 'border-primary border-b-4')}
+                    >
+                        <route.icon className="h-5 w-5" />
+                        {route.name}
+                    </Link>
+                ))}
+                {RECRUITER_ROUTES.map((route) => (
                     <Link
                         key={route.name}
                         href={route.href}

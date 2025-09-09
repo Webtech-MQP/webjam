@@ -37,6 +37,7 @@ export const userRouter = createTRPCRouter({
                 id: z.cuid2(),
                 name: z.string().min(1).max(255),
                 email: z.string(),
+                role: z.enum(['candidate', 'recruiter', "admin"]).optional(),
             })
         )
         .mutation(async ({ ctx, input }) => {
@@ -45,6 +46,7 @@ export const userRouter = createTRPCRouter({
                 .set({
                     name: input.name,
                     email: input.email,
+                    role: input.role,
                 })
                 .where(eq(users.id, input.id));
         }),

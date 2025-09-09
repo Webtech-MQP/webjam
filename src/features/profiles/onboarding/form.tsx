@@ -47,6 +47,8 @@ export function OnboardingWizard() {
                 location: value.location,
             });
 
+            
+
             toast.promise(p);
 
             await p;
@@ -54,7 +56,7 @@ export function OnboardingWizard() {
             if (value.isRecruiter === 'no') {
                 router.push(!!session.data?.user.id ? `/users/${session.data.user.id}` : '/dashboard');
             } else {
-                router.push('/dashboard');
+                router.push('/recruiter');
             }
         },
         validators: {

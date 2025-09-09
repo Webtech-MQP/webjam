@@ -21,8 +21,10 @@ export default function SignInPage() {
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.7, ease: 'easeOut' }}
             >
-                <h1 className="text-primary">Webjam</h1>
-                <h2>Sign in to your account</h2>
+                <div className='text-center'>
+                    <h1 className="text-primary">Webjam</h1>
+                    <h2>Sign in to your account</h2>
+                </div>
                 <Card className="w-full max-w-sm">
                     <CardHeader>
                         <CardTitle>Login to your account</CardTitle>
