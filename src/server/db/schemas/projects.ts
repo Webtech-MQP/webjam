@@ -3,9 +3,9 @@ import { relations, sql } from 'drizzle-orm';
 import { primaryKey } from 'drizzle-orm/sqlite-core';
 import { createTable } from '../schema-util';
 import { users } from './auth';
-import { projectAward } from './awards';
 import { adminProfiles, candidateProfiles } from './profiles';
 import { projectRegistrations, projectsToRegistrationQuestions } from './project-registration';
+import { projectAward } from './awards';
 
 export const projects = createTable('project', (d) => ({
     id: d
@@ -57,7 +57,7 @@ export const projectInstances = createTable('project_instance', (d) => ({
         .text()
         .$defaultFn(() => createId())
         .primaryKey(),
-    teamName: d.text({ length: 256 }),
+    teamName: d.text({ length: 256 }).notNull(),
     repoUrl: d.text({ length: 256 }),
     projectId: d.text().notNull(),
 }));
@@ -97,8 +97,27 @@ export const projectInstanceRelations = relations(projectInstances, ({ one, many
         references: [projects.id],
     }),
     teamMembers: many(candidateProfilesToProjectInstances),
-    submission: many(projectSubmissions),
-    feedbackRatings: many(projectInstanceRatings),
+    submissions: many(projectSubmissions),
+    ranking: one(projectInstanceRankings),
+}));
+
+export const projectInstanceRankings = createTable('project_instance_ranking', (d) => ({
+    id: d
+        .text()
+        .$defaultFn(() => createId())
+        .primaryKey(),
+    projectInstanceId: d
+        .text()
+        .notNull()
+        .references(() => projectInstances.id, { onDelete: 'cascade', onUpdate: 'cascade' }),
+    rank: d.integer().notNull(),
+}));
+
+export const projectInstanceRankingsRelations = relations(projectInstanceRankings, ({ one }) => ({
+    projectInstance: one(projectInstances, {
+        fields: [projectInstanceRankings.projectInstanceId],
+        references: [projectInstances.id],
+    }),
 }));
 
 export const projectEvent = createTable('project_timeline_event', (d) => ({
@@ -129,7 +148,10 @@ export const projectSubmissions = createTable('project_submission', (d) => ({
         .text()
         .notNull()
         .references(() => projectInstances.id, { onDelete: 'cascade', onUpdate: 'cascade' }),
-    submittedOn: d.integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
+    submittedOn: d
+        .integer({ mode: 'timestamp' })
+        .notNull()
+        .default(sql`(unixepoch())`),
     submittedBy: d
         .text()
         .notNull()

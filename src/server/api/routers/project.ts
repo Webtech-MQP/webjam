@@ -1,7 +1,7 @@
 import { env } from '@/env';
 import { sendJamEndEmail, sendJudgedEmail } from '@/lib/mailer';
 import { adminProcedure, createTRPCRouter, protectedProcedure, publicProcedure } from '@/server/api/trpc';
-import { projects, projectsTags, tags } from '@/server/db/schemas/projects';
+import { projectInstanceRankings, projects, projectsTags, tags } from '@/server/db/schemas/projects';
 import { TRPCError } from '@trpc/server';
 import { eq } from 'drizzle-orm';
 import { z } from 'zod';
@@ -64,6 +64,36 @@ export const projectRouter = createTRPCRouter({
                     },
                 },
                 projectInstances: true,
+            },
+        });
+    }),
+
+    adminGetOne: adminProcedure.input(z.object({ id: z.cuid2() })).query(async ({ ctx, input }) => {
+        return ctx.db.query.projects.findFirst({
+            where: (projects, { eq }) => eq(projects.id, input.id),
+            with: {
+                projectsToTags: {
+                    with: {
+                        tag: true,
+                    },
+                },
+                creator: true,
+                registrations: {
+                    with: {
+                        candidate: true,
+                    },
+                },
+                projectInstances: {
+                    with: {
+                        submissions: {
+                            with: {
+                                ratings: true,
+                                reviewer: true,
+                            },
+                        },
+                        ranking: true,
+                    },
+                },
             },
         });
     }),
@@ -329,5 +359,35 @@ export const projectRouter = createTRPCRouter({
         }
 
         return ctx.db.update(projects).set({ status: input.status }).where(eq(projects.id, input.id));
+    }),
+
+    completeProject: adminProcedure.input(z.object({ projectId: z.cuid2(), rankings: z.array(z.cuid2()).refine((a) => new Set(a).size == a.length) })).mutation(async ({ ctx, input }) => {
+        const ranks = input.rankings.map((r, index) => ({
+            projectInstanceId: r,
+            rank: index + 1,
+        }));
+
+        await ctx.db.insert(projectInstanceRankings).values(ranks);
+
+        await ctx.db.update(projects).set({ status: 'completed' }).where(eq(projects.id, input.projectId));
+
+        return;
+    }),
+
+    getRankings: publicProcedure.input(z.object({ projectId: z.cuid2() })).query(async ({ ctx, input }) => {
+        const instances = (
+            await ctx.db.query.projectInstances.findMany({
+                columns: {
+                    id: true,
+                },
+                where: (projectInstances, { eq }) => eq(projectInstances.projectId, input.projectId),
+            })
+        ).map((instance) => instance.id);
+
+        const rankings = await ctx.db.query.projectInstanceRankings.findMany({
+            where: (projectInstanceRankings, { inArray }) => inArray(projectInstanceRankings.projectInstanceId, instances),
+        });
+
+        return rankings;
     }),
 });

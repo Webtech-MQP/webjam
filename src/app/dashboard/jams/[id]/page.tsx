@@ -45,6 +45,8 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
         );
     }
 
+    const rank = await api.projectInstances.getRank({ projectInstanceId: id });
+
     return (
         <>
             {isAdmin && (
@@ -235,12 +237,14 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
                         ) : (
                             <p>No submissions yet.</p>
                         )}
-                        <div className="mt-4">
-                            <CreateProjectSubmission
-                                projectInstanceId={projectInstance.id}
-                                submitter={session.user.id}
-                            />
-                        </div>
+                        {projectInstance.project.status !== 'completed' && (
+                            <div className="mt-4">
+                                <CreateProjectSubmission
+                                    projectInstanceId={projectInstance.id}
+                                    submitter={session.user.id}
+                                />
+                            </div>
+                        )}
                     </DashboardCard>
                     <DashboardCard className="flex-1 h-fit">
                         <h6 className="text-sm font-medium text-gray-300">GitHub</h6>
