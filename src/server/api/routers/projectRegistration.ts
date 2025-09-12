@@ -1,6 +1,8 @@
 import { env } from '@/env';
+import { sendJamSignedUpEmail } from '@/lib/mailer';
 import { adminProcedure, createTRPCRouter, protectedProcedure } from '@/server/api/trpc';
 import { projectRegistrationAnswer, projectRegistrationQuestions, projectRegistrations, projectsToRegistrationQuestions } from '@/server/db/schemas/project-registration';
+import { projects } from '@/server/db/schemas/projects';
 import { GoogleGenAI, Type } from '@google/genai';
 import { createId } from '@paralleldrive/cuid2';
 import { TRPCError } from '@trpc/server';
@@ -104,6 +106,22 @@ export const projectRegistrationRouter = createTRPCRouter({
                 preferredRole: input.preferredRole,
             });
 
+            const project = await ctx.db.query.projects.findFirst({
+                where: eq(projects.id, input.projectId),
+            });
+
+            if (project) {
+                sendJamSignedUpEmail({
+                    to: ctx.session.user.email || '',
+                    name: ctx.session.user.name || '',
+                    jamName: project.title || '',
+                    jamUrl: `${process.env.FRONTEND_URL}/dashboard/projects/${project.id}`,
+                    startEpoch: project.startDateTime.getTime(),
+                });
+            } else {
+                console.error('Project not found for registration email');
+            }
+
             const questions = await ctx.db.query.projectRegistrationQuestions.findMany({
                 where: (projectRegistrationQuestions, { inArray }) =>
                     inArray(
@@ -154,8 +172,6 @@ export const projectRegistrationRouter = createTRPCRouter({
             });
 
             while (true) {
-                console.log(response.text);
-
                 if (!response.text) {
                     throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'No response from AI' });
                 }
@@ -187,8 +203,6 @@ export const projectRegistrationRouter = createTRPCRouter({
                         answer: input.answers.find((a) => a.questionId === answer.questionId)?.answer || '',
                         level: answer.score,
                     }));
-
-                    console.log('YOU SHOULD HAVE STOPPD');
 
                     return ctx.db.insert(projectRegistrationAnswer).values(answerScores).returning();
                 } catch (e) {

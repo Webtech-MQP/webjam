@@ -1,3 +1,4 @@
+import { sendJamEndEmail, sendJudgedEmail } from '@/lib/mailer';
 import { adminProcedure, createTRPCRouter, protectedProcedure, publicProcedure } from '@/server/api/trpc';
 import { projects, projectsTags, tags } from '@/server/db/schemas/projects';
 import { TRPCError } from '@trpc/server';
@@ -243,7 +244,13 @@ export const projectRouter = createTRPCRouter({
             experience_level: 'Intermediate',
         }));
 
-        const response = await fetch('http://localhost:8000/api/match', {
+        if (!process.env.MATCHER_URL) {
+            throw new TRPCError({
+                code: 'INTERNAL_SERVER_ERROR',
+                message: 'Matcher URL not configured',
+            });
+        }
+        const response = await fetch(process.env.MATCHER_URL, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -273,12 +280,55 @@ export const projectRouter = createTRPCRouter({
 
         const body = (await response.json()) as { teams: string[][] };
 
-        console.log(body);
-
         return body;
     }),
 
     updateStatus: adminProcedure.input(z.object({ id: z.cuid2(), status: z.enum(['created', 'judging', 'completed']) })).mutation(async ({ ctx, input }) => {
+        try {
+            if (input.status === 'judging' || input.status === 'completed') {
+                const project = await ctx.db.query.projects.findFirst({
+                    where: (projects, { eq }) => eq(projects.id, input.id),
+                });
+                if (!project) throw new TRPCError({ code: 'NOT_FOUND', message: 'Project not found' });
+                const projectInstances = await ctx.db.query.projectInstances.findMany({
+                    where: (pi, { eq }) => eq(pi.projectId, project.id),
+                    with: {
+                        teamMembers: {
+                            with: {
+                                candidateProfile: {
+                                    with: {
+                                        user: true,
+                                    },
+                                },
+                            },
+                        },
+                    },
+                });
+                for (const pi of projectInstances) {
+                    for (const member of pi.teamMembers) {
+                        if (input.status === 'judging') {
+                            sendJamEndEmail({
+                                to: member.candidateProfile.user.email || '',
+                                name: member.candidateProfile.user.name || '',
+                                jamName: project.title,
+                                jamUrl: `${process.env.FRONTEND_URL}/dashboard/jams/${pi.id}`,
+                            });
+                        }
+                        if (input.status === 'completed') {
+                            sendJudgedEmail({
+                                to: member.candidateProfile.user.email || '',
+                                name: member.candidateProfile.user.name || '',
+                                jamName: project.title,
+                                jamUrl: `${process.env.FRONTEND_URL}/dashboard/jams/${pi.id}`,
+                            });
+                        }
+                    }
+                }
+            }
+        } catch (error) {
+            console.error('Error fetching project:', error);
+        }
+
         return ctx.db.update(projects).set({ status: input.status }).where(eq(projects.id, input.id));
     }),
 });

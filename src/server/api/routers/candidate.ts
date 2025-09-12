@@ -1,3 +1,4 @@
+import { sendWelcomeEmail } from '@/lib/mailer';
 import { adminProcedure, createTRPCRouter, protectedProcedure, publicProcedure } from '@/server/api/trpc';
 import { users } from '@/server/db/schemas/auth';
 import { candidateProfiles } from '@/server/db/schemas/profiles';
@@ -309,6 +310,12 @@ export const candidateRouter = createTRPCRouter({
 
             if (existingProfile) {
                 throw new TRPCError({ code: 'CONFLICT', message: 'Profile already exists' });
+            }
+
+            if (user?.email) {
+                sendWelcomeEmail({ to: user.email, name: input.displayName.split(' ')[0] || '' });
+            } else {
+                console.warn('No email found for user, skipping welcome email.');
             }
 
             return ctx.db.insert(candidateProfiles).values({

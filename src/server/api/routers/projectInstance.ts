@@ -1,3 +1,4 @@
+import { sendJamStartEmail } from '@/lib/mailer';
 import { createTRPCRouter, protectedProcedure, publicProcedure } from '@/server/api/trpc';
 import { candidateProfilesToProjectInstances, projectInstances, projects } from '@/server/db/schemas/projects';
 import { TRPCError } from '@trpc/server';
@@ -40,7 +41,32 @@ export const projectInstanceRouter = createTRPCRouter({
                 }
 
                 return Promise.all(
-                    team.map((user) => {
+                    team.map(async (user) => {
+                        try {
+                            const candidate = await ctx.db.query.candidateProfiles.findFirst({
+                                where: (candidateProfiles, { eq }) => eq(candidateProfiles.userId, user),
+                                with: {
+                                    user: true,
+                                },
+                            });
+
+                            if (!candidate) {
+                                throw new TRPCError({ code: 'NOT_FOUND', message: 'Candidate profile not found for user: ' + user });
+                            }
+
+                            sendJamStartEmail({
+                                to: candidate.user.email,
+                                name: candidate.displayName,
+                                teamName: 'Team ' + String.fromCharCode(idx + 65),
+                                jamName: project.title,
+                                jamUrl: `${process.env.FRONTEND_URL}/dashboard/jams/${instance[0]!.id}`,
+                                startEpoch: project.startDateTime.getTime(),
+                                endEpoch: project.endDateTime.getTime(),
+                            });
+                        } catch (e) {
+                            console.error('Error sending jam start email to user:', user, e);
+                        }
+
                         return ctx.db.insert(candidateProfilesToProjectInstances).values({
                             projectInstanceId: instance[0]!.id,
                             candidateId: user,

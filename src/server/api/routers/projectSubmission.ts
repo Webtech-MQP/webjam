@@ -24,7 +24,6 @@ export const projectSubmissionRouter = createTRPCRouter({
             })
         )
         .mutation(async ({ ctx, input }) => {
-            console.log(input);
             await ctx.db.insert(projectSubmissions).values({
                 id: input.id,
                 projectInstanceId: input.projectInstanceId,
