@@ -62,6 +62,35 @@ export const projectInstances = createTable('project_instance', (d) => ({
     projectId: d.text().notNull(),
 }));
 
+export const projectInstanceRatings = createTable(
+    'project_instance_rating',
+    (d) => ({
+        id: d.text().$defaultFn(() => createId()),
+        projectInstanceId: d
+            .text()
+            .notNull()
+            .references(() => projectInstances.id, { onDelete: 'cascade', onUpdate: 'cascade' }),
+        ratedBy: d
+            .text()
+            .notNull()
+            .references(() => candidateProfiles.userId, { onDelete: 'cascade', onUpdate: 'cascade' }),
+        rating: d.integer().notNull(), // e.g., 1 to 10
+        ratedOn: d.integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
+    }),
+    (t) => [primaryKey({ columns: [t.projectInstanceId, t.ratedBy] })]
+);
+
+export const projectInstanceRatingRelations = relations(projectInstanceRatings, ({ one }) => ({
+    projectInstance: one(projectInstances, {
+        fields: [projectInstanceRatings.projectInstanceId],
+        references: [projectInstances.id],
+    }),
+    rater: one(candidateProfiles, {
+        fields: [projectInstanceRatings.ratedBy],
+        references: [candidateProfiles.userId],
+    }),
+}));
+
 export const projectInstanceRelations = relations(projectInstances, ({ one, many }) => ({
     project: one(projects, {
         fields: [projectInstances.projectId],
@@ -69,6 +98,7 @@ export const projectInstanceRelations = relations(projectInstances, ({ one, many
     }),
     teamMembers: many(candidateProfilesToProjectInstances),
     submission: many(projectSubmissions),
+    feedbackRatings: many(projectInstanceRatings),
 }));
 
 export const projectEvent = createTable('project_timeline_event', (d) => ({

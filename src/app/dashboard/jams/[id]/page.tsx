@@ -1,6 +1,7 @@
 import CreateProjectSubmission from '@/components/create-project-submission';
 import { DashboardCard } from '@/components/dashboard-card';
 import { GitGraph } from '@/components/git-graph';
+import { ProjectInstanceRating } from '@/components/project-instance-rating';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { UserActionsMenu } from '@/components/user-actions-menu';
@@ -54,13 +55,19 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
             <div className="flex flex-col gap-2 ">
                 <DashboardCard>
                     <h1>{projectInstance.project.title}</h1>
-                    <div className="flex gap-2">
-                        <Badge className="bg-indigo-500">
-                            <Users /> {projectInstance.teamMembers.length} members
-                        </Badge>
-                        <Badge className="bg-indigo-500">
-                            <Clock /> {projectInstance.project.deadline?.toLocaleDateString()}
-                        </Badge>
+                    <div className="flex justify-between items-center">
+                        <div className="flex gap-2">
+                            <Badge className="bg-indigo-500">
+                                <Users /> {projectInstance.teamMembers.length} members
+                            </Badge>
+                            <Badge className="bg-indigo-500">
+                                <Clock /> {projectInstance.project.deadline?.toLocaleDateString()}
+                            </Badge>
+                        </div>
+                        <ProjectInstanceRating
+                            projectInstanceId={projectInstance.id}
+                            isAdmin={isAdmin}
+                        />
                     </div>
                     <div className="relative flex w-full gap-4">
                         <div className="relative h-32 w-32 rounded-lg">
