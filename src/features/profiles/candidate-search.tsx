@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { SkeletonCard } from '@/components/skeleton-card';
 import { Button } from '@/components/ui/button';
@@ -131,7 +131,10 @@ export function CandidateSearch({ initialPage = 1, initialSearchParams = {} }: C
                         <div className="absolute inset-0 overflow-y-auto pb-6">
                             <div className="grid grid-cols-1 gap-4 overflow-y-auto md:grid-cols-2 lg:grid-cols-3">
                                 {Array.from({ length: 9 }).map((_, i) => (
-                                    <SkeletonCard key={i} className="h-80" />
+                                    <SkeletonCard
+                                        key={i}
+                                        className="h-80"
+                                    />
                                 ))}
                             </div>
                         </div>

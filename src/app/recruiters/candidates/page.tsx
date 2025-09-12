@@ -1,4 +1,4 @@
-import { CandidateSearch } from "@/features/profiles/candidate-search";
+import { CandidateSearch } from '@/features/profiles/candidate-search';
 
 export default function RecruiterPage() {
     return (

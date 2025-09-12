@@ -47,8 +47,6 @@ export function OnboardingWizard() {
                 location: value.location,
             });
 
-            
-
             toast.promise(p);
 
             await p;

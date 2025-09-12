@@ -40,6 +40,7 @@ export const candidateRouter = createTRPCRouter({
                     user: {
                         columns: {
                             githubUsername: true,
+                            role: true,
                         },
                     },
                     candidateProfilesToProjectInstances: {

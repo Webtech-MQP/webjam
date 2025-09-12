@@ -228,9 +228,9 @@ export default function JamFinderClient() {
             <div className="mt-4 -mb-6 flex-1">
                 {projectsQuery.isLoading && !searchParams && (
                     <div className="relative h-full">
-                        <div className="absolute inset-0 overflow-y-auto pb-6">
-                            <div className="grid grid-cols-1 gap-4 overflow-y-auto md:grid-cols-2 lg:grid-cols-3">
-                                {Array.from({ length: 6 }).map((_, i) => (
+                        <div className="absolute inset-0 overflow-y-clip pb-6">
+                            <div className="grid grid-cols-1 gap-4 overflow-y-clip md:grid-cols-2 lg:grid-cols-3">
+                                {Array.from({ length: 9 }).map((_, i) => (
                                     <SkeletonCard key={i} />
                                 ))}
                             </div>
