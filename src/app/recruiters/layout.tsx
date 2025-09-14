@@ -10,18 +10,6 @@ export default async function Layout({ children }: { children: React.ReactNode }
         redirect('/');
     }
 
-    const isAdmin = await api.users.isAdmin();
-    const candidateProfile = await api.candidates.getOne({ id: session.user.id });
-    const recruiterProfile = await api.recruiters.getOne({ id: session.user.id });
-
-    if (!candidateProfile && !recruiterProfile && !isAdmin) {
-        redirect('/onboard');
-    }
-
-    // if (candidateProfile && recruiterProfile) {
-    //     redirect('/dashboard/accounts');
-    // }
-
     return (
         <div className="flex h-screen">
             <Sidebar />

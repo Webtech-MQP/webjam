@@ -2,7 +2,7 @@
 
 import { Button } from '@/components/ui/button';
 import { CandidateCard } from '@/features/profiles/candidate-card';
-import { Plus, User } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { useState } from 'react';
 
 export default function RecruiterDashboardPage() {
@@ -19,7 +19,7 @@ export default function RecruiterDashboardPage() {
             user: { githubUsername: 'alicejohnson' },
             linkedinURL: 'https://linkedin.com/in/alicejohnson',
             imageUrl: undefined,
-            candidateProfilesToProjectInstances: [{}, {}, {}], // 3 projects
+            candidateProfilesToProjectInstances: [{}, {}, {}, {}, {}, {}, {}, {}, {}], // 9 projects
         },
         {
             userId: '2',
@@ -57,16 +57,6 @@ export default function RecruiterDashboardPage() {
         <div className="min-h-screen bg-white text-gray-900 p-8">
             <h1 className="text-3xl font-bold mb-2">Recruiter Dashboard</h1>
             <p className="mb-8 text-gray-600">Welcome! Here you can manage your favorite candidates and more.</p>
-
-            {/* Recruiter Stats */}
-            <div className="mb-8 flex gap-8">
-                <div className="bg-gray-100 rounded-lg p-6 flex flex-col items-center shadow-sm">
-                    <User className="h-8 w-8 mb-2 text-blue-500" />
-                    <span className="text-2xl font-semibold">{recruiterStats.totalLiked}</span>
-                    <span className="text-gray-500">Liked Candidates</span>
-                </div>
-                {/* Add more stat cards here if needed */}
-            </div>
 
             {/* Toggle Liked Candidates List */}
             <div className="mb-4 flex items-center gap-2">

@@ -17,7 +17,11 @@ export default async function Layout({ children }: { children: React.ReactNode }
     if (!candidateProfile && !recruiterProfile && !isAdmin) {
         redirect('/onboard');
     }
-    
+
+    // if (recruiterProfile && candidateProfile) {
+    //     redirect(`/sign-in/${session.user.id}/profiles`);
+    // }
+
     return (
         <div className="flex h-screen">
             <Sidebar />

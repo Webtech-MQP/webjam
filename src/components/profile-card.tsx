@@ -18,15 +18,15 @@ export default function ProfileCard({ profile }: { profile: Profile }) {
     return (
         <DashboardCard
             className="flex items-center gap-8 w-full max-w-2xl border text-white rounded-xl shadow-md p-6 transition-all duration-200 cursor-pointer hover:border-primary hover:shadow-lg"
-            onClick={() => {
-                updateRole.mutate({
+            onClick={async () => {
+                await updateRole.mutateAsync({
                     id: profile.userId,
                     role: isCandidate ? 'candidate' : 'recruiter',
                 });
                 if (isCandidate) {
                     router.push('/dashboard');
                 } else {
-                    router.push('/recruiters');
+                    router.push('/dashboard/recruiter');
                 }
             }}
         >

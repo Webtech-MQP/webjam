@@ -6,7 +6,7 @@ import { redirect } from 'next/navigation';
 export default async function Page() {
     const session = await auth();
 
-    if (!session) redirect('/signIn');
+    if (!session) redirect('/sign-in');
 
     const user = await api.candidates.getOne({ id: session.user.id });
 

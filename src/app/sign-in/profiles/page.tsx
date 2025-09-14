@@ -19,16 +19,8 @@ export default async function ProfilesPage() {
             transition={{ duration: 0.7, ease: 'easeOut' }}
         >
             <h1>Select which profile you would like to view:</h1>
-            {candidateProfile && (
-                <ProfileCard
-                    profile={candidateProfile}
-                />
-            )}
-            {recruiterProfile && (
-                <ProfileCard
-                    profile={recruiterProfile}
-                />
-            )}
+            {candidateProfile && <ProfileCard profile={candidateProfile} />}
+            {recruiterProfile && <ProfileCard profile={recruiterProfile} />}
         </motion.div>
     );
 }

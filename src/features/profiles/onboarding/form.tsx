@@ -26,6 +26,7 @@ const onboardingSchema = z.object({
 export function OnboardingWizard() {
     const createRecruiterProfile = api.recruiters.createMe.useMutation();
     const createCandidateProfile = api.candidates.createMe.useMutation();
+    const updateRole = api.users.updateOne.useMutation();
 
     const router = useRouter();
     const session = useSession();
@@ -51,10 +52,14 @@ export function OnboardingWizard() {
 
             await p;
 
+            if (value.isRecruiter === 'yes' && session.data) {
+                await updateRole.mutateAsync({ id: session.data.user.id, role: 'recruiter' });
+            }
+
             if (value.isRecruiter === 'no') {
                 router.push(!!session.data?.user.id ? `/users/${session.data.user.id}` : '/dashboard');
             } else {
-                router.push('/recruiter');
+                router.push('/dashboard/recruiter');
             }
         },
         validators: {
