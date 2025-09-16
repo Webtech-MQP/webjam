@@ -3,10 +3,13 @@
 import { Button } from '@/components/ui/button';
 import { CandidateCard } from '@/features/profiles/candidate-card';
 import { Plus } from 'lucide-react';
+import { useSession } from 'next-auth/react';
 import { useState } from 'react';
 
 export default function RecruiterDashboardPage() {
     const [showLiked, setShowLiked] = useState(true);
+    const session = useSession();
+
     // Mock data for liked candidates
     const likedCandidates = [
         {
@@ -47,15 +50,19 @@ export default function RecruiterDashboardPage() {
         },
     ];
 
-    // Example: Placeholder for recruiter stats
-    const recruiterStats = {
-        totalLiked: likedCandidates.length,
-        // Add more stats as needed
-    };
+    // const { data: me, isLoading } = api.recruiters.getOne.useQuery(session.data?.user.id ? { id: session.data.user.id } : skipToken);
+
+    // if (isLoading) {
+    //     return (
+    //         <div className="min-h-screen flex items-center justify-center animate-spin">
+    //             <LoaderCircle />
+    //         </div>
+    //     );
+    // }
 
     return (
-        <div className="min-h-screen bg-white text-gray-900 p-8">
-            <h1 className="text-3xl font-bold mb-2">Recruiter Dashboard</h1>
+        <div className="min-h-screen p-8">
+            {/* {me && (<h1 className="text-3xl font-bold mb-2">Hello, {session.data?.user.name}!</h1>)} */}
             <p className="mb-8 text-gray-600">Welcome! Here you can manage your favorite candidates and more.</p>
 
             {/* Toggle Liked Candidates List */}

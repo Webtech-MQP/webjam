@@ -6,12 +6,16 @@ import { z } from 'zod';
 
 export const recruiterRouter = createTRPCRouter({
     getOne: publicProcedure.input(z.object({ id: z.cuid2() })).query(async ({ ctx, input }) => {
-        return ctx.db.query.recruiterProfiles.findFirst({
-            where: (recruiterProfiles, { eq }) => eq(recruiterProfiles.userId, input.id),
-            with: {
-                user: true,
-            },
-        });
+        if ('id' in input) {
+            const r = await ctx.db.query.recruiterProfiles.findFirst({
+                where: (recruiterProfiles, { eq }) => eq(recruiterProfiles.userId, input.id),
+                with: {
+                    user: true,
+                },
+            });
+
+            return r ?? null;
+        }
     }),
 
     getAll: publicProcedure.query(async ({ ctx }) => {
@@ -20,6 +24,33 @@ export const recruiterRouter = createTRPCRouter({
                 user: true,
             },
         });
+    }),
+
+    getLists: protectedProcedure.input(z.object({ id: z.cuid2() })).query(async ({ ctx, input }) => {
+        const recruiterProfile = await ctx.db.query.recruiterProfiles.findFirst({
+            where: (recruiterProfiles, { eq }) => eq(recruiterProfiles.userId, input.id),
+        });
+
+        if (!recruiterProfile || recruiterProfile.userId !== ctx.session.user.id) {
+            throw new TRPCError({ code: 'FORBIDDEN', message: 'Not your profile' });
+        }
+
+        const lists = await ctx.db.query.lists.findMany({
+            where: (lists, { eq }) => eq(lists.recruiterId, input.id),
+            with: {
+                candidates: {
+                    with: {
+                        candidateProfile: {
+                            with: {
+                                user: true,
+                            },
+                        },
+                    },
+                },
+            },
+        });
+
+        return lists;
     }),
 
     updateOne: adminProcedure

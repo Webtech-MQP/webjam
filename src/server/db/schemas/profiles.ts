@@ -63,10 +63,59 @@ export const recruiterProfiles = createTable('recruiter_profile', (d) => ({
     imageUrl: d.text({ length: 255 }),
 }));
 
-export const recruiterProfilesRelations = relations(recruiterProfiles, ({ one }) => ({
+export const recruiterProfilesRelations = relations(recruiterProfiles, ({ one, many }) => ({
     user: one(users, {
         fields: [recruiterProfiles.userId],
         references: [users.id],
+    }),
+    lists: many(lists),
+}));
+
+export const lists = createTable('list', (d) => ({
+    id: d
+        .text()
+        .$defaultFn(() => createId())
+        .primaryKey(),
+    recruiterId: d
+        .text({ length: 255 })
+        .notNull()
+        .references(() => recruiterProfiles.userId, { onDelete: 'cascade' }),
+    name: d.text({ length: 255 }).notNull(),
+    description: d.text({ length: 255 }).notNull().default(''),
+}));
+
+export const listCandidates = createTable(
+    'list_candidate',
+    (d) => ({
+        listId: d
+            .text()
+            .notNull()
+            .references(() => lists.id, { onDelete: 'cascade' }),
+        candidateId: d
+            .text()
+            .notNull()
+            .references(() => candidateProfiles.userId, { onDelete: 'cascade' }),
+        comments: d.text().notNull().default(''),
+    }),
+    (t) => [primaryKey({ columns: [t.listId, t.candidateId] })]
+);
+
+export const listsRelations = relations(lists, ({ one, many }) => ({
+    recruiter: one(recruiterProfiles, {
+        fields: [lists.recruiterId],
+        references: [recruiterProfiles.userId],
+    }),
+    candidates: many(listCandidates),
+}));
+
+export const listCandidatesRelations = relations(listCandidates, ({ one }) => ({
+    list: one(lists, {
+        fields: [listCandidates.listId],
+        references: [lists.id],
+    }),
+    candidateProfile: one(candidateProfiles, {
+        fields: [listCandidates.candidateId],
+        references: [candidateProfiles.userId],
     }),
 }));
 
