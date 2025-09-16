@@ -5,6 +5,8 @@ import { candidateProfilesToProjectInstances } from '@/server/db/schemas/project
 import { TRPCError } from '@trpc/server';
 import { and, eq, inArray, like, or, sql } from 'drizzle-orm';
 import { z } from 'zod';
+import { s3Client, deleteS3Object, createPresignedPost, getS3KeyFromUrl } from '@/lib/s3';
+import { nanoid } from 'nanoid';
 
 export const candidateRouter = createTRPCRouter({
     getOne: publicProcedure.input(z.union([z.object({ id: z.cuid2() }), z.object({ githubUsername: z.string() })])).query(async ({ ctx, input }) => {
@@ -103,10 +105,26 @@ export const candidateRouter = createTRPCRouter({
                     portfolioURL: z.string(),
                     linkedinURL: z.url({ hostname: /^(www.)?linkedin.com$/, protocol: /^https$/ }).or(z.string().length(0)),
                     imageUrl: z.url(),
+                    bannerUrl: z.string(),
                 })
                 .partial()
         )
         .mutation(async ({ ctx, input }) => {
+            const currentProfile = await ctx.db.query.candidateProfiles.findFirst({
+                where: eq(candidateProfiles.userId, ctx.session.user.id)
+            });
+
+            if (input.imageUrl && currentProfile?.imageUrl && currentProfile.imageUrl !== input.imageUrl) {
+                console.log(input.imageUrl);
+                const oldKey = getS3KeyFromUrl(currentProfile.imageUrl);
+                if (oldKey) await deleteS3Object(oldKey);
+            }
+
+            if (input.bannerUrl && currentProfile?.bannerUrl && currentProfile.bannerUrl !== input.bannerUrl) {
+                const oldKey = getS3KeyFromUrl(currentProfile.bannerUrl);
+                if (oldKey) await deleteS3Object(oldKey);
+            }
+
             return ctx.db.update(candidateProfiles).set(input).where(eq(candidateProfiles.userId, ctx.session.user.id));
         }),
 
@@ -318,6 +336,45 @@ export const candidateRouter = createTRPCRouter({
                 location: input.location,
                 imageUrl: user?.image,
             });
+        }),
+    generateUploadUrl: protectedProcedure
+        .input(
+            z.object({
+                fileType: z.string(),
+                fileSize: z.number().max(5 * 1024 * 1024), // 5MB limit
+                uploadType: z.enum(['profile', 'banner','project','award']),
+            })
+        )
+        .mutation(async ({ ctx, input }) => {
+            const userId = ctx.session.user.id;
+            const fileExtension = input.fileType.split('/')[1];
+            const fileName = `${input.uploadType}/${userId}/${nanoid()}.${fileExtension}`;
+
+            try {
+                const { url, fields } = await createPresignedPost(s3Client, {
+                    Bucket: process.env.AWS_S3_BUCKET_NAME!,
+                    Key: fileName,
+                    Conditions: [
+                        ['content-length-range', 0, input.fileSize],
+                        { 'Content-Type': input.fileType },
+                    ],
+                    Fields: {
+                        'Content-Type': input.fileType,
+                    },
+                    Expires: 600, // 10 minutes
+                });
+                return {
+                    uploadUrl: url,
+                    fields,
+                    fileName,
+                    fileUrl: `https://${process.env.AWS_S3_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${fileName}`,
+                };
+            } catch (error) {
+                throw new TRPCError({
+                    code: 'INTERNAL_SERVER_ERROR',
+                    message: 'Failed to generate upload URL',
+                });
+            }
         }),
 });
 

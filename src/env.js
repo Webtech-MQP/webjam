@@ -12,6 +12,10 @@ export const env = createEnv({
         AUTH_GITHUB_ID: z.string(),
         AUTH_GITHUB_SECRET: z.string(),
         GEMINI_API_KEY: z.string().optional(),
+        AWS_REGION: z.string().optional(),
+        AWS_S3_BUCKET_NAME: z.string().optional(),
+        AWS_ACCESS_KEY_ID: z.string().optional(),
+        AWS_SECRET_ACCESS_KEY: z.string().optional(),
     },
 
     /**
@@ -33,6 +37,10 @@ export const env = createEnv({
         AUTH_GITHUB_ID: process.env.AUTH_GITHUB_ID,
         AUTH_GITHUB_SECRET: process.env.AUTH_GITHUB_SECRET,
         GEMINI_API_KEY: process.env.GEMINI_API_KEY,
+        AWS_REGION: process.env.AWS_REGION,
+        AWS_S3_BUCKET_NAME: process.env.S3_BUCKET,
+        AWS_ACCESS_KEY_ID: process.env.AWS_ACCESS_KEY_ID,
+        AWS_SECRET_ACCESS_KEY: process.env.AWS_SECRET_ACCESS_KEY,
         // NEXT_PUBLIC_CLIENTVAR: process.env.NEXT_PUBLIC_CLIENTVAR,
     },
     /**
