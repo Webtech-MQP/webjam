@@ -1,12 +1,12 @@
+import { createPresignedPost, deleteS3Object, getS3KeyFromUrl, s3Client } from '@/lib/s3';
 import { adminProcedure, createTRPCRouter, protectedProcedure, publicProcedure } from '@/server/api/trpc';
 import { users } from '@/server/db/schemas/auth';
 import { candidateProfiles } from '@/server/db/schemas/profiles';
 import { candidateProfilesToProjectInstances } from '@/server/db/schemas/projects';
 import { TRPCError } from '@trpc/server';
 import { and, eq, inArray, like, or, sql } from 'drizzle-orm';
-import { z } from 'zod';
-import { s3Client, deleteS3Object, createPresignedPost, getS3KeyFromUrl } from '@/lib/s3';
 import { nanoid } from 'nanoid';
+import { z } from 'zod';
 
 export const candidateRouter = createTRPCRouter({
     getOne: publicProcedure.input(z.union([z.object({ id: z.cuid2() }), z.object({ githubUsername: z.string() })])).query(async ({ ctx, input }) => {
@@ -111,11 +111,10 @@ export const candidateRouter = createTRPCRouter({
         )
         .mutation(async ({ ctx, input }) => {
             const currentProfile = await ctx.db.query.candidateProfiles.findFirst({
-                where: eq(candidateProfiles.userId, ctx.session.user.id)
+                where: eq(candidateProfiles.userId, ctx.session.user.id),
             });
 
             if (input.imageUrl && currentProfile?.imageUrl && currentProfile.imageUrl !== input.imageUrl) {
-                console.log(input.imageUrl);
                 const oldKey = getS3KeyFromUrl(currentProfile.imageUrl);
                 if (oldKey) await deleteS3Object(oldKey);
             }
@@ -342,7 +341,7 @@ export const candidateRouter = createTRPCRouter({
             z.object({
                 fileType: z.string(),
                 fileSize: z.number().max(5 * 1024 * 1024), // 5MB limit
-                uploadType: z.enum(['profile', 'banner','project','award']),
+                uploadType: z.enum(['profile', 'banner', 'project', 'award']),
             })
         )
         .mutation(async ({ ctx, input }) => {
@@ -354,10 +353,7 @@ export const candidateRouter = createTRPCRouter({
                 const { url, fields } = await createPresignedPost(s3Client, {
                     Bucket: process.env.AWS_S3_BUCKET_NAME!,
                     Key: fileName,
-                    Conditions: [
-                        ['content-length-range', 0, input.fileSize],
-                        { 'Content-Type': input.fileType },
-                    ],
+                    Conditions: [['content-length-range', 0, input.fileSize], { 'Content-Type': input.fileType }],
                     Fields: {
                         'Content-Type': input.fileType,
                     },

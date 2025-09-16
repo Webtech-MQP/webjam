@@ -1,4 +1,4 @@
-import { S3Client, DeleteObjectCommand } from '@aws-sdk/client-s3';
+import { DeleteObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { createPresignedPost } from '@aws-sdk/s3-presigned-post';
 
 const s3Client = new S3Client({
@@ -29,10 +29,7 @@ export function getS3KeyFromUrl(url: string): string | null {
         // Handle both formats:
         // https://bucket.s3.region.amazonaws.com/key
         // https://s3.region.amazonaws.com/bucket/key
-        const patterns = [
-            new RegExp(`https://${bucketName}\\.s3\\.${region}\\.amazonaws\\.com/(.+)`),
-            new RegExp(`https://s3\\.${region}\\.amazonaws\\.com/${bucketName}/(.+)`)
-        ];
+        const patterns = [new RegExp(`https://${bucketName}\\.s3\\.${region}\\.amazonaws\\.com/(.+)`), new RegExp(`https://s3\\.${region}\\.amazonaws\\.com/${bucketName}/(.+)`)];
 
         for (const pattern of patterns) {
             const match = url.match(pattern);
@@ -45,4 +42,4 @@ export function getS3KeyFromUrl(url: string): string | null {
     }
 }
 
-export { s3Client, createPresignedPost };
+export { createPresignedPost, s3Client };

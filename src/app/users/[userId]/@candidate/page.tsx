@@ -43,7 +43,7 @@ export default async function Page({ params }: Props) {
                 <div className="relative h-40 w-full">
                     {/* Banner Image */}
                     <Image
-                        src="https://placehold.co/100.png"
+                        src={candidate.bannerUrl ?? 'https://placehold.co/100.png'}
                         alt="Profile banner"
                         fill
                     />

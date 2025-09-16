@@ -3,8 +3,8 @@ import { relations, sql } from 'drizzle-orm';
 import { primaryKey } from 'drizzle-orm/sqlite-core';
 import { createTable } from '../schema-util';
 import { users } from './auth';
-import { candidateProfilesToProjectInstances } from './projects';
 import { candidateAward } from './awards';
+import { candidateProfilesToProjectInstances } from './projects';
 
 export const candidateProfiles = createTable('candidate_profile', (d) => ({
     userId: d
