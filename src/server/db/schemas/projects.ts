@@ -1,6 +1,6 @@
 import { createId } from '@paralleldrive/cuid2';
 import { relations, sql } from 'drizzle-orm';
-import { primaryKey } from 'drizzle-orm/sqlite-core';
+import { primaryKey, unique } from 'drizzle-orm/sqlite-core';
 import { createTable } from '../schema-util';
 import { users } from './auth';
 import { adminProfiles, candidateProfiles } from './profiles';
@@ -50,6 +50,7 @@ export const projectsRelations = relations(projects, ({ one, many }) => ({
     projectInstances: many(projectInstances),
     events: many(projectEvent),
     awards: many(projectAward),
+    judgingCriteria: many(projectJudgingCriteria),
 }));
 
 export const projectInstances = createTable('project_instance', (d) => ({
@@ -247,7 +248,7 @@ export const projectSubmissionsRelations = relations(projectSubmissions, ({ one,
         fields: [projectSubmissions.submittedBy],
         references: [users.id],
     }),
-    ratings: many(projectSubmissionRating),
+    judgements: many(submissionJudgement),
 }));
 
 export const projectsTags = createTable('projects_tags', (d) => ({
@@ -273,5 +274,75 @@ export const projectsTagsRelations = relations(projectsTags, ({ one }) => ({
     tag: one(tags, {
         fields: [projectsTags.tagId],
         references: [tags.id],
+    }),
+}));
+
+export const projectJudgingCriteria = createTable('project_judging_criteria', (d) => ({
+    id: d
+        .text()
+        .$defaultFn(() => createId())
+        .primaryKey(),
+    projectId: d
+        .text()
+        .notNull()
+        .references(() => projects.id, { onDelete: 'cascade' }),
+    criterion: d.text({ length: 512 }).notNull(),
+    weight: d.integer().notNull().default(0),
+    createdAt: d
+        .integer({ mode: 'timestamp' })
+        .notNull()
+        .default(sql`(unixepoch())`),
+}));
+
+export const projectJudgingCriteriaRelations = relations(projectJudgingCriteria, ({ one, many }) => ({
+    project: one(projects, {
+        fields: [projectJudgingCriteria.projectId],
+        references: [projects.id],
+    }),
+    ratings: many(submissionJudgement),
+}));
+
+export const submissionJudgement = createTable(
+    'submission_judgement',
+    (d) => ({
+        id: d
+            .text()
+            .$defaultFn(() => createId())
+            .primaryKey(),
+        submissionId: d
+            .text()
+            .notNull()
+            .references(() => projectSubmissions.id, { onDelete: 'cascade', onUpdate: 'cascade' }),
+        judgedBy: d
+            .text()
+            .notNull()
+            .references(() => adminProfiles.userId, { onDelete: 'set null' }),
+        criterionId: d
+            .text()
+            .notNull()
+            .references(() => projectJudgingCriteria.id, { onDelete: 'cascade', onUpdate: 'cascade' }),
+        judgedAt: d
+            .integer({ mode: 'timestamp' })
+            .notNull()
+            .default(sql`(unixepoch())`),
+        totalScore: d.integer().notNull().default(0),
+        // Unused, maybe in future.
+        notes: d.text({ length: 512 }),
+    }),
+    (t) => [unique().on(t.submissionId, t.judgedBy, t.criterionId)]
+);
+
+export const submissionJudgementRelations = relations(submissionJudgement, ({ one, many }) => ({
+    submission: one(projectSubmissions, {
+        fields: [submissionJudgement.submissionId],
+        references: [projectSubmissions.id],
+    }),
+    judge: one(adminProfiles, {
+        fields: [submissionJudgement.judgedBy],
+        references: [adminProfiles.userId],
+    }),
+    criterion: one(projectJudgingCriteria, {
+        fields: [submissionJudgement.criterionId],
+        references: [projectJudgingCriteria.id],
     }),
 }));

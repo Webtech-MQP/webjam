@@ -1,7 +1,7 @@
 import { env } from '@/env';
 import { sendJamEndEmail, sendJudgedEmail } from '@/lib/mailer';
 import { adminProcedure, createTRPCRouter, protectedProcedure, publicProcedure } from '@/server/api/trpc';
-import { projectInstanceRankings, projects, projectsTags, tags } from '@/server/db/schemas/projects';
+import { projectInstanceRankings, projectJudgingCriteria, projects, projectsTags, tags } from '@/server/db/schemas/projects';
 import { TRPCError } from '@trpc/server';
 import { eq } from 'drizzle-orm';
 import { z } from 'zod';
@@ -19,6 +19,14 @@ export const projectRouter = createTRPCRouter({
                 starts: z.date(),
                 ends: z.date(),
                 tags: z.array(z.string().min(1).max(256)).optional(),
+                judgingCriteria: z
+                    .array(
+                        z.object({
+                            criterion: z.string().min(1).max(512),
+                            weight: z.number().int().min(0).max(100),
+                        })
+                    )
+                    .optional(),
             })
         )
         .mutation(async ({ ctx, input }) => {
@@ -46,6 +54,17 @@ export const projectRouter = createTRPCRouter({
                     }))
                 );
             }
+
+            // Add judging criteria
+            if (input.judgingCriteria && input.judgingCriteria.length > 0) {
+                await ctx.db.insert(projectJudgingCriteria).values(
+                    input.judgingCriteria.map((item) => ({
+                        projectId: input.id,
+                        criterion: item.criterion,
+                        weight: item.weight,
+                    }))
+                );
+            }
         }),
 
     getOne: publicProcedure.input(z.object({ id: z.cuid2() })).query(async ({ ctx, input }) => {
@@ -64,6 +83,7 @@ export const projectRouter = createTRPCRouter({
                     },
                 },
                 projectInstances: true,
+                judgingCriteria: true,
             },
         });
     }),
@@ -87,13 +107,14 @@ export const projectRouter = createTRPCRouter({
                     with: {
                         submissions: {
                             with: {
-                                ratings: true,
+                                judgements: true,
                                 reviewer: true,
                             },
                         },
                         ranking: true,
                     },
                 },
+                judgingCriteria: true,
             },
         });
     }),
@@ -107,6 +128,7 @@ export const projectRouter = createTRPCRouter({
                     },
                 },
                 creator: true,
+                judgingCriteria: true,
             },
         });
     }),
@@ -123,6 +145,14 @@ export const projectRouter = createTRPCRouter({
                 starts: z.date(),
                 ends: z.date(),
                 tags: z.array(z.string().min(1).max(1000)).optional(),
+                judgingCriteria: z
+                    .array(
+                        z.object({
+                            criterion: z.string().min(1).max(512),
+                            weight: z.number().int().min(0).max(100),
+                        })
+                    )
+                    .optional(),
             })
         )
         .mutation(async ({ ctx, input }) => {
@@ -149,6 +179,19 @@ export const projectRouter = createTRPCRouter({
                     input.tags.map((tagId) => ({
                         projectId: input.id,
                         tagId: tagId,
+                    }))
+                );
+            }
+
+            // Update judging criteria
+            await ctx.db.delete(projectJudgingCriteria).where(eq(projectJudgingCriteria.projectId, input.id));
+
+            if (input.judgingCriteria && input.judgingCriteria.length > 0) {
+                await ctx.db.insert(projectJudgingCriteria).values(
+                    input.judgingCriteria.map((item) => ({
+                        projectId: input.id,
+                        criterion: item.criterion,
+                        weight: item.weight,
                     }))
                 );
             }
@@ -361,9 +404,62 @@ export const projectRouter = createTRPCRouter({
         return ctx.db.update(projects).set({ status: input.status }).where(eq(projects.id, input.id));
     }),
 
-    completeProject: adminProcedure.input(z.object({ projectId: z.cuid2(), rankings: z.array(z.cuid2()).refine((a) => new Set(a).size == a.length) })).mutation(async ({ ctx, input }) => {
-        const ranks = input.rankings.map((r, index) => ({
-            projectInstanceId: r,
+    completeProject: adminProcedure.input(z.object({ projectId: z.cuid2() })).mutation(async ({ ctx, input }) => {
+        const project = await ctx.db.query.projects.findFirst({
+            where: (projects, { eq }) => eq(projects.id, input.projectId),
+            with: {
+                projectInstances: {
+                    with: {
+                        submissions: {
+                            with: {
+                                judgements: true,
+                            },
+                        },
+                    },
+                },
+                judgingCriteria: true,
+            },
+        });
+
+        if (!project) {
+            throw new TRPCError({ code: 'NOT_FOUND', message: 'Project not found' });
+        }
+
+        if (project.status !== 'judging') {
+            throw new TRPCError({ code: 'BAD_REQUEST', message: 'Project is not in judging status' });
+        }
+
+        const submissions = project.projectInstances.flatMap((instance) => instance.submissions);
+        const criteria: Record<string, (typeof project.judgingCriteria)[number]> = project.judgingCriteria.reduce(
+            (acc, curr) => ({
+                ...acc,
+                [curr.id]: curr,
+            }),
+            {}
+        );
+        const rankedSubmissions = submissions
+            .sort((a, b) => b.submittedOn.valueOf() - a.submittedOn.valueOf())
+            .filter((submission, index) => submissions.findIndex((s) => s.projectInstanceId == submission.projectInstanceId) === index)
+            .map((s) => ({
+                ...s,
+                jam: project.projectInstances.find((pi) => pi.id === s.projectInstanceId),
+                calculatedScore: Object.entries(
+                    s.judgements.reduce(
+                        (acc, judgement) => ({
+                            ...acc,
+                            [judgement.criterionId]: {
+                                totalScore: (acc[judgement.criterionId]?.totalScore || 0) + judgement.totalScore,
+                                count: (acc[judgement.criterionId]?.count || 0) + 1,
+                            },
+                        }),
+                        {} as Record<string, { totalScore: number; count: number }>
+                    )
+                ).reduce((acc, [key, value]) => acc + (criteria[key]!.weight / 100) * (value.totalScore / value.count), 0),
+            }))
+            .sort((a, b) => b.calculatedScore - a.calculatedScore);
+
+        const ranks = rankedSubmissions.map((s, index) => ({
+            projectInstanceId: s.projectInstanceId,
             rank: index + 1,
         }));
 

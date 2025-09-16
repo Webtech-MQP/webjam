@@ -4,7 +4,7 @@ import { primaryKey } from 'drizzle-orm/sqlite-core';
 import { createTable } from '../schema-util';
 import { users } from './auth';
 import { candidateAward } from './awards';
-import { candidateProfilesToProjectInstances } from './projects';
+import { candidateProfilesToProjectInstances, submissionJudgement } from './projects';
 
 export const candidateProfiles = createTable('candidate_profile', (d) => ({
     userId: d
@@ -145,6 +145,7 @@ export const adminProfilesRelations = relations(adminProfiles, ({ one, many }) =
         references: [users.id],
     }),
     reportsActioned: many(candidateReport),
+    judgements: many(submissionJudgement),
 }));
 
 export const recruitersToCandidates = createTable(

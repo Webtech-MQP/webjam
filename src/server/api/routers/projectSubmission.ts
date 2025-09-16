@@ -1,6 +1,5 @@
 import { adminProcedure, createTRPCRouter, protectedProcedure } from '@/server/api/trpc';
-import { projectInstances, projectSubmissionRating, projectSubmissions } from '@/server/db/schemas/projects';
-import { TRPCError } from '@trpc/server';
+import { projectInstances, projectSubmissions } from '@/server/db/schemas/projects';
 import { and, eq, gte, lt, sql } from 'drizzle-orm';
 import { z } from 'zod';
 
@@ -46,9 +45,9 @@ export const projectSubmissionRouter = createTRPCRouter({
                     },
                 },
                 reviewer: true,
-                ratings: {
+                judgements: {
                     columns: {
-                        ratedBy: false,
+                        totalScore: true,
                     },
                 },
             },
@@ -72,9 +71,9 @@ export const projectSubmissionRouter = createTRPCRouter({
                     },
                 },
                 reviewer: true,
-                ratings: {
+                judgements: {
                     columns: {
-                        ratedBy: false,
+                        totalScore: true,
                     },
                 },
             },
@@ -92,10 +91,9 @@ export const projectSubmissionRouter = createTRPCRouter({
                     },
                 },
                 reviewer: true,
-
-                ratings: {
+                judgements: {
                     columns: {
-                        ratedBy: false,
+                        totalScore: true,
                     },
                 },
             },
@@ -112,9 +110,9 @@ export const projectSubmissionRouter = createTRPCRouter({
                     },
                 },
                 reviewer: true,
-                ratings: {
+                judgements: {
                     columns: {
-                        ratedBy: false,
+                        totalScore: true,
                     },
                 },
             },
@@ -149,46 +147,6 @@ export const projectSubmissionRouter = createTRPCRouter({
     deleteAll: adminProcedure.mutation(async ({ ctx }) => {
         // eslint-disable-next-line drizzle/enforce-delete-with-where
         return ctx.db.delete(projectSubmissions);
-    }),
-
-    rateSubmission: adminProcedure.input(z.object({ id: z.cuid2(), rating: z.number().min(1).max(10) })).mutation(async ({ ctx, input }) => {
-        const p = await ctx.db.query.projects.findFirst({
-            with: {
-                projectInstances: {
-                    with: {
-                        submissions: {
-                            where: (submissions, { eq }) => eq(submissions.id, input.id),
-                        },
-                    },
-                },
-            },
-        });
-
-        if (!p) {
-            throw new TRPCError({ code: 'NOT_FOUND', message: 'Submission not found' });
-        }
-
-        if (p.status !== 'judging') {
-            throw new TRPCError({ code: 'BAD_REQUEST', message: 'Can only rate submissions in judgement status' });
-        }
-
-        const q = await ctx.db
-            .insert(projectSubmissionRating)
-            .values({
-                submissionId: input.id,
-                rating: input.rating,
-                ratedBy: ctx.session.user.id,
-            })
-            .onConflictDoUpdate({
-                target: [projectSubmissionRating.submissionId, projectSubmissionRating.ratedBy],
-                set: {
-                    rating: input.rating,
-                    ratedBy: ctx.session.user.id,
-                    ratedOn: sql`(unixepoch())`,
-                },
-            });
-
-        return q.rows[0];
     }),
 
     getMyRating: adminProcedure.input(z.object({ submissionId: z.cuid2() })).query(async ({ ctx, input }) => {
