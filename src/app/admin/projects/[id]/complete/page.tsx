@@ -7,6 +7,8 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
 
     const project = await api.projects.adminGetOne({ id });
 
+    const previewedRankings = await api.judging.previewRankings({ projectId: id });
+
     if (!project) return notFound();
 
     return (
@@ -15,7 +17,10 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
                 Complete Project <span className="font-mono bg-stone-900 rounded px-2 w-fit border-1 border-primary/50">{project.title}</span>
             </h1>
             <p className="mb-4 text-muted-foreground">Finalize the judging phase for this project.</p>
-            <CompletionForm project={project} />
+            <CompletionForm
+                previewedRankings={previewedRankings}
+                project={project}
+            />
         </div>
     );
 }

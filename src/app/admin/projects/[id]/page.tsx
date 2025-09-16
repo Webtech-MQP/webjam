@@ -68,6 +68,14 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
                             <Pencil />
                         </Link>
                     </Button>
+                    {project.status === 'judging' && (
+                        <Button
+                            variant="default"
+                            asChild
+                        >
+                            <Link href={`/admin/projects/${project.id}/judge`}>Judge Project</Link>
+                        </Button>
+                    )}
                     <TransitionProjectButton
                         projectId={project.id}
                         status={project.status}
