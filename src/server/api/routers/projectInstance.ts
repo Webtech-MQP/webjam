@@ -131,4 +131,8 @@ export const projectInstanceRouter = createTRPCRouter({
 
         return ratings.reduce((acc, r) => acc + r.rating, 0) / (ratings.length || 1);
     }),
+
+    linkRepository: protectedProcedure.input(z.object({ projectInstanceId: z.cuid2() , repoUrl: z.string()})).mutation(async ({ ctx, input }) => {
+        await ctx.db.update(projectInstances).set({repoUrl: input.repoUrl}).where(eq(projectInstances.id, input.projectInstanceId))
+    })
 });
