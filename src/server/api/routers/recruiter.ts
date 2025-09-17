@@ -1,5 +1,5 @@
 import { adminProcedure, createTRPCRouter, protectedProcedure, publicProcedure } from '@/server/api/trpc';
-import { listCandidates, recruiterProfiles } from '@/server/db/schemas/profiles';
+import { listCandidates, lists, recruiterProfiles } from '@/server/db/schemas/profiles';
 import { TRPCError } from '@trpc/server';
 import { eq } from 'drizzle-orm';
 import { z } from 'zod';
@@ -53,6 +53,58 @@ export const recruiterRouter = createTRPCRouter({
         return lists;
     }),
 
+    createOneList: protectedProcedure.input(z.object({ name: z.string().min(1).max(100), description: z.string().max(255).optional() })).mutation(async ({ ctx, input }) => {
+        await ctx.db.insert(lists).values({
+            name: input.name,
+            description: input.description ?? '',
+            recruiterId: ctx.session.user.id,
+        });
+    }),
+
+    createOneListCandidate: protectedProcedure.input(z.object({ listId: z.cuid2(), candidateId: z.cuid2(), comments: z.string().optional() })).mutation(async ({ ctx, input }) => {
+        const list = await ctx.db.query.lists.findFirst({
+            where: (lists, { eq }) => eq(lists.id, input.listId),
+        });
+
+        if (!list) {
+            throw new TRPCError({ code: 'NOT_FOUND', message: 'List not found' });
+        }
+
+        if (list.recruiterId !== ctx.session.user.id) {
+            throw new TRPCError({ code: 'FORBIDDEN', message: 'Not your list' });
+        }
+
+        const existingEntry = await ctx.db.query.listCandidates.findFirst({
+            where: (lc, { eq }) => eq(lc.listId, input.listId) && eq(lc.candidateId, input.candidateId),
+        });
+
+        if (existingEntry) {
+            throw new TRPCError({ code: 'CONFLICT', message: 'Candidate already in list' });
+        }
+
+        return ctx.db.insert(listCandidates).values({
+            listId: input.listId,
+            candidateId: input.candidateId,
+            comments: input.comments ?? '',
+        });
+    }),
+
+    deleteOneList: protectedProcedure.input(z.object({ id: z.cuid2() })).mutation(async ({ ctx, input }) => {
+        const list = await ctx.db.query.lists.findFirst({
+            where: (lists, { eq }) => eq(lists.id, input.id),
+        });
+
+        if (!list) {
+            throw new TRPCError({ code: 'NOT_FOUND', message: 'List not found' });
+        }
+
+        if (list.recruiterId !== ctx.session.user.id) {
+            throw new TRPCError({ code: 'FORBIDDEN', message: 'Not your list' });
+        }
+
+        return ctx.db.delete(lists).where(eq(lists.id, input.id));
+    }),
+
     removeCandidateFromList: protectedProcedure.input(z.object({ listId: z.cuid2(), candidateId: z.cuid2() })).mutation(async ({ ctx, input }) => {
         const list = await ctx.db.query.lists.findFirst({
             where: (lists, { eq }) => eq(lists.id, input.listId),
@@ -67,6 +119,72 @@ export const recruiterRouter = createTRPCRouter({
         }
 
         return ctx.db.delete(listCandidates).where(eq(listCandidates.listId, input.listId) && eq(listCandidates.candidateId, input.candidateId));
+    }),
+
+    moveCandidateToList: protectedProcedure
+        .input(
+            z.object({
+                candidateId: z.cuid2(),
+                fromListId: z.cuid2(),
+                toListId: z.cuid2(),
+                comments: z.string().optional(),
+            })
+        )
+        .mutation(async ({ ctx, input }) => {
+            // Check ownership of both lists
+            const fromList = await ctx.db.query.lists.findFirst({
+                where: (lists, { eq }) => eq(lists.id, input.fromListId),
+            });
+            const toList = await ctx.db.query.lists.findFirst({
+                where: (lists, { eq }) => eq(lists.id, input.toListId),
+            });
+            if (!fromList || !toList) {
+                throw new TRPCError({ code: 'NOT_FOUND', message: 'List not found' });
+            }
+            if (fromList.recruiterId !== ctx.session.user.id || toList.recruiterId !== ctx.session.user.id) {
+                throw new TRPCError({ code: 'FORBIDDEN', message: 'Not your list' });
+            }
+            // Get existing comment from source list
+            const candidateEntry = await ctx.db.query.listCandidates.findFirst({
+                where: (lc, { eq }) => eq(lc.listId, input.fromListId) && eq(lc.candidateId, input.candidateId),
+            });
+            const commentToUse = input.comments ?? candidateEntry?.comments ?? '';
+            // Remove from source list
+            await ctx.db.delete(listCandidates).where(eq(listCandidates.listId, input.fromListId) && eq(listCandidates.candidateId, input.candidateId));
+            // Add to target list
+            await ctx.db.insert(listCandidates).values({
+                listId: input.toListId,
+                candidateId: input.candidateId,
+                comments: commentToUse,
+            });
+            return { success: true };
+        }),
+
+    updateOneListCandidate: protectedProcedure.input(z.object({ listId: z.cuid2(), candidateId: z.cuid2(), comments: z.string().optional() })).mutation(async ({ ctx, input }) => {
+        const list = await ctx.db.query.lists.findFirst({
+            where: (lists, { eq }) => eq(lists.id, input.listId),
+        });
+
+        if (!list) {
+            throw new TRPCError({ code: 'NOT_FOUND', message: 'List not found' });
+        }
+
+        if (list.recruiterId !== ctx.session.user.id) {
+            throw new TRPCError({ code: 'FORBIDDEN', message: 'Not your list' });
+        }
+
+        const candidateEntry = await ctx.db.query.listCandidates.findFirst({
+            where: (lc, { eq }) => eq(lc.listId, input.listId) && eq(lc.candidateId, input.candidateId),
+        });
+
+        if (!candidateEntry) {
+            throw new TRPCError({ code: 'NOT_FOUND', message: 'Candidate not in list' });
+        }
+
+        return ctx.db
+            .update(listCandidates)
+            .set({ comments: input.comments ?? '' })
+            .where(eq(listCandidates.listId, input.listId) && eq(listCandidates.candidateId, input.candidateId));
     }),
 
     updateOne: adminProcedure

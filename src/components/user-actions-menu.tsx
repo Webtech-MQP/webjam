@@ -2,11 +2,13 @@
 
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuPortal, DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Input } from '@/features/profiles/editor/input';
 import { api } from '@/trpc/react';
 import { useForm } from '@tanstack/react-form';
+import { skipToken } from '@tanstack/react-query';
 import { Ellipsis, LoaderCircle } from 'lucide-react';
+import { useSession } from 'next-auth/react';
 import { useEffect, useRef } from 'react';
 import { toast } from 'sonner';
 
@@ -17,8 +19,11 @@ interface UserActionsMenuProps {
 
 export function UserActionsMenu({ reportedUserName, reportedUserId }: UserActionsMenuProps) {
     const dialogCloseRef = useRef<HTMLButtonElement>(null);
+    const session = useSession();
 
+    const userId = session.data?.user.id;
     const createReport = api.reports.create.useMutation();
+    const candidateLists = api.recruiters.getLists.useQuery(userId ? { id: userId } : skipToken);
 
     const form = useForm({
         defaultValues: {
@@ -59,6 +64,14 @@ export function UserActionsMenu({ reportedUserName, reportedUserId }: UserAction
             >
                 <DropdownMenuLabel>Actions</DropdownMenuLabel>
                 <DropdownMenuGroup>
+                    {session.data?.user.role === 'recruiter' && (
+                        <DropdownMenuSub>
+                            <DropdownMenuSubTrigger>Add {reportedUserName} to</DropdownMenuSubTrigger>
+                            <DropdownMenuPortal>
+                                <DropdownMenuSubContent>{candidateLists.data?.map((list) => <DropdownMenuItem key={list.id}>{list.name}</DropdownMenuItem>)}</DropdownMenuSubContent>
+                            </DropdownMenuPortal>
+                        </DropdownMenuSub>
+                    )}
                     <Dialog>
                         <DialogTrigger asChild>
                             <DropdownMenuItem
