@@ -1,124 +1,156 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { CandidateCard } from '@/features/profiles/candidate-card';
-import { Plus } from 'lucide-react';
+import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuPortal, DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { api } from '@/trpc/react';
+import { skipToken } from '@tanstack/react-query';
+import { EllipsisVertical, LoaderCircle, Plus } from 'lucide-react';
 import { useSession } from 'next-auth/react';
-import { useState } from 'react';
+import Image from 'next/image';
 
 export default function RecruiterDashboardPage() {
-    const [showLiked, setShowLiked] = useState(true);
     const session = useSession();
+    const utils = api.useUtils();
 
-    // Mock data for liked candidates
-    const likedCandidates = [
-        {
-            userId: '1',
-            displayName: 'Alice Johnson',
-            bio: 'Full Stack Developer passionate about React and Node.js.',
-            location: 'Boston, MA',
-            language: 'JavaScript',
-            experience: '5 years',
-            user: { githubUsername: 'alicejohnson' },
-            linkedinURL: 'https://linkedin.com/in/alicejohnson',
-            imageUrl: undefined,
-            candidateProfilesToProjectInstances: [{}, {}, {}, {}, {}, {}, {}, {}, {}], // 9 projects
-        },
-        {
-            userId: '2',
-            displayName: 'Bob Smith',
-            bio: 'Backend engineer with a love for distributed systems.',
-            location: 'San Francisco, CA',
-            language: 'Go',
-            experience: '7 years',
-            user: { githubUsername: 'bobsmith' },
-            linkedinURL: 'https://linkedin.com/in/bobsmith',
-            imageUrl: undefined,
-            candidateProfilesToProjectInstances: [{}], // 1 project
-        },
-        {
-            userId: '3',
-            displayName: 'Carol Lee',
-            bio: 'UI/UX Designer and front-end developer.',
-            location: 'Remote',
-            language: 'TypeScript',
-            experience: '3 years',
-            user: { githubUsername: 'carollee' },
-            linkedinURL: 'https://linkedin.com/in/carollee',
-            imageUrl: undefined,
-            candidateProfilesToProjectInstances: [{}, {}], // 2 projects
-        },
-    ];
+    const recruiterId = session.data?.user.id;
+    const { data: me, isLoading } = api.recruiters.getOne.useQuery(recruiterId ? { id: recruiterId } : skipToken);
 
-    // const { data: me, isLoading } = api.recruiters.getOne.useQuery(session.data?.user.id ? { id: session.data.user.id } : skipToken);
+    const candidateLists = api.recruiters.getLists.useQuery(recruiterId ? { id: recruiterId } : skipToken);
+    console.log('Candidate Lists:', candidateLists.data?.[0]);
 
-    // if (isLoading) {
-    //     return (
-    //         <div className="min-h-screen flex items-center justify-center animate-spin">
-    //             <LoaderCircle />
-    //         </div>
-    //     );
-    // }
+    const removeCandidateFromList = api.recruiters.removeCandidateFromList.useMutation({
+        onSuccess: () => {
+            void utils.recruiters.getLists.invalidate({ id: session.data?.user.id ?? '' });
+        },
+    });
+
+    if (isLoading) {
+        return (
+            <div className="h-screen overflow-y-hidden flex items-center justify-center animate-spin">
+                <LoaderCircle />
+            </div>
+        );
+    }
 
     return (
-        <div className="min-h-screen p-8">
-            {/* {me && (<h1 className="text-3xl font-bold mb-2">Hello, {session.data?.user.name}!</h1>)} */}
+        <div className="min-h-screen -m-4 p-8 ">
+            {me && <h1 className="text-3xl font-bold mb-2">Hello, {session.data?.user.name}!</h1>}
             <p className="mb-8 text-gray-600">Welcome! Here you can manage your favorite candidates and more.</p>
 
-            {/* Toggle Liked Candidates List */}
-            <div className="mb-4 flex items-center gap-2">
-                <Button
-                    variant={showLiked ? 'default' : 'outline'}
-                    onClick={() => setShowLiked(true)}
+            {candidateLists.data && candidateLists.data.length > 0 && candidateLists.data[0] ? (
+                <Tabs
+                    defaultValue={candidateLists.data[0].id}
+                    className="w-full"
                 >
-                    Liked Candidates
-                </Button>
-                <Button
-                    variant={!showLiked ? 'default' : 'outline'}
-                    onClick={() => setShowLiked(false)}
-                >
-                    {/* Placeholder for another list, e.g., Shortlisted, Contacted, etc. */}
-                    Other List
-                </Button>
-            </div>
-
-            {/* Liked Candidates List */}
-            {showLiked && (
-                <div>
-                    <h2 className="text-xl font-semibold mb-4">Your Liked Candidates</h2>
-                    {likedCandidates.length > 0 ? (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {likedCandidates.map((candidate) => (
-                                <CandidateCard
-                                    key={candidate.userId}
-                                    displayName={candidate.displayName}
-                                    bio={candidate.bio ?? undefined}
-                                    location={candidate.location ?? undefined}
-                                    language={candidate.language ?? undefined}
-                                    experience={candidate.experience ?? undefined}
-                                    githubUsername={candidate.user.githubUsername ?? undefined}
-                                    linkedinURL={candidate.linkedinURL ?? undefined}
-                                    imageUrl={candidate.imageUrl ?? undefined}
-                                    projectCount={candidate.candidateProfilesToProjectInstances.length}
-                                />
-                            ))}
-                        </div>
-                    ) : (
-                        <div className="text-gray-500">You haven&apos;t liked any candidates yet.</div>
-                    )}
-                </div>
-            )}
-
-            {/* Placeholder for other recruiter dashboard features */}
-            {!showLiked && (
-                <div>
-                    <h2 className="text-xl font-semibold mb-4">Other Recruiter Tools</h2>
-                    <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 text-gray-500">
-                        {/* Add more recruiter dashboard widgets or tools here */}
-                        <Plus className="inline-block mr-2" />
-                        Feature coming soon!
+                    <div className="flex items-center gap-2 mb-4">
+                        <TabsList>
+                            {candidateLists.data &&
+                                candidateLists.data.length > 0 &&
+                                candidateLists.data.map((list) => (
+                                    <TabsTrigger
+                                        key={list.id}
+                                        value={list.id}
+                                    >
+                                        {list.name}
+                                    </TabsTrigger>
+                                ))}
+                        </TabsList>
+                        <Dialog>
+                            <DialogTrigger asChild>
+                                <Button className="ml-2">
+                                    <Plus />
+                                </Button>
+                            </DialogTrigger>
+                            <DialogContent>
+                                <div className="flex flex-col gap-4">
+                                    <h2 className="text-xl font-bold">Create New Candidate List</h2>
+                                    <input
+                                        type="text"
+                                        name="name"
+                                        placeholder="List Name"
+                                        className="border p-2 rounded w-full"
+                                        required
+                                    />
+                                    <input
+                                        type="text"
+                                        name="description"
+                                        placeholder="Description (optional)"
+                                        className="border p-2 rounded w-full"
+                                    />
+                                    <Button type="submit">Create List</Button>
+                                </div>
+                            </DialogContent>
+                        </Dialog>
                     </div>
-                </div>
+                    {candidateLists.data?.map((list) => (
+                        <TabsContent
+                            key={list.id}
+                            value={list.id}
+                            className="flex items-center justify-center"
+                        >
+                            {list.candidates.length === 0 ? (
+                                <div
+                                    key="no-candidates"
+                                    className="text-gray-500"
+                                >
+                                    No candidates in this list yet.
+                                </div>
+                            ) : (
+                                list.candidates.map((candidate) => (
+                                    <div
+                                        key={candidate.candidateId}
+                                        className="flex items-center justify-between w-full"
+                                    >
+                                        <Image
+                                            src={candidate.candidateProfile.imageUrl ?? ''}
+                                            alt={candidate.candidateProfile.displayName}
+                                            height={48}
+                                            width={48}
+                                            className="rounded-full"
+                                        />
+                                        <div>
+                                            <p>{candidate.candidateProfile.displayName}</p>
+                                            <p>{candidate.comments}</p>
+                                        </div>
+                                        <DropdownMenu>
+                                            <DropdownMenuTrigger asChild>
+                                                <Button variant="outline">
+                                                    <EllipsisVertical />
+                                                </Button>
+                                            </DropdownMenuTrigger>
+                                            <DropdownMenuContent
+                                                className="w-56"
+                                                align="end"
+                                            >
+                                                <DropdownMenuSub>
+                                                    <DropdownMenuSubTrigger>Move to</DropdownMenuSubTrigger>
+                                                    <DropdownMenuPortal>
+                                                        <DropdownMenuSubContent>
+                                                            {candidateLists.data.map((list) => (
+                                                                <DropdownMenuItem key={list.id}>{list.name}</DropdownMenuItem>
+                                                            ))}
+                                                        </DropdownMenuSubContent>
+                                                    </DropdownMenuPortal>
+                                                </DropdownMenuSub>
+                                                <DropdownMenuItem>Edit comment</DropdownMenuItem>
+                                                <DropdownMenuItem
+                                                    className="text-red-500"
+                                                    onClick={() => removeCandidateFromList.mutate({ candidateId: candidate.candidateId, listId: list.id })}
+                                                >
+                                                    Delete
+                                                </DropdownMenuItem>
+                                            </DropdownMenuContent>
+                                        </DropdownMenu>
+                                    </div>
+                                ))
+                            )}
+                        </TabsContent>
+                    ))}
+                </Tabs>
+            ) : (
+                <div className="text-gray-500">You have no candidate lists yet. Create one to get started!</div>
             )}
         </div>
     );

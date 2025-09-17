@@ -1,5 +1,5 @@
 import { adminProcedure, createTRPCRouter, protectedProcedure, publicProcedure } from '@/server/api/trpc';
-import { recruiterProfiles } from '@/server/db/schemas/profiles';
+import { listCandidates, recruiterProfiles } from '@/server/db/schemas/profiles';
 import { TRPCError } from '@trpc/server';
 import { eq } from 'drizzle-orm';
 import { z } from 'zod';
@@ -51,6 +51,22 @@ export const recruiterRouter = createTRPCRouter({
         });
 
         return lists;
+    }),
+
+    removeCandidateFromList: protectedProcedure.input(z.object({ listId: z.cuid2(), candidateId: z.cuid2() })).mutation(async ({ ctx, input }) => {
+        const list = await ctx.db.query.lists.findFirst({
+            where: (lists, { eq }) => eq(lists.id, input.listId),
+        });
+
+        if (!list) {
+            throw new TRPCError({ code: 'NOT_FOUND', message: 'List not found' });
+        }
+
+        if (list.recruiterId !== ctx.session.user.id) {
+            throw new TRPCError({ code: 'FORBIDDEN', message: 'Not your list' });
+        }
+
+        return ctx.db.delete(listCandidates).where(eq(listCandidates.listId, input.listId) && eq(listCandidates.candidateId, input.candidateId));
     }),
 
     updateOne: adminProcedure
