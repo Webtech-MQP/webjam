@@ -17,7 +17,7 @@ export default async function Layout({ candidate, params }: Props) {
     //TODO: If user is recruiter, render recruiter profile
 
     if (!c) {
-        notFound();
+        notFound(); // What is the expected behavior here?
     }
 
     return candidate;

@@ -20,29 +20,33 @@ export default function RecruiterDashboardPage() {
     const session = useSession();
     const utils = api.useUtils();
     const dialogCloseRef = useRef<HTMLButtonElement>(null);
+    const [editingComment, setEditingComment] = useState<{ candidateId: string; listId: string; comment: string } | null>(null);
+    const [commentValue, setCommentValue] = useState('');
+    const [selectedTab, setSelectedTab] = useState<string | null>(null);
 
-    const recruiterId = session.data?.user.id;
-    const { data: me, isLoading } = api.recruiters.getOne.useQuery(recruiterId ? { id: recruiterId } : skipToken);
-    const candidateLists = api.recruiters.getLists.useQuery(recruiterId ? { id: recruiterId } : skipToken);
+    const userId = session.data?.user.id;
+    const { data: me, isLoading } = api.recruiters.getOne.useQuery(userId ? { id: userId } : skipToken); // TODO: probably get rid of this
+    const candidateLists = api.recruiters.getLists.useQuery(userId ? { id: userId } : skipToken);
 
     const removeCandidateFromList = api.recruiters.removeCandidateFromList.useMutation({
         onSuccess: () => {
-            void utils.recruiters.getLists.invalidate({ id: session.data?.user.id ?? '' });
+            void utils.recruiters.getLists.invalidate({ id: userId! });
         },
     });
     const moveCandidateToList = api.recruiters.moveCandidateToList.useMutation({
         onSuccess: () => {
-            void utils.recruiters.getLists.invalidate({ id: session.data?.user.id ?? '' });
+            void utils.recruiters.getLists.invalidate({ id: userId! });
+            
         },
     });
     const editCandidateComment = api.recruiters.updateOneListCandidate.useMutation({
         onSuccess: () => {
-            void utils.recruiters.getLists.invalidate({ id: session.data?.user.id ?? '' });
+            void utils.recruiters.getLists.invalidate({ id: userId! });
         },
     });
     const createList = api.recruiters.createOneList.useMutation({
         onSuccess: () => {
-            void utils.recruiters.getLists.invalidate({ id: session.data?.user.id ?? '' });
+            void utils.recruiters.getLists.invalidate({ id: userId! });
         },
     });
 
@@ -66,13 +70,12 @@ export default function RecruiterDashboardPage() {
         }
     }, [form, createList.isSuccess]);
 
-    const [editingComment, setEditingComment] = useState<{ candidateId: string; listId: string; comment: string } | null>(null);
-    const [commentValue, setCommentValue] = useState('');
-
-    if (isLoading) {
+    if (session.status === 'loading' || candidateLists.isLoading) {
         return (
-            <div className="h-screen overflow-y-hidden flex items-center justify-center animate-spin">
-                <LoaderCircle />
+            <div className="-m-4 p-8 bg-neutral-100 text-black">
+                <div className="h-screen overflow-y-hidden flex items-center justify-center animate-spin">
+                    <LoaderCircle />
+                </div>
             </div>
         );
     }
@@ -86,6 +89,7 @@ export default function RecruiterDashboardPage() {
                 <Tabs
                     defaultValue={candidateLists.data[0].id}
                     className="w-full"
+                    value={selectedTab ?? undefined}
                 >
                     <div className="flex items-center gap-2 mb-4">
                         <TabsList className="bg-gray-300">
@@ -161,7 +165,7 @@ export default function RecruiterDashboardPage() {
                                             type="submit"
                                         >
                                             {createList.isPending && <LoaderCircle className="animate-spin" />}
-                                            Submit report
+                                            Submit
                                         </Button>
                                     </form>
                                 </div>
@@ -172,7 +176,7 @@ export default function RecruiterDashboardPage() {
                         <TabsContent
                             key={list.id}
                             value={list.id}
-                            className="flex flex-col gap-8 items-center justify-center"
+                            className="flex flex-col gap-4 items-center justify-center"
                         >
                             {list.candidates.length === 0 ? (
                                 <div className="text-gray-500">No candidates in this list yet.</div>
@@ -180,115 +184,120 @@ export default function RecruiterDashboardPage() {
                                 list.candidates.map((candidate) => (
                                     <div
                                         key={candidate.candidateId}
-                                        className="flex items-center justify-between w-full cursor-pointer"
-                                        onClick={() => router.push(`/users/${candidate.candidateId}`)}
+                                        className="flex items-center justify-between w-full"
                                     >
-                                        <div className="flex items-center gap-4 w-full">
-                                            <Image
-                                                src={candidate.candidateProfile.imageUrl ?? ''}
-                                                alt={candidate.candidateProfile.displayName}
-                                                height={50}
-                                                width={50}
-                                                className="rounded-full"
-                                            />
-                                            <div className="w-full">
-                                                <p className="font-bold text-2xl">{candidate.candidateProfile.displayName}</p>
-                                                {editingComment && editingComment.candidateId === candidate.candidateId && editingComment.listId === list.id ? (
-                                                    <form
-                                                        className="flex flex-col gap-2 mt-2 w-full"
+                                        <div className="flex flex-col items-start gap-4 w-full border rounded border-gray-500 p-4">
+                                            <div className="flex w-full">
+                                                <div
+                                                    className="flex items-center gap-4 cursor-pointer"
+                                                    onClick={() => router.push(`/users/${candidate.candidateId}`)}
+                                                >
+                                                    <Image
+                                                        src={candidate.candidateProfile.imageUrl ?? ''}
+                                                        alt={candidate.candidateProfile.displayName}
+                                                        height={50}
+                                                        width={50}
+                                                        className="rounded-full"
+                                                    />
+                                                    <p className="font-bold text-2xl">{candidate.candidateProfile.displayName}</p>
+                                                </div>
+                                                <DropdownMenu>
+                                                    <DropdownMenuTrigger asChild>
+                                                        <Button
+                                                            variant="outline"
+                                                            onClick={(e) => e.stopPropagation()}
+                                                            className="ml-auto hover:text-black"
+                                                        >
+                                                            <EllipsisVertical />
+                                                        </Button>
+                                                    </DropdownMenuTrigger>
+                                                    <DropdownMenuContent
+                                                        className="w-56"
+                                                        align="end"
                                                         onClick={(e) => e.stopPropagation()}
-                                                        onSubmit={(e) => {
-                                                            e.preventDefault();
-                                                            editCandidateComment.mutate({
-                                                                candidateId: candidate.candidateId,
-                                                                listId: list.id,
-                                                                comments: commentValue,
-                                                            });
-                                                            setEditingComment(null);
-                                                        }}
                                                     >
-                                                        <textarea
-                                                            className="border border-black rounded p-2 w-full"
-                                                            value={commentValue}
-                                                            onChange={(e) => setCommentValue(e.target.value)}
-                                                            rows={2}
-                                                        />
-                                                        <div className="flex gap-2">
-                                                            <Button
-                                                                type="submit"
-                                                                size="sm"
-                                                            >
-                                                                Save
-                                                            </Button>
-                                                            <Button
-                                                                type="button"
-                                                                size="sm"
-                                                                variant="ghost"
-                                                                onClick={() => setEditingComment(null)}
-                                                            >
-                                                                Cancel
-                                                            </Button>
-                                                        </div>
-                                                    </form>
-                                                ) : (
-                                                    candidate.comments && <p className="text-gray-500">{candidate.comments}</p>
-                                                )}
+                                                        <DropdownMenuSub>
+                                                            <DropdownMenuSubTrigger>Move to</DropdownMenuSubTrigger>
+                                                            <DropdownMenuPortal>
+                                                                <DropdownMenuSubContent>
+                                                                    {candidateLists.data
+                                                                        .filter((l) => l.id !== list.id)
+                                                                        .map((cl) => (
+                                                                            <DropdownMenuItem
+                                                                                key={cl.id}
+                                                                                onClick={(e) => {
+                                                                                    e.stopPropagation();
+                                                                                    moveCandidateToList.mutate({ candidateId: candidate.candidateId, fromListId: list.id, toListId: cl.id });
+                                                                                }}
+                                                                            >
+                                                                                {cl.name}
+                                                                            </DropdownMenuItem>
+                                                                        ))}
+                                                                </DropdownMenuSubContent>
+                                                            </DropdownMenuPortal>
+                                                        </DropdownMenuSub>
+                                                        <DropdownMenuItem
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                setEditingComment({ candidateId: candidate.candidateId, listId: list.id, comment: candidate.comments ?? '' });
+                                                                setCommentValue(candidate.comments ?? '');
+                                                            }}
+                                                        >
+                                                            Edit comment
+                                                        </DropdownMenuItem>
+                                                        <DropdownMenuItem
+                                                            className="text-red-500"
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                removeCandidateFromList.mutate({ candidateId: candidate.candidateId, listId: list.id });
+                                                            }}
+                                                        >
+                                                            Delete
+                                                        </DropdownMenuItem>
+                                                    </DropdownMenuContent>
+                                                </DropdownMenu>
                                             </div>
-                                        </div>
-                                        <DropdownMenu>
-                                            <DropdownMenuTrigger asChild>
-                                                <Button
-                                                    variant="ghost"
+                                            {editingComment && editingComment.candidateId === candidate.candidateId && editingComment.listId === list.id ? (
+                                                <form
+                                                    className="flex flex-col gap-2 mt-2 w-full"
                                                     onClick={(e) => e.stopPropagation()}
-                                                >
-                                                    <EllipsisVertical />
-                                                </Button>
-                                            </DropdownMenuTrigger>
-                                            <DropdownMenuContent
-                                                className="w-56"
-                                                align="end"
-                                                onClick={(e) => e.stopPropagation()}
-                                            >
-                                                <DropdownMenuSub>
-                                                    <DropdownMenuSubTrigger>Move to</DropdownMenuSubTrigger>
-                                                    <DropdownMenuPortal>
-                                                        <DropdownMenuSubContent>
-                                                            {candidateLists.data
-                                                                .filter((l) => l.id !== list.id)
-                                                                .map((cl) => (
-                                                                    <DropdownMenuItem
-                                                                        key={cl.id}
-                                                                        onClick={(e) => {
-                                                                            e.stopPropagation();
-                                                                            moveCandidateToList.mutate({ candidateId: candidate.candidateId, fromListId: list.id, toListId: cl.id });
-                                                                        }}
-                                                                    >
-                                                                        {cl.name}
-                                                                    </DropdownMenuItem>
-                                                                ))}
-                                                        </DropdownMenuSubContent>
-                                                    </DropdownMenuPortal>
-                                                </DropdownMenuSub>
-                                                <DropdownMenuItem
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        setEditingComment({ candidateId: candidate.candidateId, listId: list.id, comment: candidate.comments ?? '' });
-                                                        setCommentValue(candidate.comments ?? '');
+                                                    onSubmit={(e) => {
+                                                        e.preventDefault();
+                                                        editCandidateComment.mutate({
+                                                            candidateId: candidate.candidateId,
+                                                            listId: list.id,
+                                                            comments: commentValue,
+                                                        });
+                                                        setEditingComment(null);
                                                     }}
                                                 >
-                                                    Edit comment
-                                                </DropdownMenuItem>
-                                                <DropdownMenuItem
-                                                    className="text-red-500"
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        removeCandidateFromList.mutate({ candidateId: candidate.candidateId, listId: list.id });
-                                                    }}
-                                                >
-                                                    Delete
-                                                </DropdownMenuItem>
-                                            </DropdownMenuContent>
-                                        </DropdownMenu>
+                                                    <textarea
+                                                        className="border border-black rounded p-2 w-full"
+                                                        value={commentValue}
+                                                        onChange={(e) => setCommentValue(e.target.value)}
+                                                        rows={3}
+                                                    />
+                                                    <div className="flex gap-2">
+                                                        <Button
+                                                            type="submit"
+                                                            size="sm"
+                                                        >
+                                                            Save
+                                                        </Button>
+                                                        <Button
+                                                            type="button"
+                                                            size="sm"
+                                                            variant="secondary"
+                                                            onClick={() => setEditingComment(null)}
+                                                        >
+                                                            Cancel
+                                                        </Button>
+                                                    </div>
+                                                </form>
+                                            ) : (
+                                                candidate.comments && <p className="text-gray-500">{candidate.comments}</p>
+                                            )}
+                                        </div>
                                     </div>
                                 ))
                             )}

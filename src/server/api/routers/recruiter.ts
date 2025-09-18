@@ -1,7 +1,7 @@
 import { adminProcedure, createTRPCRouter, protectedProcedure, publicProcedure } from '@/server/api/trpc';
 import { listCandidates, lists, recruiterProfiles } from '@/server/db/schemas/profiles';
 import { TRPCError } from '@trpc/server';
-import { eq } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 import { z } from 'zod';
 
 export const recruiterRouter = createTRPCRouter({
@@ -75,7 +75,7 @@ export const recruiterRouter = createTRPCRouter({
         }
 
         const existingEntry = await ctx.db.query.listCandidates.findFirst({
-            where: (lc, { eq }) => eq(lc.listId, input.listId) && eq(lc.candidateId, input.candidateId),
+            where: (lc, { eq }) => and(eq(lc.listId, input.listId), eq(lc.candidateId, input.candidateId)),
         });
 
         if (existingEntry) {
@@ -118,7 +118,7 @@ export const recruiterRouter = createTRPCRouter({
             throw new TRPCError({ code: 'FORBIDDEN', message: 'Not your list' });
         }
 
-        return ctx.db.delete(listCandidates).where(eq(listCandidates.listId, input.listId) && eq(listCandidates.candidateId, input.candidateId));
+        return ctx.db.delete(listCandidates).where(and(eq(listCandidates.listId, input.listId), eq(listCandidates.candidateId, input.candidateId)));
     }),
 
     moveCandidateToList: protectedProcedure
@@ -146,18 +146,19 @@ export const recruiterRouter = createTRPCRouter({
             }
             // Get existing comment from source list
             const candidateEntry = await ctx.db.query.listCandidates.findFirst({
-                where: (lc, { eq }) => eq(lc.listId, input.fromListId) && eq(lc.candidateId, input.candidateId),
+                where: (lc, { eq }) => and(eq(lc.listId, input.fromListId), eq(lc.candidateId, input.candidateId)),
             });
             const commentToUse = input.comments ?? candidateEntry?.comments ?? '';
             // Remove from source list
-            await ctx.db.delete(listCandidates).where(eq(listCandidates.listId, input.fromListId) && eq(listCandidates.candidateId, input.candidateId));
+            await ctx.db.delete(listCandidates).where(and(eq(listCandidates.listId, input.fromListId), eq(listCandidates.candidateId, input.candidateId)));
             // Add to target list
-            await ctx.db.insert(listCandidates).values({
+            const lc = await ctx.db.insert(listCandidates).values({
                 listId: input.toListId,
                 candidateId: input.candidateId,
                 comments: commentToUse,
             });
-            return { success: true };
+
+            return lc;
         }),
 
     updateOneListCandidate: protectedProcedure.input(z.object({ listId: z.cuid2(), candidateId: z.cuid2(), comments: z.string().optional() })).mutation(async ({ ctx, input }) => {
@@ -174,7 +175,7 @@ export const recruiterRouter = createTRPCRouter({
         }
 
         const candidateEntry = await ctx.db.query.listCandidates.findFirst({
-            where: (lc, { eq }) => eq(lc.listId, input.listId) && eq(lc.candidateId, input.candidateId),
+            where: (lc, { eq }) => and(eq(lc.listId, input.listId), eq(lc.candidateId, input.candidateId)),
         });
 
         if (!candidateEntry) {
@@ -184,7 +185,7 @@ export const recruiterRouter = createTRPCRouter({
         return ctx.db
             .update(listCandidates)
             .set({ comments: input.comments ?? '' })
-            .where(eq(listCandidates.listId, input.listId) && eq(listCandidates.candidateId, input.candidateId));
+            .where(and(eq(listCandidates.listId, input.listId), eq(listCandidates.candidateId, input.candidateId)));
     }),
 
     updateOne: adminProcedure
