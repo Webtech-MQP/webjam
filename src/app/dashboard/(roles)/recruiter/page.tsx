@@ -4,16 +4,18 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogClose, DialogContent, DialogTrigger } from '@/components/ui/dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuPortal, DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { Input } from '@/features/profiles/editor/input';
 import { api } from '@/trpc/react';
 import { DialogTitle } from '@radix-ui/react-dialog';
 import { useForm } from '@tanstack/react-form';
 import { skipToken } from '@tanstack/react-query';
-import { EllipsisVertical, LoaderCircle, Plus } from 'lucide-react';
+import { EllipsisVertical, LoaderCircle, Plus, Trash2 } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
+import { toast } from 'sonner';
 
 export default function RecruiterDashboardPage() {
     const router = useRouter();
@@ -36,7 +38,9 @@ export default function RecruiterDashboardPage() {
     const moveCandidateToList = api.recruiters.moveCandidateToList.useMutation({
         onSuccess: () => {
             void utils.recruiters.getLists.invalidate({ id: userId! });
-            
+        },
+        onError: (error) => {
+            toast.error(`Failed to move candidate: ${error.message}`);
         },
     });
     const editCandidateComment = api.recruiters.updateOneListCandidate.useMutation({
@@ -45,6 +49,12 @@ export default function RecruiterDashboardPage() {
         },
     });
     const createList = api.recruiters.createOneList.useMutation({
+        onSuccess: () => {
+            void utils.recruiters.getLists.invalidate({ id: userId! });
+        },
+    });
+
+    const deleteList = api.recruiters.deleteOneList.useMutation({
         onSuccess: () => {
             void utils.recruiters.getLists.invalidate({ id: userId! });
         },
@@ -96,12 +106,29 @@ export default function RecruiterDashboardPage() {
                             {candidateLists.data &&
                                 candidateLists.data.length > 0 &&
                                 candidateLists.data.map((list) => (
-                                    <TabsTrigger
+                                    <div
                                         key={list.id}
-                                        value={list.id}
+                                        className="flex items-center group"
                                     >
-                                        {list.name}
-                                    </TabsTrigger>
+                                        <TabsTrigger value={list.id}>{list.name}</TabsTrigger>
+                                        <Tooltip>
+                                            <TooltipTrigger asChild>
+                                                <Button
+                                                    size="icon"
+                                                    variant="ghost"
+                                                    className="ml-1 opacity-60 group-hover:opacity-100 hover:text-red-500"
+                                                    aria-label={`Delete list ${list.name}`}
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        deleteList.mutate({ id: list.id });
+                                                    }}
+                                                >
+                                                    <Trash2 size={16} />
+                                                </Button>
+                                            </TooltipTrigger>
+                                            <TooltipContent side="top">Delete list</TooltipContent>
+                                        </Tooltip>
+                                    </div>
                                 ))}
                         </TabsList>
                         <Dialog>

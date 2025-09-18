@@ -144,6 +144,15 @@ export const recruiterRouter = createTRPCRouter({
             if (fromList.recruiterId !== ctx.session.user.id || toList.recruiterId !== ctx.session.user.id) {
                 throw new TRPCError({ code: 'FORBIDDEN', message: 'Not your list' });
             }
+
+            // Check if candidate already exists in target list
+            const existingInTarget = await ctx.db.query.listCandidates.findFirst({
+                where: (lc, { eq }) => and(eq(lc.listId, input.toListId), eq(lc.candidateId, input.candidateId)),
+            });
+            if (existingInTarget) {
+                throw new TRPCError({ code: 'CONFLICT', message: 'Candidate already in target list' });
+            }
+
             // Get existing comment from source list
             const candidateEntry = await ctx.db.query.listCandidates.findFirst({
                 where: (lc, { eq }) => and(eq(lc.listId, input.fromListId), eq(lc.candidateId, input.candidateId)),
