@@ -45,7 +45,12 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
         );
     }
 
-    const rank = await api.projectInstances.getRank({ projectInstanceId: id });
+    let rank = null;
+    try {
+        rank = await api.projectInstances.getRank({ projectInstanceId: id });
+    } catch {
+        // Do nothing
+    }
 
     return (
         <>
@@ -157,7 +162,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
                                     </Avatar>
                                 </div>
                                 <p className="font-semibold">{projectCandidate.candidateProfile.displayName ?? projectCandidate.candidateProfile.displayName}</p>
-                                <p className="text-sm text-gray-500">Placeholder</p>
+                                <p className="text-sm text-gray-500">{projectCandidate.candidateProfile.publicEmail}</p>
                                 <UserActionsMenu
                                     reportedUserName={projectCandidate.candidateProfile.displayName}
                                     reportedUserId={projectCandidate.candidateProfile.userId}

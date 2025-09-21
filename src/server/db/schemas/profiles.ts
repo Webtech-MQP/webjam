@@ -17,6 +17,7 @@ export const candidateProfiles = createTable('candidate_profile', (d) => ({
         }),
     // Required profile info
     displayName: d.text({ length: 255 }).notNull(),
+    publicEmail: d.text({ length: 255 }).notNull(),
 
     // Previously in candidates table
     location: d.text({ length: 255 }),

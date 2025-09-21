@@ -142,6 +142,15 @@ export const candidateRouter = createTRPCRouter({
                                         candidateProfile: true,
                                     },
                                 },
+                                ranking: {
+                                    with: {
+                                        submission: {
+                                            columns: {
+                                                deploymentURL: true,
+                                            },
+                                        },
+                                    },
+                                },
                             },
                         },
                     },
@@ -298,6 +307,7 @@ export const candidateRouter = createTRPCRouter({
                 displayName: z.string(),
                 bio: z.string(),
                 location: z.string().default(''),
+                publicEmail: z.email(),
             })
         )
         .mutation(async ({ input, ctx }) => {
@@ -325,6 +335,7 @@ export const candidateRouter = createTRPCRouter({
                 bio: input.bio,
                 location: input.location,
                 imageUrl: user?.image,
+                publicEmail: input.publicEmail,
             });
         }),
 });
