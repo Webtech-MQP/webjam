@@ -112,12 +112,20 @@ export const projectInstanceRankings = createTable('project_instance_ranking', (
         .notNull()
         .references(() => projectInstances.id, { onDelete: 'cascade', onUpdate: 'cascade' }),
     rank: d.integer().notNull(),
+    submissionId: d
+        .text()
+        .notNull()
+        .references(() => projectSubmissions.id, { onDelete: 'cascade', onUpdate: 'cascade' }),
 }));
 
 export const projectInstanceRankingsRelations = relations(projectInstanceRankings, ({ one }) => ({
     projectInstance: one(projectInstances, {
         fields: [projectInstanceRankings.projectInstanceId],
         references: [projectInstances.id],
+    }),
+    submission: one(projectSubmissions, {
+        fields: [projectInstanceRankings.submissionId],
+        references: [projectSubmissions.id],
     }),
 }));
 
@@ -249,6 +257,7 @@ export const projectSubmissionsRelations = relations(projectSubmissions, ({ one,
         references: [users.id],
     }),
     judgements: many(submissionJudgement),
+    rankings: many(projectInstanceRankings),
 }));
 
 export const projectsTags = createTable('projects_tags', (d) => ({

@@ -461,6 +461,7 @@ export const projectRouter = createTRPCRouter({
         const ranks = rankedSubmissions.map((s, index) => ({
             projectInstanceId: s.projectInstanceId,
             rank: index + 1,
+            submissionId: s.id,
         }));
 
         await ctx.db.insert(projectInstanceRankings).values(ranks);

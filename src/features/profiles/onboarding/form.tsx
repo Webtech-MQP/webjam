@@ -20,6 +20,7 @@ const onboardingSchema = z.object({
     name: z.string().min(2, 'Name must be at least 2 characters'),
     bio: z.string(),
     location: z.string(),
+    publicEmail: z.email('Must be a valid email address'),
 });
 
 // Onboarding form component
@@ -37,7 +38,8 @@ export function OnboardingWizard() {
             name: '',
             bio: '',
             location: '',
-        },
+            publicEmail: session.data?.user.email ?? '',
+        } satisfies z.infer<typeof onboardingSchema>,
         onSubmit: async ({ value }) => {
             console.log('Wizard completed:', value);
 
@@ -46,6 +48,7 @@ export function OnboardingWizard() {
                 displayName: value.name,
                 bio: value.bio,
                 location: value.location,
+                publicEmail: value.publicEmail,
             });
 
             toast.promise(p);
@@ -129,6 +132,18 @@ export function OnboardingWizard() {
                             <TextField
                                 label="Bio"
                                 placeholder="Tell us about yourself"
+                                value={field.state.value}
+                                onChange={field.handleChange}
+                                onBlur={field.handleBlur}
+                                error={field.state.meta.errors?.[0]}
+                            />
+                        )}
+                    </form.Field>
+                    <form.Field name="publicEmail">
+                        {(field) => (
+                            <TextField
+                                label="Display Email"
+                                placeholder="Choose an email your teammates can reach you at"
                                 value={field.state.value}
                                 onChange={field.handleChange}
                                 onBlur={field.handleBlur}

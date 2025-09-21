@@ -16,7 +16,10 @@ export function JamGrid({ jams, name }: Props) {
                     key={j.projectInstanceId}
                     className="relative"
                 >
-                    <Link href={`/dashboard/jams/${j.projectInstanceId}`}>
+                    <Link
+                        target="_blank"
+                        href={j.projectInstance.ranking?.submission.deploymentURL ?? '#'}
+                    >
                         <JamCard
                             {...z
                                 .looseObject({})

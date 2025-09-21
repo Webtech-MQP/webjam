@@ -61,7 +61,7 @@ export default function ProjectSubmission({ submission }: { submission: ProjectS
                     </>
                 )}
             </div>
-            {submission.projectInstance.project.status === 'completed' && avgRating.data && (
+            {submission.projectInstance.project.status === 'completed' && !!avgRating.data && (
                 <div className="group flex flex-row-reverse items-center">
                     {Array.from({ length: 10 }).map((_, index) => (
                         <div
