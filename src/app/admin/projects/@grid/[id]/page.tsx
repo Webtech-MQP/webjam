@@ -4,16 +4,38 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { api } from '@/trpc/server';
-import { ArrowRight, ClipboardPenLine, Clock, CodeXml, ExternalLink, Gavel, MoveDown, Pencil } from 'lucide-react';
+import { ArrowRight, ClipboardPenLine, Clock, CodeXml, ExternalLink, Gavel, LockIcon, MoveDown, Pencil } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { ProjectRegistrations } from './_components/project-registrations';
+import { TransitionProjectButton } from './_components/transition-project-button';
 
 export default async function Page({ params }: { params: Promise<{ id: string }> }) {
     const { id } = await params;
 
     const project = await api.projects.getOne({ id });
     const submissions = await api.projectSubmission.getAllSubmissionsForProject({ projectId: id });
+
+    const latestSubmissions = submissions
+        .filter((submission) => {
+            const projectInstanceSubmissions = submissions.filter((s) => s.projectInstanceId === submission.projectInstanceId && s.submittedOn);
+            if (projectInstanceSubmissions.length === 0) return false;
+            const latestSubmission = projectInstanceSubmissions.reduce((latest, current) => {
+                if (!latest?.submittedOn) return current;
+                if (!current?.submittedOn) return latest;
+                return current.submittedOn > latest.submittedOn ? current : latest;
+            }, projectInstanceSubmissions[0]);
+            return latestSubmission?.id === submission.id;
+        })
+        .map((submission) => {
+            const projectInstanceSubmissions = submissions.filter((s) => s.projectInstanceId === submission.projectInstanceId && s.submittedOn).sort((a, b) => new Date(a.submittedOn!).getTime() - new Date(b.submittedOn!).getTime());
+            // Find the index of this submission in the sorted list
+            const submissionNumber = projectInstanceSubmissions.findIndex((s) => s.id === submission.id) + 1;
+            return {
+                ...submission,
+                submissionNumber,
+            };
+        });
 
     if (!project) return <div>Not found!</div>;
 
@@ -32,7 +54,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
                 <div className="flex gap-2 my-3">
                     <Badge className="bg-indigo-500">{project.registrations.length} registrations</Badge>
                     <Badge className="bg-indigo-500">
-                        <Clock /> {getDaysUntil(project.startDateTime)} day{getDaysUntil(project.startDateTime) != 1 && 's'} until project starts
+                        <Clock /> {getDaysUntil(project.startDateTime) >= 0 ? `${getDaysUntil(project.startDateTime)} day${getDaysUntil(project.startDateTime) != 1 && 's'} until project starts` : 'Start date has passed'}
                     </Badge>
                     <Button
                         className="ml-auto"
@@ -44,6 +66,11 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
                             <Pencil />
                         </Link>
                     </Button>
+                    <TransitionProjectButton
+                        projectId={project.id}
+                        status={project.status}
+                    />
+
                     {project.projectInstances.length == 0 && project.registrations.length > 0 && (
                         <Button asChild>
                             <Link href={`/admin/projects/${project.id}/jamify`}>
@@ -69,11 +96,13 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
                         )}
                     </div>
                     <div className="flex flex-col items-center justify-center gap-2">
-                        <ClipboardPenLine className={cn(project.status === 'upcoming' && project.projectInstances.length == 0 && 'animate-pulse text-red-300')} />
+                        <ClipboardPenLine className={cn(project.projectInstances.length == 0 && 'animate-pulse text-red-300')} />
                         <MoveDown className="text-stone-500" />
-                        <CodeXml className={cn(project.projectInstances.length > 0 && 'animate-pulse text-red-300')} />
+                        <CodeXml className={cn(project.projectInstances.length > 0 && project.status !== 'completed' && project.status !== 'judging' && 'animate-pulse text-red-300')} />
                         <MoveDown className="text-stone-500" />
-                        <Gavel className={cn(project.status === 'completed' && 'animate-pulse text-red-300')} />
+                        <Gavel className={cn(project.status === 'judging' && 'animate-pulse text-red-300')} />
+                        <MoveDown className="text-stone-500" />
+                        <LockIcon className={cn(project.status === 'completed' && 'text-red-300')} />
                     </div>
                     <div className="text-muted-foreground hover:text-white transition-colors">{project.description}</div>
                 </div>
@@ -109,7 +138,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
                     })}
                 </DashboardCard>
             </div>
-            <ProjectSubmissions submissions={submissions} />
+            <ProjectSubmissions submissions={latestSubmissions} />
         </div>
     );
 }

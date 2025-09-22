@@ -1,19 +1,22 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import type { RouterOutputs } from '@/trpc/react';
-import Link from 'next/dist/client/link';
+import ProjectSubmission from './ProjectSubmission';
 
-type ProjectSubmission = RouterOutputs['projectSubmission']['getAll'][number];
+type ProjectSubmissionT = RouterOutputs['projectSubmission']['getAll'][number] & { submissionNumber?: number };
 
 interface ProjectSubmissionsProps {
-    submissions: ProjectSubmission[];
+    submissions: ProjectSubmissionT[];
 }
 
 export function ProjectSubmissions({ submissions }: ProjectSubmissionsProps) {
+    const submissionsWithActionable = submissions.map((submission) => ({
+        ...submission,
+        actionable: submission.projectInstance.project.status === 'judging',
+    }));
+
     return (
-        //TODO: change background color
         <Card className="bg-stone-950 border-b border-muted">
             <CardHeader>
                 <div className="flex items-center justify-between">
@@ -22,36 +25,11 @@ export function ProjectSubmissions({ submissions }: ProjectSubmissionsProps) {
             </CardHeader>
             <CardContent>
                 <div className="space-y-4">
-                    {submissions.map((submission) => (
-                        <div
+                    {submissionsWithActionable.map((submission) => (
+                        <ProjectSubmission
+                            submission={submission}
                             key={submission.id}
-                            className="flex items-center justify-between p-4 rounded-lg bg-zinc-800/40"
-                        >
-                            <div className="flex-1">
-                                <div className="flex items-center gap-2 mb-1">
-                                    <h4 className="font-medium text-white">{submission.projectInstance.project.title + ' ⋅ ' + submission.projectInstance.teamName}</h4>
-                                    <span className="bg-orange-200/10 text-orange-400 border-0 text-xs px-2 py-1 rounded-lg flex items-center justify-center">{submission.status}</span>
-                                </div>
-                                <p className="text-sm text-gray-400">
-                                    Reviewed by {submission.reviewer?.displayName ?? 'Unknown'} •{submission.submittedOn ? new Date(submission.submittedOn).toLocaleString() : 'Unknown date'}
-                                </p>
-                            </div>
-                            <div className="flex gap-2">
-                                {submission.repositoryURL && (
-                                    <Button
-                                        size="sm"
-                                        className="rounded-lg border-0 bg-orange-600/10 text-orange-400 hover:bg-orange-500/50 px-3 py-1"
-                                    >
-                                        <Link
-                                            target="_blank"
-                                            href={submission.repositoryURL}
-                                        >
-                                            Review
-                                        </Link>
-                                    </Button>
-                                )}
-                            </div>
-                        </div>
+                        />
                     ))}
                 </div>
             </CardContent>

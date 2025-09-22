@@ -5,6 +5,7 @@ import { createTable } from '../schema-util';
 import { users } from './auth';
 import { adminProfiles, candidateProfiles } from './profiles';
 import { projectRegistrations, projectsToRegistrationQuestions } from './project-registration';
+import { projectAward } from './awards';
 
 export const projects = createTable('project', (d) => ({
     id: d
@@ -17,7 +18,10 @@ export const projects = createTable('project', (d) => ({
     instructions: d.text({ length: 256 }).notNull().default(''),
     requirements: d.text({ length: 256 }).notNull(),
     imageUrl: d.text({ length: 256 }),
-    status: d.text({ enum: ['in-progress', 'completed', 'upcoming'] }).default('upcoming'),
+    status: d
+        .text({ enum: ['created', 'judging', 'completed'] })
+        .notNull()
+        .default('created'),
     deadline: d.integer({ mode: 'timestamp' }),
     numberOfMembers: d.integer().notNull().default(1),
     // NOTE: The start and end date are soon to disappear! Do not use!
@@ -45,6 +49,7 @@ export const projectsRelations = relations(projects, ({ one, many }) => ({
     registrations: many(projectRegistrations),
     projectInstances: many(projectInstances),
     events: many(projectEvent),
+    awards: many(projectAward),
 }));
 
 export const projectInstances = createTable('project_instance', (d) => ({
@@ -57,6 +62,35 @@ export const projectInstances = createTable('project_instance', (d) => ({
     projectId: d.text().notNull(),
 }));
 
+export const projectInstanceRatings = createTable(
+    'project_instance_rating',
+    (d) => ({
+        id: d.text().$defaultFn(() => createId()),
+        projectInstanceId: d
+            .text()
+            .notNull()
+            .references(() => projectInstances.id, { onDelete: 'cascade', onUpdate: 'cascade' }),
+        ratedBy: d
+            .text()
+            .notNull()
+            .references(() => candidateProfiles.userId, { onDelete: 'cascade', onUpdate: 'cascade' }),
+        rating: d.integer().notNull(), // e.g., 1 to 10
+        ratedOn: d.integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
+    }),
+    (t) => [primaryKey({ columns: [t.projectInstanceId, t.ratedBy] })]
+);
+
+export const projectInstanceRatingRelations = relations(projectInstanceRatings, ({ one }) => ({
+    projectInstance: one(projectInstances, {
+        fields: [projectInstanceRatings.projectInstanceId],
+        references: [projectInstances.id],
+    }),
+    rater: one(candidateProfiles, {
+        fields: [projectInstanceRatings.ratedBy],
+        references: [candidateProfiles.userId],
+    }),
+}));
+
 export const projectInstanceRelations = relations(projectInstances, ({ one, many }) => ({
     project: one(projects, {
         fields: [projectInstances.projectId],
@@ -64,6 +98,7 @@ export const projectInstanceRelations = relations(projectInstances, ({ one, many
     }),
     teamMembers: many(candidateProfilesToProjectInstances),
     submission: many(projectSubmissions),
+    feedbackRatings: many(projectInstanceRatings),
 }));
 
 export const projectEvent = createTable('project_timeline_event', (d) => ({
@@ -148,7 +183,36 @@ export const candidateProfilesToProjectsRelations = relations(candidateProfilesT
     }),
 }));
 
-export const projectSubmissionsRelations = relations(projectSubmissions, ({ one }) => ({
+export const projectSubmissionRating = createTable(
+    'project_submission_rating',
+    (d) => ({
+        id: d.text().$defaultFn(() => createId()),
+        submissionId: d
+            .text()
+            .notNull()
+            .references(() => projectSubmissions.id, { onDelete: 'cascade', onUpdate: 'cascade' }),
+        ratedBy: d
+            .text()
+            .notNull()
+            .references(() => adminProfiles.userId, { onDelete: 'set null' }),
+        rating: d.integer().notNull(), // e.g., 1 to 10
+        ratedOn: d.integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
+    }),
+    (t) => [primaryKey({ columns: [t.submissionId, t.ratedBy] })]
+);
+
+export const projectSubmissionRatingRelations = relations(projectSubmissionRating, ({ one }) => ({
+    submission: one(projectSubmissions, {
+        fields: [projectSubmissionRating.submissionId],
+        references: [projectSubmissions.id],
+    }),
+    rater: one(adminProfiles, {
+        fields: [projectSubmissionRating.ratedBy],
+        references: [adminProfiles.userId],
+    }),
+}));
+
+export const projectSubmissionsRelations = relations(projectSubmissions, ({ one, many }) => ({
     projectInstance: one(projectInstances, {
         fields: [projectSubmissions.projectInstanceId],
         references: [projectInstances.id],
@@ -161,6 +225,7 @@ export const projectSubmissionsRelations = relations(projectSubmissions, ({ one 
         fields: [projectSubmissions.submittedBy],
         references: [users.id],
     }),
+    ratings: many(projectSubmissionRating),
 }));
 
 export const projectsTags = createTable('projects_tags', (d) => ({

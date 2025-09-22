@@ -1,4 +1,5 @@
 import * as authSchema from '@/server/db/schemas/auth';
+import * as awardSchema from '@/server/db/schemas/awards';
 import * as userSchema from '@/server/db/schemas/profiles';
 import * as registrationSchema from '@/server/db/schemas/project-registration';
 import * as projectSchema from '@/server/db/schemas/projects';
@@ -6,7 +7,7 @@ import { createId } from '@paralleldrive/cuid2';
 import { drizzle } from 'drizzle-orm/libsql';
 import { reset } from 'drizzle-seed';
 
-const schema = { ...authSchema, ...userSchema, ...projectSchema, ...registrationSchema };
+const schema = { ...authSchema, ...userSchema, ...projectSchema, ...registrationSchema, ...awardSchema };
 
 async function main() {
     const db = drizzle(process.env.DATABASE_URL!);
@@ -185,7 +186,7 @@ async function main() {
         description: 'The goal of this project is to design and build a modern task and work management platform that breaks away from traditional models like static to-do lists, calendars, and Kanban boards. Your app should explore new ways of organizing, prioritizing, and completing tasks—whether through innovative UI/UX, smart automation, collaboration tools, or integrations with other services.\n' + 'You should aim to improve how users think about and interact with their work. This could mean introducing adaptive workflows, using AI to assist with prioritization, or designing systems that account for context like focus level, urgency, or energy. Think beyond existing tools like Trello, Todoist, or Notion—what should task management look like if we started from scratch?',
         requirements: 'Full-stack implementation (frontend, backend, database)\n' + 'Support for creating, editing, and managing tasks\n' + 'Some form of prioritization or workflow structure\n' + 'A clearly explained "rethinking" approach: what makes your app different',
         imageUrl: 'https://placehold.co/1080x1920.png',
-        status: 'upcoming' as 'in-progress' | 'completed' | 'upcoming',
+        status: 'created' as const,
         repoURL: 'https://github.com/Webtech-MQP/prototype-3',
         deadline: new Date('2025-11-17T00:00:00Z'),
         startDateTime: new Date('2025-08-17T00:00:00Z'),
@@ -403,6 +404,55 @@ async function main() {
         },
     ]);
     console.log("Johnny's registration answers added!");
+
+    console.log('Seeding awards...');
+
+    const awardsData = [
+        {
+            id: createId(),
+            title: 'Innovative Workflow Designer',
+            description: 'Awarded for designing an innovative task workflow that enhances productivity and user engagement.',
+            imageURL: 'https://placehold.co/100x100/4CAF50/FFFFFF?text=🚀',
+            createdAt: new Date('2025-09-01'),
+        },
+        {
+            id: createId(),
+            title: 'Automation Master',
+            description: 'Recognized for implementing smart automation features that significantly reduce manual workload.',
+            imageURL: 'https://placehold.co/100x100/2196F3/FFFFFF?text=🤖',
+            createdAt: new Date('2025-09-15'),
+        },
+        {
+            id: createId(),
+            title: 'Healthcare Hero',
+            description: 'Awarded for building a robust and user-friendly patient management system that improves healthcare workflows.',
+            imageURL: 'https://placehold.co/100x100/FF5722/FFFFFF?text=❤️',
+            createdAt: new Date('2025-10-01'),
+        },
+    ];
+
+    await db.insert(schema.awards).values(awardsData);
+    console.log('Awards seeded!');
+
+    const projectsAwardsData = [
+        { projectId: project1.id, awardId: awardsData[0]!.id },
+        { projectId: project1.id, awardId: awardsData[1]!.id },
+    ];
+    await db.insert(schema.projectAward).values(projectsAwardsData);
+    console.log('Projects to awards seeded!');
+
+    const candidateAwardsData = awardsData.map(({ id }, index) => ({
+        id: createId(),
+        userId: userBrian.id,
+        awardId: id,
+        projectSubmissionId: null,
+        earnedAt: new Date('2024-03-15'),
+        displayOrder: index + 1,
+        isVisible: true,
+    }));
+
+    await db.insert(schema.candidateAward).values(candidateAwardsData);
+    console.log('Candidate awards seeded!');
 }
 
 main()
