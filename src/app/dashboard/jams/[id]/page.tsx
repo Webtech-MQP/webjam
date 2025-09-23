@@ -37,7 +37,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
                 <p>You are not a member of this Jam.</p>
                 <Link
                     className="text-primary hover:underline flex gap-2"
-                    href="/dashboard/jamFinder"
+                    href="/dashboard/jam-finder"
                 >
                     Search for Jams. <ArrowRight />
                 </Link>

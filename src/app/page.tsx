@@ -16,7 +16,7 @@ export default function Home() {
                     <MessyButton>How it works</MessyButton>
                     <MessyButton
                         onClick={() => {
-                            window.location.href = '/signIn';
+                            window.location.href = '/sign-in';
                         }}
                     >
                         Sign In
@@ -87,7 +87,7 @@ export default function Home() {
                         Time to show off some <span className="font-serif">REAL</span> projects!
                     </h1>
                     <Button asChild>
-                        <Link href="/signIn">
+                        <Link href="/sign-in">
                             Get Started <ArrowRight />
                         </Link>
                     </Button>

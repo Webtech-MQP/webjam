@@ -40,12 +40,14 @@ export default async function Page({ params }: Props) {
     return (
         <div>
             <div>
-                <div className="relative h-40 w-full">
+                <div className="relative h-60 w-full -m-4">
                     {/* Banner Image */}
                     <Image
-                        src="https://placehold.co/100.png"
+                        src="https://placehold.co/1920x1080/png"
                         alt="Profile banner"
                         fill
+                        className="object-cover"
+                        priority
                     />
                 </div>
                 <div className="relative space-y-8 p-15">
