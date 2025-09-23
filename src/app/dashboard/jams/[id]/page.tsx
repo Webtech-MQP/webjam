@@ -4,7 +4,7 @@ import { GitGraph } from '@/components/git-graph';
 import { ProjectInstanceRating } from '@/components/project-instance-rating';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
+import { LinkRepo } from '@/components/link-repo';
 import { UserActionsMenu } from '@/components/user-actions-menu';
 import { GanttChart } from '@/features/time-tracking/components/gantt-chart';
 import { auth } from '@/server/auth';
@@ -246,9 +246,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
                     <DashboardCard className="flex-1 h-fit">
                         <div className="flex items-center justify-between">
                             <h6 className="text-sm font-medium text-gray-300">GitHub</h6>
-                            <Button>
-                                Link Repo
-                            </Button>
+                            <LinkRepo id={projectInstance.id} />
                         </div>
                         <GitGraph
                             owner={'Webtech-MQP'}
