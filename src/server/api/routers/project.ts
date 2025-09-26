@@ -1,6 +1,6 @@
 import { sendJamEndEmail, sendJudgedEmail } from '@/lib/mailer';
 import { adminProcedure, createTRPCRouter, protectedProcedure, publicProcedure } from '@/server/api/trpc';
-import { projects, projectsTags, tags } from '@/server/db/schemas/projects';
+import { projectEvent, projects, projectsTags, tags } from '@/server/db/schemas/projects';
 import { TRPCError } from '@trpc/server';
 import { eq } from 'drizzle-orm';
 import { z } from 'zod';
@@ -330,5 +330,68 @@ export const projectRouter = createTRPCRouter({
         }
 
         return ctx.db.update(projects).set({ status: input.status }).where(eq(projects.id, input.id));
+    }),
+
+    createEvent: protectedProcedure
+        .input(
+            z.object({
+                projectId: z.string(),
+                startTime: z.date(),
+                endTime: z.date(),
+                title: z.string(),
+                description: z.string(),
+                isHeader: z.boolean().optional(),
+            })
+        )
+        .mutation(async ({ ctx, input }) => {
+            if (input.startTime >= input.endTime) {
+                throw new TRPCError({
+                    code: 'BAD_REQUEST',
+                    message: 'End date must be after start date',
+                });
+            }
+
+            return ctx.db.insert(projectEvent).values({
+                projectId: input.projectId,
+                startTime: input.startTime,
+                endTime: input.endTime,
+                title: input.title,
+                description: input.description,
+                isHeader: input.isHeader,
+            });
+        }),
+
+    updateEvent: publicProcedure
+        .input(
+            z.object({
+                projectEventId: z.string(),
+                startTime: z.date().optional(),
+                endTime: z.date().optional(),
+                title: z.string().optional(),
+                description: z.string().optional(),
+                isHeader: z.boolean().optional(),
+            })
+        )
+        .mutation(async ({ ctx, input }) => {
+            return ctx.db
+                .update(projectEvent)
+                .set({
+                    startTime: input.startTime,
+                    endTime: input.endTime,
+                    title: input.title,
+                    description: input.description,
+                    isHeader: input.isHeader,
+                })
+                .where(eq(projectEvent.id, input.projectEventId));
+        }),
+
+    getEvents: publicProcedure.input(z.object({ projectId: z.string() })).query(async ({ ctx, input }) => {
+        return ctx.db.query.projectEvent.findMany({
+            where: (projectEvent, { eq }) => eq(projectEvent.projectId, input.projectId),
+        });
+    }),
+
+    deleteEvent: protectedProcedure.input(z.object({ projectEventId: z.string() })).mutation(async ({ ctx, input }) => {
+        return ctx.db.delete(projectEvent).where(eq(projectEvent.id, input.projectEventId));
     }),
 });

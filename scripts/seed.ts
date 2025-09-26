@@ -3,10 +3,10 @@ import * as awardSchema from '@/server/db/schemas/awards';
 import * as userSchema from '@/server/db/schemas/profiles';
 import * as registrationSchema from '@/server/db/schemas/project-registration';
 import * as projectSchema from '@/server/db/schemas/projects';
+import { projectEvent } from '@/server/db/schemas/projects';
 import { createId } from '@paralleldrive/cuid2';
 import { drizzle } from 'drizzle-orm/libsql';
 import { reset } from 'drizzle-seed';
-import { projectEvent } from '@/server/db/schemas/projects';
 
 const schema = { ...authSchema, ...userSchema, ...projectSchema, ...registrationSchema, ...awardSchema };
 
