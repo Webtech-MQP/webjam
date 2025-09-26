@@ -455,7 +455,7 @@ async function main() {
     await db.insert(schema.candidateAward).values(candidateAwardsData);
     console.log('Candidate awards seeded!');
 
-    const BASE_DATE = new Date('2026-11-17T00:00:00Z');
+    const BASE_DATE = new Date('2025-09-17T00:00:00Z');
 
     function addDays(date: Date, days: number): Date {
         return new Date(date.getTime() + days * 24 * 60 * 60 * 1000);
