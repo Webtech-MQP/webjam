@@ -4,9 +4,10 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { api } from '@/trpc/server';
-import { ArrowRight, ClipboardPenLine, Clock, CodeXml, ExternalLink, Gavel, LockIcon, MoveDown, Pencil } from 'lucide-react';
+import { ClipboardPenLine, Clock, CodeXml, ExternalLink, Gavel, LockIcon, MoveDown, Pencil } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { CreateJamsButton } from './_components/create-jams-button';
 import { ProjectRegistrations } from './_components/project-registrations';
 import { TransitionProjectButton } from './_components/transition-project-button';
 
@@ -71,13 +72,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
                         status={project.status}
                     />
 
-                    {project.projectInstances.length == 0 && project.registrations.length > 0 && (
-                        <Button asChild>
-                            <Link href={`/admin/projects/${project.id}/jamify`}>
-                                Create jams <ArrowRight />
-                            </Link>
-                        </Button>
-                    )}
+                    {project.projectInstances.length == 0 && project.registrations.length > 0 && <CreateJamsButton projectId={project.id} />}
                 </div>
                 <div className="relative flex w-full gap-8 pt-4">
                     <div className="relative min-w-1/4 h-fill rounded-lg">

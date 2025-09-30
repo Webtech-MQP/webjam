@@ -10,9 +10,7 @@ import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
 interface Props {
-    matches: {
-        teams: string[][];
-    };
+    matches: string[][];
     profiles: RouterOutputs['candidates']['getMany'];
     projectId: string;
 }
@@ -86,7 +84,7 @@ function NewTeamDropZone({ isActive }: { isActive: boolean }) {
 }
 
 export function JamEditor(props: Props) {
-    const [teams, setTeams] = useState<string[][]>(props.matches.teams);
+    const [teams, setTeams] = useState<string[][]>(props.matches);
     const [activeUser, setActiveUser] = useState<string | null>(null);
     const router = useRouter();
 

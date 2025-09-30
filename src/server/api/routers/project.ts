@@ -1,3 +1,4 @@
+import { env } from '@/env';
 import { sendJamEndEmail, sendJudgedEmail } from '@/lib/mailer';
 import { adminProcedure, createTRPCRouter, protectedProcedure, publicProcedure } from '@/server/api/trpc';
 import { projects, projectsTags, tags } from '@/server/db/schemas/projects';
@@ -197,7 +198,7 @@ export const projectRouter = createTRPCRouter({
         return ctx.db.delete(tags).where(eq(tags.id, input.id));
     }),
 
-    initializeJamCreation: adminProcedure.input(z.object({ id: z.cuid2() })).query(async ({ input, ctx }) => {
+    initializeJamCreation: adminProcedure.input(z.object({ id: z.cuid2(), usersPerTeam: z.int() })).query(async ({ input, ctx }) => {
         const project = await ctx.db.query.projects.findFirst({
             where: (projects, { eq }) => eq(projects.id, input.id),
             with: {
@@ -229,58 +230,56 @@ export const projectRouter = createTRPCRouter({
                 message: 'No registrations found for this project',
             });
         } else if (registrations.length < project.numberOfMembers) {
-            return { teams: [registrations.map((r) => r.candidate.userId)] };
+            return [registrations.map((r) => r.candidate.userId)];
         }
 
         const preppedRegistrations = registrations.map((r) => ({
-            id: r.candidate.userId,
-            skills: r.answers.map((a) => ({
-                name: a.question.skill,
-                level: a.level,
-            })),
-            role_preference: r.preferredRole,
-            // TODO: Use actual learning goals
-            learning_goals: ['React', 'JavaScript'],
-            experience_level: 'Intermediate',
+            id_number: r.candidate.userId,
+            skill_levels: r.answers.reduce(
+                (acc, curr) => ({
+                    ...acc,
+                    [curr.question.skill]: curr.level ?? 0,
+                }),
+                {}
+            ),
         }));
 
-        if (!process.env.MATCHER_URL) {
+        const skills = project.questions.map((q) => q.question.skill);
+
+        if (!env.MATCHER_URL) {
             throw new TRPCError({
                 code: 'INTERNAL_SERVER_ERROR',
                 message: 'Matcher URL not configured',
             });
         }
-        const response = await fetch(process.env.MATCHER_URL, {
+        const response = await fetch(env.MATCHER_URL, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
+                num_teams: Math.max(Math.floor(preppedRegistrations.length / input.usersPerTeam), 1),
                 users: preppedRegistrations,
-                jam: {
-                    id: project.id,
-                    required_skills: project.questions.map((q) => q.question.skill),
-                    team_size: project.numberOfMembers,
-                },
-                weights: {
-                    skill_diversity: 1,
-                    experience_balance: 1,
-                    learning_opportunity: 1,
-                    role_preference: 1,
-                },
+                skills: skills.map((skill) => ({
+                    id: skill,
+                    threshold: 7,
+                })),
             }),
         });
 
         if (!response.ok) {
+            console.error(JSON.stringify(await response.json()));
             throw new TRPCError({
                 code: 'INTERNAL_SERVER_ERROR',
                 message: 'Failed to initialize jam creation',
             });
         }
 
-        const body = (await response.json()) as { teams: string[][] };
+        const body = (await response.json()) as { id_number: string; skill_levels: { id: string; level: number }[] }[][];
 
-        return body;
+        const teams = body.map((team) => team.map((member) => member.id_number));
+
+        return teams;
     }),
 
     updateStatus: adminProcedure.input(z.object({ id: z.cuid2(), status: z.enum(['created', 'judging', 'completed']) })).mutation(async ({ ctx, input }) => {

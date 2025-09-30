@@ -12,6 +12,7 @@ export const env = createEnv({
         AUTH_GITHUB_ID: z.string(),
         AUTH_GITHUB_SECRET: z.string(),
         GEMINI_API_KEY: z.string().optional(),
+        MATCHER_URL: z.string().url().default('http://localhost:8000'),
     },
 
     /**
@@ -33,6 +34,7 @@ export const env = createEnv({
         AUTH_GITHUB_ID: process.env.AUTH_GITHUB_ID,
         AUTH_GITHUB_SECRET: process.env.AUTH_GITHUB_SECRET,
         GEMINI_API_KEY: process.env.GEMINI_API_KEY,
+        MATCHER_URL: process.env.MATCHER_URL,
         // NEXT_PUBLIC_CLIENTVAR: process.env.NEXT_PUBLIC_CLIENTVAR,
     },
     /**
