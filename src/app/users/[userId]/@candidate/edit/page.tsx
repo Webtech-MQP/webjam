@@ -2,13 +2,13 @@
 
 import { AwardEditor, type AwardEditorHandle } from '@/components/awards/awards-display-editor';
 import { Button } from '@/components/ui/button';
+import { ImageUpload } from '@/components/ui/image-uploader';
 import { Input } from '@/features/profiles/editor/input';
 import { cn } from '@/lib/utils';
 import { api } from '@/trpc/react';
 import { useForm } from '@tanstack/react-form';
 import { EyeIcon, EyeOffIcon, HandIcon, LinkedinIcon, LoaderCircle } from 'lucide-react';
 import { useSession } from 'next-auth/react';
-import Image from 'next/image';
 import { useParams, useRouter } from 'next/navigation';
 import { useRef, useState } from 'react';
 
@@ -79,6 +79,8 @@ export default function Page() {
             displayName: candidate?.displayName ?? '',
             bio: candidate?.bio ?? '',
             linkedinURL: candidate?.linkedinURL ?? '',
+            imageUrl: candidate?.imageUrl ?? 'https://placehold.co/100.png',
+            bannerUrl: candidate?.bannerUrl ?? 'https://placehold.co/100.png',
         },
         onSubmit: (values) => {
             updateCandidate.mutate(values.value);
@@ -109,31 +111,40 @@ export default function Page() {
     return (
         <div>
             <div>
-                <div className="relative h-40 w-full">
+                <div className="relative h-60 w-full">
                     {/* Banner Image */}
-                    {/* TODO: We need S3 for this */}
-                    <Image
-                        src="https://placehold.co/100.png"
-                        alt="Profile banner"
-                        fill
-                    />
+                    <form.Field name="bannerUrl">
+                        {(field) => (
+                            <ImageUpload
+                                currentImageUrl={field.state.value || undefined}
+                                uploadType="banner"
+                                onImageChange={(imageUrl) => field.handleChange(imageUrl || '')}
+                                className={'w-full h-60 rounded-lg'}
+                                disabled={updateCandidate.isPending || isSaving}
+                            />
+                        )}
+                    </form.Field>
                 </div>
                 <div className="space-y-8 p-15">
                     <div className="z-30 -mt-30 flex flex-col gap-4">
-                        {/* Profile Picture */}
-                        <Image
-                            src={candidate?.imageUrl ?? 'https://placehold.co/100.png'}
-                            className="relative z-20 box-content rounded-xl border-6 border-(--color-background)"
-                            alt="Profile picture"
-                            height={100}
-                            width={100}
-                        />
                         <form
                             className="flex flex-col gap-4"
                             onSubmit={(e) => {
                                 e.preventDefault();
                             }}
                         >
+                            {/*Profile Picture*/}
+                            <form.Field name="imageUrl">
+                                {(field) => (
+                                    <ImageUpload
+                                        currentImageUrl={field.state.value || undefined}
+                                        uploadType="profile"
+                                        onImageChange={(imageUrl) => field.handleChange(imageUrl || '')}
+                                        className={'w-24 h-24 rounded-xl box-content'}
+                                        disabled={updateCandidate.isPending || isSaving}
+                                    />
+                                )}
+                            </form.Field>
                             <form.Field name="displayName">
                                 {(field) => (
                                     <Input

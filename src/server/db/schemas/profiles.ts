@@ -31,6 +31,7 @@ export const candidateProfiles = createTable('candidate_profile', (d) => ({
     linkedinURL: d.text({ length: 255 }),
     // This is different from user.image (user.image is github image)
     imageUrl: d.text({ length: 255 }),
+    bannerUrl: d.text({ length: 255 }),
 }));
 
 export const candidateProfilesRelations = relations(candidateProfiles, ({ one, many }) => ({
