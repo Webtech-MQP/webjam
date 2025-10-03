@@ -1,4 +1,4 @@
-import { adminProcedure, createTRPCRouter, publicProcedure } from '@/server/api/trpc';
+import { adminProcedure, createTRPCRouter, protectedProcedure, publicProcedure } from '@/server/api/trpc';
 import { users } from '@/server/db/schemas/auth';
 import { adminProfiles } from '@/server/db/schemas/profiles';
 import { eq } from 'drizzle-orm';
@@ -31,12 +31,13 @@ export const userRouter = createTRPCRouter({
         return ctx.db.query.users.findMany({});
     }),
 
-    updateOne: adminProcedure
+    updateOne: protectedProcedure
         .input(
             z.object({
                 id: z.cuid2(),
-                name: z.string().min(1).max(255),
-                email: z.string(),
+                name: z.string().min(1).max(255).optional(),
+                email: z.string().optional(),
+                role: z.enum(['candidate', 'recruiter', 'admin']).optional(),
             })
         )
         .mutation(async ({ ctx, input }) => {
@@ -45,6 +46,7 @@ export const userRouter = createTRPCRouter({
                 .set({
                     name: input.name,
                     email: input.email,
+                    role: input.role,
                 })
                 .where(eq(users.id, input.id));
         }),

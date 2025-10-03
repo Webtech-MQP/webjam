@@ -1,6 +1,8 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { api } from '@/trpc/react';
 import { useForm } from '@tanstack/react-form';
 import { LoaderCircle } from 'lucide-react';
@@ -12,42 +14,59 @@ import z from 'zod';
 import { TextField } from './text-input';
 
 const onboardingSchema = z.object({
+    isRecruiter: z.string().refine((val) => val === 'yes' || val === 'no', {
+        message: 'Please select recruiter status',
+    }),
     name: z.string().min(2, 'Name must be at least 2 characters'),
     bio: z.string(),
     location: z.string(),
+    publicEmail: z.email('Must be a valid email address'),
 });
 
 // Onboarding form component
 export function OnboardingWizard() {
-    const createProfile = api.candidates.createMe.useMutation();
+    const createRecruiterProfile = api.recruiters.createMe.useMutation();
+    const createCandidateProfile = api.candidates.createMe.useMutation();
+    const updateRole = api.users.updateOne.useMutation();
 
     const router = useRouter();
-
     const session = useSession();
 
     const form = useForm({
         defaultValues: {
+            isRecruiter: '',
             name: '',
             bio: '',
             location: '',
+            publicEmail: session.data?.user.email ?? '',
         } satisfies z.infer<typeof onboardingSchema>,
         onSubmit: async ({ value }) => {
             console.log('Wizard completed:', value);
 
-            const p = createProfile.mutateAsync({
+            const mutation = value.isRecruiter === 'yes' ? createRecruiterProfile : createCandidateProfile;
+            const p = mutation.mutateAsync({
                 displayName: value.name,
                 bio: value.bio,
                 location: value.location,
+                publicEmail: value.publicEmail,
             });
 
             toast.promise(p);
 
             await p;
 
-            router.push(!!session.data?.user.id ? `/users/${session.data.user.id}` : '/dashboard');
+            if (value.isRecruiter === 'yes' && session.data) {
+                await updateRole.mutateAsync({ id: session.data.user.id, role: 'recruiter' });
+            }
+
+            if (value.isRecruiter === 'no') {
+                router.push(!!session.data?.user.id ? `/users/${session.data.user.id}` : '/dashboard');
+            } else {
+                router.push('/dashboard/recruiter');
+            }
         },
         validators: {
-            onChange: onboardingSchema,
+            onBlur: onboardingSchema,
         },
     });
 
@@ -62,9 +81,28 @@ export function OnboardingWizard() {
             transition={{ duration: 1 }}
         >
             <h1>Hi! We&apos;ll make this quick.</h1>
-            <div className="w-full max-w-2xl mx-auto">
+            <div className="w-full max-w-2xl mx-auto mt-2">
                 {/* Form content */}
                 <div className="space-y-6">
+                    <Label className="text-sm text-gray-700">Are you a recruiter?</Label>
+                    <form.Field name="isRecruiter">
+                        {(field) => (
+                            <>
+                                <RadioGroup
+                                    value={field.state.value}
+                                    onValueChange={field.handleChange}
+                                    onBlur={field.handleBlur}
+                                    className="flex"
+                                >
+                                    <RadioGroupItem value="yes" />
+                                    <Label>Yes</Label>
+                                    <RadioGroupItem value="no" />
+                                    <Label>No</Label>
+                                </RadioGroup>
+                                {field.state.meta.errors?.[0] && <p className="text-sm text-red-400">{field.state.meta.errors?.[0].message}</p>}
+                            </>
+                        )}
+                    </form.Field>
                     <form.Field name="name">
                         {(field) => (
                             <TextField
@@ -101,6 +139,18 @@ export function OnboardingWizard() {
                             />
                         )}
                     </form.Field>
+                    <form.Field name="publicEmail">
+                        {(field) => (
+                            <TextField
+                                label="Display Email"
+                                placeholder="Choose an email your teammates can reach you at"
+                                value={field.state.value}
+                                onChange={field.handleChange}
+                                onBlur={field.handleBlur}
+                                error={field.state.meta.errors?.[0]}
+                            />
+                        )}
+                    </form.Field>
                 </div>
 
                 {/* Submit button */}
@@ -118,7 +168,7 @@ export function OnboardingWizard() {
                                 disabled={!state.canSubmit || state.isSubmitting}
                                 onClick={handleSubmit}
                             >
-                                Complete Profile {createProfile.isPending && <LoaderCircle className="animate-spin" />}
+                                Complete Profile {form.state.values.isRecruiter === 'yes' ? createRecruiterProfile.isPending : createCandidateProfile.isPending && <LoaderCircle className="animate-spin" />}
                             </Button>
                         </div>
                     )}

@@ -11,15 +11,15 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useCallback, useState } from 'react';
 
-const ROUTES = [
-    // {
-    //     name: 'Home',
-    //     href: '/dashboard',
-    //     icon: Home,
-    // },
+const CANDIDATE_ROUTES = [
+    {
+        name: 'Home',
+        href: '/dashboard',
+        icon: Home,
+    },
     {
         name: 'Find a Jam',
-        href: '/dashboard/jamFinder',
+        href: '/dashboard/jam-finder',
         icon: Search,
     },
     {
@@ -42,13 +42,26 @@ const ADMIN_ROUTES = [
     },
 ];
 
+const RECRUITER_ROUTES = [
+    {
+        name: 'Home',
+        href: '/dashboard/recruiter',
+        icon: Home,
+    },
+    {
+        name: 'Candidates',
+        href: '/recruiters/candidates',
+        icon: Users,
+    },
+];
+
 export function Sidebar() {
     const path = usePathname();
     const { data: session } = useSession();
     const [profileOpen, setProfileOpen] = useState(false);
 
     const closestMatch = useCallback(() => {
-        const allRoutes = [...ROUTES, ...ADMIN_ROUTES];
+        const allRoutes = [...CANDIDATE_ROUTES, ...ADMIN_ROUTES, ...RECRUITER_ROUTES];
         return allRoutes.reduce(
             (a, b) => {
                 return path.startsWith(b.href) && b.href.length > a.href.length ? b : a;
@@ -92,16 +105,28 @@ export function Sidebar() {
                         </div>
                     </div>
                 )}
-                {ROUTES.map((route) => (
-                    <Link
-                        key={route.name}
-                        href={route.href}
-                        className={cn('hover:text-primary mb-4 flex items-center gap-3 p-4', closestMatch().href === route.href && 'border-primary border-b-4')}
-                    >
-                        <route.icon className="h-5 w-5" />
-                        {route.name}
-                    </Link>
-                ))}
+                {session?.user.role === 'candidate' &&
+                    CANDIDATE_ROUTES.map((route) => (
+                        <Link
+                            key={route.name}
+                            href={route.href}
+                            className={cn('hover:text-primary mb-4 flex items-center gap-3 p-4', closestMatch().href === route.href && 'border-primary border-b-4')}
+                        >
+                            <route.icon className="h-5 w-5" />
+                            {route.name}
+                        </Link>
+                    ))}
+                {session?.user.role === 'recruiter' &&
+                    RECRUITER_ROUTES.map((route) => (
+                        <Link
+                            key={route.name}
+                            href={route.href}
+                            className={cn('hover:text-primary mb-4 flex items-center gap-3 p-4', closestMatch().href === route.href && 'border-primary border-b-4')}
+                        >
+                            <route.icon className="h-5 w-5" />
+                            {route.name}
+                        </Link>
+                    ))}
                 {isAdmin && (
                     <>
                         <div className="my-4 border-t border-muted" />

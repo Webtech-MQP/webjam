@@ -1,3 +1,4 @@
+import { sendUserReportedEmail } from '@/lib/mailer';
 import { candidateProfiles, candidateReport } from '@/server/db/schemas/profiles';
 import { TRPCError } from '@trpc/server';
 import { and, eq, gte, lt, sql } from 'drizzle-orm';
@@ -31,6 +32,23 @@ export const reportRouter = createTRPCRouter({
                     reporterId: ctx.session.user.id,
                 })
                 .returning();
+
+            const admins = await ctx.db.query.adminProfiles.findMany({
+                with: {
+                    user: true,
+                },
+            });
+
+            const emails = admins.map((admin) => admin.contactEmail).filter((email): email is string => !!email);
+
+            sendUserReportedEmail({
+                adminEmail: emails.join(', '),
+                reporterName: ctx.session.user.name || 'A user',
+                reportedName: candidate.displayName ?? 'Unknown user',
+                reason: input.reason,
+                description: input.description,
+                reportId: report[0]?.id || '',
+            });
 
             return report;
         }),

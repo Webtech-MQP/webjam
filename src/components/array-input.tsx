@@ -80,6 +80,7 @@ export const ArrayInput = (props: ArrayInputProps) => {
                             <Button
                                 size="icon"
                                 variant="outline"
+                                type="button"
                                 onClick={() => {
                                     const _list = list.filter((v, i) => i !== index);
                                     setList(_list);
@@ -98,6 +99,7 @@ export const ArrayInput = (props: ArrayInputProps) => {
                     variant="secondary"
                     onClick={createEntry}
                     className="w-full"
+                    type="button"
                 >
                     <Plus />
                 </Button>

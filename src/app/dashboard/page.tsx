@@ -8,7 +8,7 @@ export default async function DashboardPage() {
         redirect('/');
     }
 
-    redirect('/dashboard/jamFinder');
+    // redirect('/dashboard/jamFinder');
 
     return (
         <div className="flex h-full flex-col items-center justify-center">

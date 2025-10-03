@@ -1,6 +1,7 @@
 import CreateProjectSubmission from '@/components/create-project-submission';
 import { DashboardCard } from '@/components/dashboard-card';
 import { GitGraph } from '@/components/git-graph';
+import { ProjectInstanceRating } from '@/components/project-instance-rating';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { UserActionsMenu } from '@/components/user-actions-menu';
@@ -36,12 +37,19 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
                 <p>You are not a member of this Jam.</p>
                 <Link
                     className="text-primary hover:underline flex gap-2"
-                    href="/dashboard/jamFinder"
+                    href="/dashboard/jam-finder"
                 >
                     Search for Jams. <ArrowRight />
                 </Link>
             </div>
         );
+    }
+
+    let rank = null;
+    try {
+        rank = await api.projectInstances.getRank({ projectInstanceId: id });
+    } catch {
+        // Do nothing
     }
 
     return (
@@ -54,13 +62,19 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
             <div className="flex flex-col gap-2 ">
                 <DashboardCard>
                     <h1>{projectInstance.project.title}</h1>
-                    <div className="flex gap-2">
-                        <Badge className="bg-indigo-500">
-                            <Users /> {projectInstance.teamMembers.length} members
-                        </Badge>
-                        <Badge className="bg-indigo-500">
-                            <Clock /> {projectInstance.project.deadline?.toLocaleDateString()}
-                        </Badge>
+                    <div className="flex justify-between items-center">
+                        <div className="flex gap-2">
+                            <Badge className="bg-indigo-500">
+                                <Users /> {projectInstance.teamMembers.length} members
+                            </Badge>
+                            <Badge className="bg-indigo-500">
+                                <Clock /> {projectInstance.project.deadline?.toLocaleDateString()}
+                            </Badge>
+                        </div>
+                        <ProjectInstanceRating
+                            projectInstanceId={projectInstance.id}
+                            isAdmin={isAdmin}
+                        />
                     </div>
                     <div className="relative flex w-full gap-4">
                         <div className="relative h-32 w-32 rounded-lg">
@@ -148,7 +162,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
                                     </Avatar>
                                 </div>
                                 <p className="font-semibold">{projectCandidate.candidateProfile.displayName ?? projectCandidate.candidateProfile.displayName}</p>
-                                <p className="text-sm text-gray-500">Placeholder</p>
+                                <p className="text-sm text-gray-500">{projectCandidate.candidateProfile.publicEmail}</p>
                                 <UserActionsMenu
                                     reportedUserName={projectCandidate.candidateProfile.displayName}
                                     reportedUserId={projectCandidate.candidateProfile.userId}
@@ -228,12 +242,14 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
                         ) : (
                             <p>No submissions yet.</p>
                         )}
-                        <div className="mt-4">
-                            <CreateProjectSubmission
-                                projectInstanceId={projectInstance.id}
-                                submitter={session.user.id}
-                            />
-                        </div>
+                        {projectInstance.project.status !== 'completed' && (
+                            <div className="mt-4">
+                                <CreateProjectSubmission
+                                    projectInstanceId={projectInstance.id}
+                                    submitter={session.user.id}
+                                />
+                            </div>
+                        )}
                     </DashboardCard>
                     <DashboardCard className="flex-1 h-fit">
                         <h6 className="text-sm font-medium text-gray-300">GitHub</h6>

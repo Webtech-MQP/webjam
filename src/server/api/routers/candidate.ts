@@ -1,3 +1,4 @@
+import { sendWelcomeEmail } from '@/lib/mailer';
 import { createPresignedPost, deleteS3Object, getS3KeyFromUrl, s3Client } from '@/lib/s3';
 import { adminProcedure, createTRPCRouter, protectedProcedure, publicProcedure } from '@/server/api/trpc';
 import { users } from '@/server/db/schemas/auth';
@@ -42,6 +43,7 @@ export const candidateRouter = createTRPCRouter({
                     user: {
                         columns: {
                             githubUsername: true,
+                            role: true,
                         },
                     },
                     candidateProfilesToProjectInstances: {
@@ -155,6 +157,15 @@ export const candidateRouter = createTRPCRouter({
                                 teamMembers: {
                                     with: {
                                         candidateProfile: true,
+                                    },
+                                },
+                                ranking: {
+                                    with: {
+                                        submission: {
+                                            columns: {
+                                                deploymentURL: true,
+                                            },
+                                        },
                                     },
                                 },
                             },
@@ -313,6 +324,7 @@ export const candidateRouter = createTRPCRouter({
                 displayName: z.string(),
                 bio: z.string(),
                 location: z.string().default(''),
+                publicEmail: z.email(),
             })
         )
         .mutation(async ({ input, ctx }) => {
@@ -328,12 +340,19 @@ export const candidateRouter = createTRPCRouter({
                 throw new TRPCError({ code: 'CONFLICT', message: 'Profile already exists' });
             }
 
+            if (user?.email) {
+                sendWelcomeEmail({ to: user.email, name: input.displayName.split(' ')[0] || '' });
+            } else {
+                console.warn('No email found for user, skipping welcome email.');
+            }
+
             return ctx.db.insert(candidateProfiles).values({
                 userId: ctx.session.user.id,
                 displayName: input.displayName,
                 bio: input.bio,
                 location: input.location,
                 imageUrl: user?.image,
+                publicEmail: input.publicEmail,
             });
         }),
     generateUploadUrl: protectedProcedure

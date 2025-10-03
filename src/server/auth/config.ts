@@ -1,10 +1,9 @@
-import { DrizzleAdapter } from '@auth/drizzle-adapter';
-import { type DefaultSession, type NextAuthConfig } from 'next-auth';
-import GithubProvider from 'next-auth/providers/github';
-
 import { env } from '@/env';
 import { db } from '@/server/db';
 import { accounts, sessions, users, verificationTokens } from '@/server/db/schemas/auth';
+import { DrizzleAdapter } from '@auth/drizzle-adapter';
+import { type DefaultSession, type NextAuthConfig } from 'next-auth';
+import GithubProvider from 'next-auth/providers/github';
 import { type SqlFlavorOptions } from 'node_modules/@auth/drizzle-adapter/lib/utils';
 
 /**
@@ -18,8 +17,7 @@ declare module 'next-auth' {
         user: {
             id: string;
             githubAuthToken: string;
-            // ...other properties
-            // role: UserRole;
+            role: 'candidate' | 'recruiter' | 'admin';
         } & DefaultSession['user'];
     }
 }
@@ -63,12 +61,22 @@ export const authConfig = {
     }),
     callbacks: {
         session: async ({ session, user }) => {
-            console.log(session);
+            // Fetch the user's role from the database
+            let role: 'candidate' | 'recruiter' | 'admin' = 'candidate';
+            if (user.id) {
+                const dbUser = await db.query.users.findFirst({
+                    where: (u, { eq }) => eq(u.id, user.id),
+                });
+                if (dbUser?.role === 'recruiter' || dbUser?.role === 'admin') {
+                    role = dbUser.role;
+                }
+            }
             return {
                 ...session,
                 user: {
                     ...session.user,
                     id: user.id,
+                    role,
                 },
             };
         },
