@@ -3,9 +3,9 @@ import { relations, sql } from 'drizzle-orm';
 import { primaryKey, unique } from 'drizzle-orm/sqlite-core';
 import { createTable } from '../schema-util';
 import { users } from './auth';
+import { projectAward } from './awards';
 import { adminProfiles, candidateProfiles } from './profiles';
 import { projectRegistrations, projectsToRegistrationQuestions } from './project-registration';
-import { projectAward } from './awards';
 
 export const projects = createTable('project', (d) => ({
     id: d
