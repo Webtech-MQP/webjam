@@ -32,7 +32,7 @@ export function JamGrid({ jams, name }: Props) {
                     </Link>
                 </div>
             ))}
-            {jams?.length === 0 && <p className="text-muted-foreground italic">{name ?? 'This user'} has no jams.</p>}
+            {jams?.length === 0 && <p className="text-muted dark:text-muted-foreground italic">{name ?? 'This user'} has no jams.</p>}
         </div>
     );
 }

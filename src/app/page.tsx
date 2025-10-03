@@ -11,9 +11,8 @@ export default function Home() {
     return (
         <main className="flex min-h-screen flex-col items-center justify-start py-7">
             <header className="flex w-1/2 flex-row flex-nowrap items-center justify-between">
-                <h1>MQP</h1>
+                <h1 className="text-primary">webjam</h1>
                 <nav className="flex flex-row flex-nowrap gap-5">
-                    <MessyButton>How it works</MessyButton>
                     <MessyButton
                         onClick={() => {
                             window.location.href = '/sign-in';
@@ -27,7 +26,7 @@ export default function Home() {
                 <div>
                     <div className="flex flex-row flex-nowrap">
                         <div className="flex w-3/4 flex-col">
-                            <p className="py-1 text-sm">Let&apos;s face it</p>
+                            <p className="py-1 text-md">Let&apos;s face it</p>
                             <h1 className="py-5 text-5xl font-bold whitespace-nowrap">This won&apos;t get you hired...</h1>
                         </div>
                         <div className="flex w-1/4 items-end">

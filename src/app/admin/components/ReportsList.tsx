@@ -15,7 +15,7 @@ export function ReportsList({ reports }: ReportsListProps) {
         <Card className="bg-stone-950 border-b border-gray-700 h-full">
             <CardHeader>
                 <div className="flex items-center justify-between">
-                    <CardTitle className="text-lg text-white">Priority Alerts</CardTitle>
+                    <CardTitle className="text-lg text-foreground">Priority Alerts</CardTitle>
                     <span className="bg-orange-500/20 text-orange-400 border-0 text-xs px-2 py-1 rounded-lg flex items-center justify-center">{reports.length} Active Reports</span>
                 </div>
             </CardHeader>
@@ -31,7 +31,7 @@ export function ReportsList({ reports }: ReportsListProps) {
                                     <span className="w-7 h-7 rounded-lg flex items-center justify-center bg-orange-400/10">
                                         <Flag className="w-4 h-4 text-orange-400" />
                                     </span>
-                                    <span className="font-medium text-white">{report.reason}</span>
+                                    <span className="font-medium text-foreground">{report.reason}</span>
                                 </div>
                                 <p className="text-sm text-gray-300">
                                     Reported by {report.reporter!.name} • Against: {report.bannedUserDisplayName}

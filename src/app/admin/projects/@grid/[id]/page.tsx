@@ -104,7 +104,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
                         <MoveDown className="text-stone-500" />
                         <LockIcon className={cn(project.status === 'completed' && 'text-red-300')} />
                     </div>
-                    <div className="text-muted-foreground hover:text-white transition-colors">{project.description}</div>
+                    <div className="text-muted dark:text-muted-foreground hover:text-white transition-colors">{project.description}</div>
                 </div>
             </DashboardCard>
             <div className="flex flex-1 gap-2 overflow-y-auto">

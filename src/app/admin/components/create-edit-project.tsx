@@ -338,7 +338,7 @@ export default function AdminCreateEditProject(props: AdminCreateEditProjectProp
                             >
                                 {tagName}
                                 <button
-                                    className="ml-2 text-white hover:text-red-500"
+                                    className="ml-2 text-foreground hover:text-red-500"
                                     onClick={() => {
                                         setFormState({
                                             ...formState,

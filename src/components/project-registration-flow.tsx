@@ -122,7 +122,7 @@ export function ProjectRegistrationFlow({ projectId, open, onClose }: ProjectReg
                                 </div>
                                 <Label
                                     htmlFor={option}
-                                    className="text-sm font-normal cursor-pointer select-none text-stone-200 peer-checked:text-white"
+                                    className="text-sm font-normal cursor-pointer select-none text-stone-200 peer-checked:text-foreground"
                                 >
                                     {option}
                                 </Label>
@@ -164,7 +164,7 @@ export function ProjectRegistrationFlow({ projectId, open, onClose }: ProjectReg
                                     {index + 1}. {question.question}
                                     {question.required && <span className="text-red-500 ml-1">*</span>}
                                 </Label>
-                                <p className="text-sm text-muted-foreground border p-2 rounded-md">{answer?.answer || 'No answer provided'}</p>
+                                <p className="text-sm text-muted dark:text-muted-foreground border p-2 rounded-md">{answer?.answer || 'No answer provided'}</p>
                             </div>
                         );
                     })}

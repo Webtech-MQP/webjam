@@ -19,7 +19,7 @@ export default async function Layout({ children }: { children: React.ReactNode }
                 expand={true}
                 toastOptions={{
                     classNames: {
-                        closeButton: '!text-white',
+                        closeButton: '!text-foreground',
                     },
                 }}
             />

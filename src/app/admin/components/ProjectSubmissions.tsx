@@ -17,10 +17,10 @@ export function ProjectSubmissions({ submissions }: ProjectSubmissionsProps) {
     }));
 
     return (
-        <Card className="bg-stone-950 border-b border-muted">
+        <Card className="border-b border-muted">
             <CardHeader>
                 <div className="flex items-center justify-between">
-                    <CardTitle className="text-lg text-white">Pending Submissions</CardTitle>
+                    <CardTitle className="text-lg text-foreground">Pending Submissions</CardTitle>
                 </div>
             </CardHeader>
             <CardContent>

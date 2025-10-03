@@ -1,86 +1,37 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogClose, DialogContent, DialogTrigger } from '@/components/ui/dialog';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuPortal, DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { Input } from '@/features/profiles/editor/input';
+import { Input } from '@/components/ui/input';
 import { api } from '@/trpc/react';
-import { DialogTitle } from '@radix-ui/react-dialog';
-import { useForm } from '@tanstack/react-form';
 import { skipToken } from '@tanstack/react-query';
-import { EllipsisVertical, LoaderCircle, Plus, Trash2 } from 'lucide-react';
+import { LoaderCircle, Plus } from 'lucide-react';
 import { useSession } from 'next-auth/react';
-import Image from 'next/image';
-import { useRouter } from 'next/navigation';
-import { useEffect, useRef, useState } from 'react';
-import { toast } from 'sonner';
+import { notFound } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { ListDetail } from './_components/list-detail';
 
 export default function RecruiterDashboardPage() {
-    const router = useRouter();
     const session = useSession();
     const utils = api.useUtils();
-    const dialogCloseRef = useRef<HTMLButtonElement>(null);
-    const [editingComment, setEditingComment] = useState<{ candidateId: string; listId: string; comment: string } | null>(null);
-    const [commentValue, setCommentValue] = useState('');
-    const [selectedTab, setSelectedTab] = useState<string | null>(null);
+    const [activeList, setActiveList] = useState<string | null>(null);
+    const [listName, setListName] = useState<string>('');
 
     const userId = session.data?.user.id;
-    const { data: me } = api.recruiters.getOne.useQuery(userId ? { id: userId } : skipToken); // TODO: probably get rid of this
-    const candidateLists = api.recruiters.getLists.useQuery(userId ? { id: userId } : skipToken);
-
-    const removeCandidateFromList = api.recruiters.removeCandidateFromList.useMutation({
-        onSuccess: () => {
-            void utils.recruiters.getLists.invalidate({ id: userId! });
-        },
-    });
-    const moveCandidateToList = api.recruiters.moveCandidateToList.useMutation({
-        onSuccess: () => {
-            void utils.recruiters.getLists.invalidate({ id: userId! });
-        },
-        onError: (error) => {
-            toast.error(`Failed to move candidate: ${error.message}`);
-        },
-    });
-    const editCandidateComment = api.recruiters.updateOneListCandidate.useMutation({
-        onSuccess: () => {
-            void utils.recruiters.getLists.invalidate({ id: userId! });
-        },
-    });
+    const { data: me, ...recruiterQuery } = api.recruiters.getOne.useQuery(userId ? { id: userId } : skipToken); // TODO: probably get rid of this
+    const { data: candidateLists, ...candidateListsQuery } = api.recruiters.getLists.useQuery(userId ? { id: userId } : skipToken);
     const createList = api.recruiters.createOneList.useMutation({
         onSuccess: () => {
-            void utils.recruiters.getLists.invalidate({ id: userId! });
-        },
-    });
-
-    const deleteList = api.recruiters.deleteOneList.useMutation({
-        onSuccess: () => {
-            void utils.recruiters.getLists.invalidate({ id: userId! });
-        },
-    });
-
-    const form = useForm({
-        defaultValues: {
-            name: '',
-            description: '',
-        },
-        onSubmit: (values) => {
-            createList.mutate({
-                name: values.value.name,
-                description: values.value.description,
-            });
+            void utils.recruiters.getLists.invalidate();
         },
     });
 
     useEffect(() => {
-        if (createList.isSuccess) {
-            form.reset();
-            dialogCloseRef.current?.click();
+        if (candidateListsQuery.isSuccess && candidateLists && candidateLists.length > 0 && candidateLists[0] && !activeList) {
+            setActiveList(candidateLists[0].id);
         }
-    }, [form, createList.isSuccess]);
+    }, [candidateListsQuery.isSuccess, candidateLists, activeList]);
 
-    if (session.status === 'loading' || candidateLists.isLoading) {
+    if (session.status === 'loading' || candidateListsQuery.isLoading || recruiterQuery.isLoading) {
         return (
             <div className="-m-4 p-8 bg-neutral-100 text-black">
                 <div className="h-screen overflow-y-hidden flex items-center justify-center animate-spin">
@@ -90,250 +41,85 @@ export default function RecruiterDashboardPage() {
         );
     }
 
-    return (
-        <div className="min-h-screen -m-4 p-8 bg-neutral-100 text-black">
-            {me && <h1 className="text-3xl font-bold mb-2">Hello, {session.data?.user.name}!</h1>}
-            <p className="mb-8 text-gray-600">Welcome! Here you can manage your lists of candidates.</p>
+    if (candidateListsQuery.isError || recruiterQuery.isError) {
+        return notFound();
+    }
 
-            {candidateLists.data && candidateLists.data.length > 0 && candidateLists.data[0] ? (
-                <Tabs
-                    defaultValue={candidateLists.data[0].id}
-                    className="w-full"
-                    value={selectedTab ?? undefined}
-                >
-                    <div className="flex items-center gap-2 mb-4">
-                        <TabsList className="bg-gray-300">
-                            {candidateLists.data &&
-                                candidateLists.data.length > 0 &&
-                                candidateLists.data.map((list) => (
-                                    <div
-                                        key={list.id}
-                                        className="flex items-center group"
-                                    >
-                                        <TabsTrigger value={list.id}>{list.name}</TabsTrigger>
-                                        <Tooltip>
-                                            <TooltipTrigger asChild>
-                                                <Button
-                                                    size="icon"
-                                                    variant="ghost"
-                                                    className="ml-1 opacity-60 group-hover:opacity-100 hover:text-red-500"
-                                                    aria-label={`Delete list ${list.name}`}
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        deleteList.mutate({ id: list.id });
-                                                    }}
-                                                >
-                                                    <Trash2 size={16} />
-                                                </Button>
-                                            </TooltipTrigger>
-                                            <TooltipContent side="top">Delete list</TooltipContent>
-                                        </Tooltip>
-                                    </div>
-                                ))}
-                        </TabsList>
-                        <Dialog>
-                            <DialogTrigger asChild>
-                                <Button className="ml-2">
-                                    <Plus />
-                                </Button>
-                            </DialogTrigger>
-                            <DialogContent>
-                                <DialogTitle>Create a new candidate list</DialogTitle>
-                                <div className="flex flex-col gap-4">
-                                    <form
-                                        className="flex flex-col gap-4"
-                                        onSubmit={(e) => {
-                                            e.preventDefault();
-                                        }}
-                                    >
-                                        <form.Field
-                                            name="name"
-                                            validators={{
-                                                onChange: ({ value }) => (!value.trim() ? 'Name is required.' : undefined),
-                                            }}
-                                        >
-                                            {(field) => (
-                                                <div className="flex flex-col gap-1">
-                                                    <Input
-                                                        type="input"
-                                                        value={field.state.value}
-                                                        onBlur={field.handleBlur}
-                                                        onChange={(e) => field.handleChange((e.target as HTMLInputElement).value)}
-                                                        label="Name"
-                                                    />
-                                                    {!field.state.meta.isValid && field.state.meta.errors.length > 0 && <span className="text-xs text-red-500">{field.state.meta.errors.join(', ')}</span>}
-                                                </div>
-                                            )}
-                                        </form.Field>
-                                        <form.Field name="description">
-                                            {(field) => (
-                                                <div className="flex flex-col gap-1">
-                                                    <Input
-                                                        type="textarea"
-                                                        value={field.state.value}
-                                                        onBlur={field.handleBlur}
-                                                        className="w-full"
-                                                        onChange={(e) => field.handleChange(e.target.value)}
-                                                        label="Description"
-                                                    />
-                                                    {!field.state.meta.isValid && field.state.meta.errors.length > 0 && <span className="text-xs text-red-500">{field.state.meta.errors.join(', ')}</span>}
-                                                </div>
-                                            )}
-                                        </form.Field>
-                                        <DialogClose asChild>
-                                            <button
-                                                type="button"
-                                                ref={dialogCloseRef}
-                                                className="hidden"
-                                            />
-                                        </DialogClose>
-                                        <Button
-                                            onClick={() => form.handleSubmit()}
-                                            type="submit"
-                                        >
-                                            {createList.isPending && <LoaderCircle className="animate-spin" />}
-                                            Submit
-                                        </Button>
-                                    </form>
-                                </div>
-                            </DialogContent>
-                        </Dialog>
-                    </div>
-                    {candidateLists.data?.map((list) => (
-                        <TabsContent
-                            key={list.id}
-                            value={list.id}
-                            className="flex flex-col gap-4 items-center justify-center"
+    return (
+        <div className="bg-neutral-50 min-h-screen -m-4 p-8 text-black">
+            {me && <h1 className="text-3xl font-bold mb-8">Hello, {session.data?.user.name}!</h1>}
+            <div className="flex gap-4">
+                <div className="flex flex-col gap-2 w-1/4">
+                    {!!candidateLists && candidateLists.length > 0 ? (
+                        candidateLists.map((list) => (
+                            <button
+                                className="relative cursor-pointer text-sm px-4 py-2 pl-6 rounded bg-none text-left"
+                                style={{
+                                    backgroundColor: getBackgroundColor(list.name, 0.2),
+                                    outline: activeList == list.id ? `2px solid ${getBackgroundColor(list.name, 1)} ` : undefined,
+                                }}
+                                key={list.id}
+                                onClick={() => setActiveList(list.id)}
+                            >
+                                {list.name}
+                                <div
+                                    className="absolute left-2 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full"
+                                    style={{
+                                        backgroundColor: getBackgroundColor(list.name, 1),
+                                    }}
+                                />
+                            </button>
+                        ))
+                    ) : (
+                        <div className="text-gray-500">You have no candidate lists yet. Create one to get started!</div>
+                    )}
+                    <div className="relative">
+                        <form
+                            onSubmit={(e) => {
+                                e.preventDefault();
+                                if (listName.trim() === '') return;
+                                createList.mutate({
+                                    name: listName,
+                                });
+                                setListName('');
+                            }}
                         >
-                            {list.candidates.length === 0 ? (
-                                <div className="text-gray-500">No candidates in this list yet.</div>
-                            ) : (
-                                list.candidates.map((candidate) => (
-                                    <div
-                                        key={candidate.candidateId}
-                                        className="flex items-center justify-between w-full"
-                                    >
-                                        <div className="flex flex-col items-start gap-4 w-full border rounded border-gray-500 p-4">
-                                            <div className="flex w-full">
-                                                <div
-                                                    className="flex items-center gap-4 cursor-pointer"
-                                                    onClick={() => router.push(`/users/${candidate.candidateId}`)}
-                                                >
-                                                    <Image
-                                                        src={candidate.candidateProfile.imageUrl ?? ''}
-                                                        alt={candidate.candidateProfile.displayName}
-                                                        height={50}
-                                                        width={50}
-                                                        className="rounded-full"
-                                                    />
-                                                    <p className="font-bold text-2xl">{candidate.candidateProfile.displayName}</p>
-                                                </div>
-                                                <DropdownMenu>
-                                                    <DropdownMenuTrigger asChild>
-                                                        <Button
-                                                            variant="outline"
-                                                            onClick={(e) => e.stopPropagation()}
-                                                            className="ml-auto hover:text-black"
-                                                        >
-                                                            <EllipsisVertical />
-                                                        </Button>
-                                                    </DropdownMenuTrigger>
-                                                    <DropdownMenuContent
-                                                        className="w-56"
-                                                        align="end"
-                                                        onClick={(e) => e.stopPropagation()}
-                                                    >
-                                                        <DropdownMenuSub>
-                                                            <DropdownMenuSubTrigger>Move to</DropdownMenuSubTrigger>
-                                                            <DropdownMenuPortal>
-                                                                <DropdownMenuSubContent>
-                                                                    {candidateLists.data
-                                                                        .filter((l) => l.id !== list.id)
-                                                                        .map((cl) => (
-                                                                            <DropdownMenuItem
-                                                                                key={cl.id}
-                                                                                onClick={(e) => {
-                                                                                    e.stopPropagation();
-                                                                                    moveCandidateToList.mutate({ candidateId: candidate.candidateId, fromListId: list.id, toListId: cl.id });
-                                                                                }}
-                                                                            >
-                                                                                {cl.name}
-                                                                            </DropdownMenuItem>
-                                                                        ))}
-                                                                </DropdownMenuSubContent>
-                                                            </DropdownMenuPortal>
-                                                        </DropdownMenuSub>
-                                                        <DropdownMenuItem
-                                                            onClick={(e) => {
-                                                                e.stopPropagation();
-                                                                setEditingComment({ candidateId: candidate.candidateId, listId: list.id, comment: candidate.comments ?? '' });
-                                                                setCommentValue(candidate.comments ?? '');
-                                                            }}
-                                                        >
-                                                            Edit comment
-                                                        </DropdownMenuItem>
-                                                        <DropdownMenuItem
-                                                            className="text-red-500"
-                                                            onClick={(e) => {
-                                                                e.stopPropagation();
-                                                                removeCandidateFromList.mutate({ candidateId: candidate.candidateId, listId: list.id });
-                                                            }}
-                                                        >
-                                                            Delete
-                                                        </DropdownMenuItem>
-                                                    </DropdownMenuContent>
-                                                </DropdownMenu>
-                                            </div>
-                                            {editingComment && editingComment.candidateId === candidate.candidateId && editingComment.listId === list.id ? (
-                                                <form
-                                                    className="flex flex-col gap-2 mt-2 w-full"
-                                                    onClick={(e) => e.stopPropagation()}
-                                                    onSubmit={(e) => {
-                                                        e.preventDefault();
-                                                        editCandidateComment.mutate({
-                                                            candidateId: candidate.candidateId,
-                                                            listId: list.id,
-                                                            comments: commentValue,
-                                                        });
-                                                        setEditingComment(null);
-                                                    }}
-                                                >
-                                                    <textarea
-                                                        className="border border-black rounded p-2 w-full"
-                                                        value={commentValue}
-                                                        onChange={(e) => setCommentValue(e.target.value)}
-                                                        rows={3}
-                                                    />
-                                                    <div className="flex gap-2">
-                                                        <Button
-                                                            type="submit"
-                                                            size="sm"
-                                                        >
-                                                            Save
-                                                        </Button>
-                                                        <Button
-                                                            type="button"
-                                                            size="sm"
-                                                            variant="secondary"
-                                                            onClick={() => setEditingComment(null)}
-                                                        >
-                                                            Cancel
-                                                        </Button>
-                                                    </div>
-                                                </form>
-                                            ) : (
-                                                candidate.comments && <p className="text-gray-500">{candidate.comments}</p>
-                                            )}
-                                        </div>
-                                    </div>
-                                ))
-                            )}
-                        </TabsContent>
-                    ))}
-                </Tabs>
-            ) : (
-                <div className="text-gray-500">You have no candidate lists yet. Create one to get started!</div>
-            )}
+                            <Input
+                                placeholder="List name"
+                                className="pr-10 border border-muted-foreground "
+                                value={listName}
+                                onChange={(e) => setListName(e.target.value)}
+                                disabled={createList.isPending}
+                            />
+                            <Button
+                                type="submit"
+                                className=" w-6 h-6 rounded absolute top-1/2 right-2 -translate-y-1/2 z-10"
+                                size="icon"
+                                disabled={createList.isPending}
+                            >
+                                {createList.isPending ? <LoaderCircle className="animate-spin" /> : <Plus />}
+                            </Button>
+                        </form>
+                    </div>
+                </div>
+                <div className="flex-1">
+                    {!!activeList && !!candidateLists ? (
+                        <ListDetail
+                            key={activeList}
+                            list={candidateLists.find((list) => list.id === activeList)!}
+                        />
+                    ) : (
+                        <div className="text-gray-500">You have no candidate lists yet. Create one to get started!</div>
+                    )}
+                </div>
+            </div>
         </div>
     );
+}
+
+function getBackgroundColor(stringInput: string, opacity: number) {
+    const stringUniqueHash = [...stringInput].reduce((acc, char) => {
+        return char.charCodeAt(0) + ((acc << 5) - acc);
+    }, 0);
+    return `hsl(${stringUniqueHash % 360} 95% 35% / ${opacity})`;
 }

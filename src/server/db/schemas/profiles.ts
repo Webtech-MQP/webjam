@@ -83,7 +83,6 @@ export const lists = createTable('list', (d) => ({
         .notNull()
         .references(() => recruiterProfiles.userId, { onDelete: 'cascade' }),
     name: d.text({ length: 255 }).notNull(),
-    description: d.text({ length: 255 }).notNull().default(''),
 }));
 
 export const listCandidates = createTable(

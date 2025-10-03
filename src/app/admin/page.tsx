@@ -19,7 +19,7 @@ export default async function AdminDashboardPage() {
                 <div className="px-6 py-4">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-4">
-                            <h1 className="text-xl font-semibold text-white">Admin Dashboard</h1>
+                            <h1 className="text-xl font-semibold text-foreground">Admin Dashboard</h1>
                         </div>
                     </div>
                 </div>

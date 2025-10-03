@@ -43,7 +43,7 @@ export const ProjectDetail = (props: ProjectDetailProps) => {
                         return (
                             <MessyTag
                                 key={tag.tagId}
-                                textClassName="text-xs text-white"
+                                textClassName="text-xs text-foreground"
                                 color="#d37c04"
                             >
                                 {tag.tag.name}
@@ -126,7 +126,7 @@ export const ProjectDetail = (props: ProjectDetailProps) => {
 
             {registrationCompleted && !showRegistration && (
                 <div className="w-full text-center p-8">
-                    <h2 className="text-2xl font-bold text-white">Registration successful</h2>
+                    <h2 className="text-2xl font-bold text-foreground">Registration successful</h2>
                     <p className="text-stone-300 mt-2">Thanks for signing up. We&#39;ll be in touch soon.</p>
                     <Button
                         onClick={() => setShowRegistration(false)}

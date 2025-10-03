@@ -53,10 +53,9 @@ export const recruiterRouter = createTRPCRouter({
         return lists;
     }),
 
-    createOneList: protectedProcedure.input(z.object({ name: z.string().min(1).max(100), description: z.string().max(255).optional() })).mutation(async ({ ctx, input }) => {
+    createOneList: protectedProcedure.input(z.object({ name: z.string().min(1).max(100) })).mutation(async ({ ctx, input }) => {
         await ctx.db.insert(lists).values({
             name: input.name,
-            description: input.description ?? '',
             recruiterId: ctx.session.user.id,
         });
     }),

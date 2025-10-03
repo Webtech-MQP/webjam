@@ -51,7 +51,7 @@ export function CandidateCard({ displayName, bio, location, language, experience
                     <div className="min-w-0 flex-1">
                         <h3 className="truncate font-semibold">{displayName}</h3>
                         {location && (
-                            <div className="flex items-center gap-1 text-sm text-white">
+                            <div className="flex items-center gap-1 text-sm text-foreground">
                                 <MapPinIcon className="h-3 w-3" />
                                 <span className="truncate">{location}</span>
                             </div>
@@ -59,7 +59,7 @@ export function CandidateCard({ displayName, bio, location, language, experience
                     </div>
                 </div>
 
-                {bio && <p className="mb-3 line-clamp-2 text-sm text-white">{bio}</p>}
+                {bio && <p className="mb-3 line-clamp-2 text-sm text-foreground">{bio}</p>}
 
                 <div className="mb-3 flex flex-wrap gap-2">
                     {language && (
