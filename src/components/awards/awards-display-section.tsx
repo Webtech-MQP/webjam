@@ -13,7 +13,7 @@ export interface CandidateAwardSchema {
     award: {
         id: string;
         createdAt: Date | null;
-        imageURL: string;
+        imageUrl: string;
         description: string | null;
         title: string;
     };

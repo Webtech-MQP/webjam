@@ -30,7 +30,7 @@ export function AwardBadge({ CandidateAward, size = 'md' }: AwardBadgeProps) {
                         className={`${sizeClasses[size]} cursor-pointer overflow-hidden rounded-full border-2 border-gray-700 transition-transform hover:scale-110 hover:border-gray-500`}
                     >
                         <Image
-                            src={CandidateAward.award.imageURL}
+                            src={CandidateAward.award.imageUrl ?? 'https://placehold.co/64x64/png'}
                             alt={CandidateAward.award.title}
                             width={64}
                             height={64}
@@ -52,7 +52,7 @@ export function AwardBadge({ CandidateAward, size = 'md' }: AwardBadgeProps) {
                         <DialogTitle className="flex items-center gap-3 text-white">
                             <div className="h-12 w-12 overflow-hidden rounded-full border-2 border-gray-600">
                                 <Image
-                                    src={CandidateAward.award.imageURL}
+                                    src={CandidateAward.award.imageUrl ?? 'https://placehold.co/48x48/png'}
                                     alt={CandidateAward.award.title}
                                     width={48}
                                     height={48}
