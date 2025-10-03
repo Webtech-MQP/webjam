@@ -4,6 +4,7 @@ import { ArrayInput } from '@/components/array-input';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Command, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
+import { ImageUpload } from '@/components/ui/image-uploader';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -13,7 +14,6 @@ import { api } from '@/trpc/react';
 import { createId } from '@paralleldrive/cuid2';
 import { useForm } from '@tanstack/react-form';
 import { Check, ChevronsUpDown, Plus, X } from 'lucide-react';
-import Image from 'next/image';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import z from 'zod';
@@ -141,6 +141,17 @@ export default function AdminCreateEditProject(props: AdminCreateEditProjectProp
                 }}
             >
                 <div className="grid w-full items-center gap-3">
+                    <form.Field name="imageUrl">
+                        {(field) => (
+                            <ImageUpload
+                                currentImageUrl={field.state.value || undefined}
+                                uploadType="project"
+                                onImageChange={(imageUrl) => field.handleChange(imageUrl || '')}
+                                className={'w-40 h-40 box-content'}
+                                disabled={editProject.isPending}
+                            />
+                        )}
+                    </form.Field>
                     <form.Field name="title">
                         {(field) => (
                             <>
@@ -237,33 +248,6 @@ export default function AdminCreateEditProject(props: AdminCreateEditProjectProp
                             )}
                         </form.Field>
                     </div>
-                    <form.Field name="imageUrl">
-                        {(field) => (
-                            <>
-                                <Label htmlFor={field.name}>Image</Label>
-                                <Input
-                                    type="text"
-                                    id={field.name}
-                                    name={field.name}
-                                    placeholder="Image URL"
-                                    value={field.state.value}
-                                    onBlur={field.handleBlur}
-                                    onChange={(e) => field.handleChange(e.target.value)}
-                                />
-
-                                {field.state.value.trim().length > 0 && isValidHttpUrl(field.state.value.trim()) && (
-                                    <Image
-                                        src={field.state.value.trim()}
-                                        alt="Image"
-                                        width={100}
-                                        height={100}
-                                        className="object-cover"
-                                    />
-                                )}
-                                {field.state.meta.errors.length > 0 && <div className="text-sm text-red-300 mt-1">{field.state.meta.errors.map((error) => error?.message).join(', ')}</div>}
-                            </>
-                        )}
-                    </form.Field>
                     <form.Field name="tags">
                         {(field) => (
                             <>

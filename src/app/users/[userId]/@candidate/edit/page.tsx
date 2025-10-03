@@ -111,7 +111,7 @@ export default function Page() {
     return (
         <div>
             <div>
-                <div className="relative h-40 w-full">
+                <div className="relative h-60 w-full">
                     {/* Banner Image */}
                     <form.Field name="bannerUrl">
                         {(field) => (
@@ -119,7 +119,7 @@ export default function Page() {
                                 currentImageUrl={field.state.value || undefined}
                                 uploadType="banner"
                                 onImageChange={(imageUrl) => field.handleChange(imageUrl || '')}
-                                className="relative h-40 w-full"
+                                className={'w-full h-60 rounded-lg'}
                                 disabled={updateCandidate.isPending || isSaving}
                             />
                         )}
@@ -140,7 +140,7 @@ export default function Page() {
                                         currentImageUrl={field.state.value || undefined}
                                         uploadType="profile"
                                         onImageChange={(imageUrl) => field.handleChange(imageUrl || '')}
-                                        className="relative z-20 box-content border-6 border-(--color-background)"
+                                        className={'w-24 h-24 rounded-xl box-content'}
                                         disabled={updateCandidate.isPending || isSaving}
                                     />
                                 )}

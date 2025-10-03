@@ -18,7 +18,7 @@ interface ImageUploadProps {
 export function ImageUpload({ currentImageUrl, uploadType, onImageChange, className, disabled = false }: ImageUploadProps) {
     const fileInputRef = useRef<HTMLInputElement>(null);
 
-    const generateUploadUrl = api.candidates.generateUploadUrl.useMutation();
+    const generateUploadUrl = uploadType === 'project' || uploadType === 'award' ? api.projects.generateUploadUrl.useMutation() : api.candidates.generateUploadUrl.useMutation();
 
     const handleFileSelect = useCallback(
         async (file: File) => {
@@ -103,7 +103,7 @@ export function ImageUpload({ currentImageUrl, uploadType, onImageChange, classN
             />
 
             <div
-                className={cn('relative overflow-hidden bg-gray-100 border-2 border-dashed border-gray-300 hover:border-gray-400 transition-colors cursor-pointer', isProfileUpload ? 'w-24 h-24 rounded-xl' : 'w-full h-40 rounded-lg', currentImageUrl && 'border-solid border-gray-200', disabled && 'opacity-50 cursor-not-allowed')}
+                className={cn('relative overflow-hidden bg-gray-100 border-2 border-dashed border-gray-300 hover:border-gray-400 transition-colors cursor-pointer', className, currentImageUrl && 'border-solid border-gray-200', disabled && 'opacity-50 cursor-not-allowed')}
                 onClick={!disabled ? handleButtonClick : undefined}
             >
                 {currentImageUrl ? (
@@ -112,6 +112,7 @@ export function ImageUpload({ currentImageUrl, uploadType, onImageChange, classN
                             src={currentImageUrl}
                             alt={`${uploadType} image`}
                             {...(isProfileUpload ? { width: 100, height: 100 } : { fill: true })}
+                            objectFit="cover"
                         />
                         {!disabled && (
                             <Button
@@ -135,7 +136,7 @@ export function ImageUpload({ currentImageUrl, uploadType, onImageChange, classN
                         ) : (
                             <>
                                 <Camera className="h-6 w-6 mb-2" />
-                                <span className="text-sm text-center px-2">{isProfileUpload ? 'Upload Photo' : 'Upload Banner'}</span>
+                                <span className="text-sm text-center px-2">Upload Photo</span>
                             </>
                         )}
                     </div>
