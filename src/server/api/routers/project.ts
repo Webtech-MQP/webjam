@@ -1,8 +1,11 @@
+import { env } from '@/env';
 import { sendJamEndEmail, sendJudgedEmail } from '@/lib/mailer';
+import { createPresignedPost, deleteS3Object, getS3KeyFromUrl, s3Client } from '@/lib/s3';
 import { adminProcedure, createTRPCRouter, protectedProcedure, publicProcedure } from '@/server/api/trpc';
-import { projectEvent, projects, projectsTags, tags } from '@/server/db/schemas/projects';
+import { projectEvent,projectInstanceRankings, projectJudgingCriteria, projects, projectsTags, tags } from '@/server/db/schemas/projects';
 import { TRPCError } from '@trpc/server';
 import { eq } from 'drizzle-orm';
+import { nanoid } from 'nanoid';
 import { z } from 'zod';
 
 export const projectRouter = createTRPCRouter({
@@ -18,6 +21,14 @@ export const projectRouter = createTRPCRouter({
                 starts: z.date(),
                 ends: z.date(),
                 tags: z.array(z.string().min(1).max(256)).optional(),
+                judgingCriteria: z
+                    .array(
+                        z.object({
+                            criterion: z.string().min(1).max(512),
+                            weight: z.number().int().min(0).max(100),
+                        })
+                    )
+                    .optional(),
             })
         )
         .mutation(async ({ ctx, input }) => {
@@ -45,6 +56,17 @@ export const projectRouter = createTRPCRouter({
                     }))
                 );
             }
+
+            // Add judging criteria
+            if (input.judgingCriteria && input.judgingCriteria.length > 0) {
+                await ctx.db.insert(projectJudgingCriteria).values(
+                    input.judgingCriteria.map((item) => ({
+                        projectId: input.id,
+                        criterion: item.criterion,
+                        weight: item.weight,
+                    }))
+                );
+            }
         }),
 
     getOne: publicProcedure.input(z.object({ id: z.cuid2() })).query(async ({ ctx, input }) => {
@@ -63,6 +85,38 @@ export const projectRouter = createTRPCRouter({
                     },
                 },
                 projectInstances: true,
+                judgingCriteria: true,
+            },
+        });
+    }),
+
+    adminGetOne: adminProcedure.input(z.object({ id: z.cuid2() })).query(async ({ ctx, input }) => {
+        return ctx.db.query.projects.findFirst({
+            where: (projects, { eq }) => eq(projects.id, input.id),
+            with: {
+                projectsToTags: {
+                    with: {
+                        tag: true,
+                    },
+                },
+                creator: true,
+                registrations: {
+                    with: {
+                        candidate: true,
+                    },
+                },
+                projectInstances: {
+                    with: {
+                        submissions: {
+                            with: {
+                                judgements: true,
+                                reviewer: true,
+                            },
+                        },
+                        ranking: true,
+                    },
+                },
+                judgingCriteria: true,
             },
         });
     }),
@@ -76,11 +130,12 @@ export const projectRouter = createTRPCRouter({
                     },
                 },
                 creator: true,
+                judgingCriteria: true,
             },
         });
     }),
 
-    updateOne: publicProcedure
+    updateOne: adminProcedure
         .input(
             z.object({
                 id: z.cuid2(),
@@ -88,13 +143,30 @@ export const projectRouter = createTRPCRouter({
                 subtitle: z.string().min(0).max(1000),
                 description: z.string().min(0).max(10000),
                 requirements: z.string().min(0).max(10000),
-                imageUrl: z.string().min(0).max(1000),
+                imageUrl: z.url(),
                 starts: z.date(),
                 ends: z.date(),
                 tags: z.array(z.string().min(1).max(1000)).optional(),
+                judgingCriteria: z
+                    .array(
+                        z.object({
+                            criterion: z.string().min(1).max(512),
+                            weight: z.number().int().min(0).max(100),
+                        })
+                    )
+                    .optional(),
             })
         )
         .mutation(async ({ ctx, input }) => {
+            const currentProject = await ctx.db.query.projects.findFirst({
+                where: eq(projects.id, input.id),
+            });
+
+            if (input.imageUrl && currentProject?.imageUrl && currentProject.imageUrl !== input.imageUrl) {
+                const oldKey = getS3KeyFromUrl(currentProject.imageUrl);
+                if (oldKey) await deleteS3Object(oldKey);
+            }
+
             await ctx.db
                 .update(projects)
                 .set({
@@ -118,6 +190,19 @@ export const projectRouter = createTRPCRouter({
                     input.tags.map((tagId) => ({
                         projectId: input.id,
                         tagId: tagId,
+                    }))
+                );
+            }
+
+            // Update judging criteria
+            await ctx.db.delete(projectJudgingCriteria).where(eq(projectJudgingCriteria.projectId, input.id));
+
+            if (input.judgingCriteria && input.judgingCriteria.length > 0) {
+                await ctx.db.insert(projectJudgingCriteria).values(
+                    input.judgingCriteria.map((item) => ({
+                        projectId: input.id,
+                        criterion: item.criterion,
+                        weight: item.weight,
                     }))
                 );
             }
@@ -197,7 +282,7 @@ export const projectRouter = createTRPCRouter({
         return ctx.db.delete(tags).where(eq(tags.id, input.id));
     }),
 
-    initializeJamCreation: adminProcedure.input(z.object({ id: z.cuid2() })).query(async ({ input, ctx }) => {
+    initializeJamCreation: adminProcedure.input(z.object({ id: z.cuid2(), usersPerTeam: z.int() })).query(async ({ input, ctx }) => {
         const project = await ctx.db.query.projects.findFirst({
             where: (projects, { eq }) => eq(projects.id, input.id),
             with: {
@@ -229,58 +314,56 @@ export const projectRouter = createTRPCRouter({
                 message: 'No registrations found for this project',
             });
         } else if (registrations.length < project.numberOfMembers) {
-            return { teams: [registrations.map((r) => r.candidate.userId)] };
+            return [registrations.map((r) => r.candidate.userId)];
         }
 
         const preppedRegistrations = registrations.map((r) => ({
-            id: r.candidate.userId,
-            skills: r.answers.map((a) => ({
-                name: a.question.skill,
-                level: a.level,
-            })),
-            role_preference: r.preferredRole,
-            // TODO: Use actual learning goals
-            learning_goals: ['React', 'JavaScript'],
-            experience_level: 'Intermediate',
+            id_number: r.candidate.userId,
+            skill_levels: r.answers.reduce(
+                (acc, curr) => ({
+                    ...acc,
+                    [curr.question.skill]: curr.level ?? 0,
+                }),
+                {}
+            ),
         }));
 
-        if (!process.env.MATCHER_URL) {
+        const skills = project.questions.map((q) => q.question.skill);
+
+        if (!env.MATCHER_URL) {
             throw new TRPCError({
                 code: 'INTERNAL_SERVER_ERROR',
                 message: 'Matcher URL not configured',
             });
         }
-        const response = await fetch(process.env.MATCHER_URL, {
+        const response = await fetch(env.MATCHER_URL, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
+                num_teams: Math.max(Math.floor(preppedRegistrations.length / input.usersPerTeam), 1),
                 users: preppedRegistrations,
-                jam: {
-                    id: project.id,
-                    required_skills: project.questions.map((q) => q.question.skill),
-                    team_size: project.numberOfMembers,
-                },
-                weights: {
-                    skill_diversity: 1,
-                    experience_balance: 1,
-                    learning_opportunity: 1,
-                    role_preference: 1,
-                },
+                skills: skills.map((skill) => ({
+                    id: skill,
+                    threshold: 7,
+                })),
             }),
         });
 
         if (!response.ok) {
+            console.error(JSON.stringify(await response.json()));
             throw new TRPCError({
                 code: 'INTERNAL_SERVER_ERROR',
                 message: 'Failed to initialize jam creation',
             });
         }
 
-        const body = (await response.json()) as { teams: string[][] };
+        const body = (await response.json()) as { id_number: string; skill_levels: { id: string; level: number }[] }[][];
 
-        return body;
+        const teams = body.map((team) => team.map((member) => member.id_number));
+
+        return teams;
     }),
 
     updateStatus: adminProcedure.input(z.object({ id: z.cuid2(), status: z.enum(['created', 'judging', 'completed']) })).mutation(async ({ ctx, input }) => {
@@ -331,6 +414,125 @@ export const projectRouter = createTRPCRouter({
 
         return ctx.db.update(projects).set({ status: input.status }).where(eq(projects.id, input.id));
     }),
+
+    completeProject: adminProcedure.input(z.object({ projectId: z.cuid2() })).mutation(async ({ ctx, input }) => {
+        const project = await ctx.db.query.projects.findFirst({
+            where: (projects, { eq }) => eq(projects.id, input.projectId),
+            with: {
+                projectInstances: {
+                    with: {
+                        submissions: {
+                            with: {
+                                judgements: true,
+                            },
+                        },
+                    },
+                },
+                judgingCriteria: true,
+            },
+        });
+
+        if (!project) {
+            throw new TRPCError({ code: 'NOT_FOUND', message: 'Project not found' });
+        }
+
+        if (project.status !== 'judging') {
+            throw new TRPCError({ code: 'BAD_REQUEST', message: 'Project is not in judging status' });
+        }
+
+        const submissions = project.projectInstances.flatMap((instance) => instance.submissions);
+        const criteria: Record<string, (typeof project.judgingCriteria)[number]> = project.judgingCriteria.reduce(
+            (acc, curr) => ({
+                ...acc,
+                [curr.id]: curr,
+            }),
+            {}
+        );
+        const rankedSubmissions = submissions
+            .sort((a, b) => b.submittedOn.valueOf() - a.submittedOn.valueOf())
+            .filter((submission, index) => submissions.findIndex((s) => s.projectInstanceId == submission.projectInstanceId) === index)
+            .map((s) => ({
+                ...s,
+                jam: project.projectInstances.find((pi) => pi.id === s.projectInstanceId),
+                calculatedScore: Object.entries(
+                    s.judgements.reduce(
+                        (acc, judgement) => ({
+                            ...acc,
+                            [judgement.criterionId]: {
+                                totalScore: (acc[judgement.criterionId]?.totalScore || 0) + judgement.totalScore,
+                                count: (acc[judgement.criterionId]?.count || 0) + 1,
+                            },
+                        }),
+                        {} as Record<string, { totalScore: number; count: number }>
+                    )
+                ).reduce((acc, [key, value]) => acc + (criteria[key]!.weight / 100) * (value.totalScore / value.count), 0),
+            }))
+            .sort((a, b) => b.calculatedScore - a.calculatedScore);
+
+        const ranks = rankedSubmissions.map((s, index) => ({
+            projectInstanceId: s.projectInstanceId,
+            rank: index + 1,
+            submissionId: s.id,
+        }));
+
+        await ctx.db.insert(projectInstanceRankings).values(ranks);
+
+        await ctx.db.update(projects).set({ status: 'completed' }).where(eq(projects.id, input.projectId));
+
+        return;
+    }),
+
+    getRankings: publicProcedure.input(z.object({ projectId: z.cuid2() })).query(async ({ ctx, input }) => {
+        const instances = (
+            await ctx.db.query.projectInstances.findMany({
+                columns: {
+                    id: true,
+                },
+                where: (projectInstances, { eq }) => eq(projectInstances.projectId, input.projectId),
+            })
+        ).map((instance) => instance.id);
+
+        const rankings = await ctx.db.query.projectInstanceRankings.findMany({
+            where: (projectInstanceRankings, { inArray }) => inArray(projectInstanceRankings.projectInstanceId, instances),
+        });
+
+        return rankings;
+    }),
+
+    generateUploadUrl: adminProcedure
+        .input(
+            z.object({
+                fileType: z.string(),
+                fileSize: z.number().max(5 * 1024 * 1024), // 5MB limit
+                uploadType: z.enum(['profile', 'banner', 'project', 'award']),
+            })
+        )
+        .mutation(async ({ ctx, input }) => {
+            const fileExtension = input.fileType.split('/')[1];
+            const fileName = `${input.uploadType}/${nanoid()}.${fileExtension}`;
+            try {
+                const { url, fields } = await createPresignedPost(s3Client, {
+                    Bucket: process.env.AWS_S3_BUCKET_NAME!,
+                    Key: fileName,
+                    Conditions: [['content-length-range', 0, input.fileSize], { 'Content-Type': input.fileType }],
+                    Fields: {
+                        'Content-Type': input.fileType,
+                    },
+                    Expires: 600, // 10 minutes
+                });
+                return {
+                    uploadUrl: url,
+                    fields,
+                    fileName,
+                    fileUrl: `https://${process.env.AWS_S3_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${fileName}`,
+                };
+            } catch (error) {
+                throw new TRPCError({
+                    code: 'INTERNAL_SERVER_ERROR',
+                    message: 'Failed to generate upload URL',
+                });
+            }
+        }),
 
     createEvent: protectedProcedure
         .input(

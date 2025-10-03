@@ -75,6 +75,7 @@ async function main() {
             portfolioURL: 'https://brian.dev',
             linkedinURL: 'https://linkedin.com/in/brian',
             imageUrl: 'https://placehold.co/100.png',
+            publicEmail: 'brian@example.com',
         },
         {
             userId: userTyler.id,
@@ -86,6 +87,7 @@ async function main() {
             portfolioURL: 'https://tyler.dev',
             linkedinURL: 'https://linkedin.com/in/tyler',
             imageUrl: 'https://placehold.co/100.png',
+            publicEmail: 'tyler@example.com',
         },
         {
             userId: userJohnny.id,
@@ -97,6 +99,7 @@ async function main() {
             portfolioURL: 'https://johnny.dev',
             linkedinURL: 'https://linkedin.com/in/johnny',
             imageUrl: 'https://placehold.co/100.png',
+            publicEmail: 'johnny@example.com',
         },
     ]);
     console.log('Candidate profiles seeded!');

@@ -4,7 +4,7 @@ import { primaryKey } from 'drizzle-orm/sqlite-core';
 import { createTable } from '../schema-util';
 import { users } from './auth';
 import { candidateAward } from './awards';
-import { candidateProfilesToProjectInstances } from './projects';
+import { candidateProfilesToProjectInstances, submissionJudgement } from './projects';
 
 export const candidateProfiles = createTable('candidate_profile', (d) => ({
     userId: d
@@ -17,6 +17,7 @@ export const candidateProfiles = createTable('candidate_profile', (d) => ({
         }),
     // Required profile info
     displayName: d.text({ length: 255 }).notNull(),
+    publicEmail: d.text({ length: 255 }).notNull(),
 
     // Previously in candidates table
     location: d.text({ length: 255 }),
@@ -30,6 +31,7 @@ export const candidateProfiles = createTable('candidate_profile', (d) => ({
     linkedinURL: d.text({ length: 255 }),
     // This is different from user.image (user.image is github image)
     imageUrl: d.text({ length: 255 }),
+    bannerUrl: d.text({ length: 255 }),
 }));
 
 export const candidateProfilesRelations = relations(candidateProfiles, ({ one, many }) => ({
@@ -145,6 +147,7 @@ export const adminProfilesRelations = relations(adminProfiles, ({ one, many }) =
         references: [users.id],
     }),
     reportsActioned: many(candidateReport),
+    judgements: many(submissionJudgement),
 }));
 
 export const recruitersToCandidates = createTable(

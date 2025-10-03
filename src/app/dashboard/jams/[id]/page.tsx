@@ -47,6 +47,13 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
         );
     }
 
+    let rank = null;
+    try {
+        rank = await api.projectInstances.getRank({ projectInstanceId: id });
+    } catch {
+        // Do nothing
+    }
+
     const colorPalette = ['#404040', '#6366f1'];
     const headerColor = '#e8871e';
 
@@ -127,7 +134,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
                                     </Avatar>
                                 </div>
                                 <p className="font-semibold">{projectCandidate.candidateProfile.displayName ?? projectCandidate.candidateProfile.displayName}</p>
-                                <p className="text-sm text-gray-500">Placeholder</p>
+                                <p className="text-sm text-gray-500">{projectCandidate.candidateProfile.publicEmail}</p>
                                 <UserActionsMenu
                                     reportedUserName={projectCandidate.candidateProfile.displayName}
                                     reportedUserId={projectCandidate.candidateProfile.userId}
@@ -207,12 +214,14 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
                         ) : (
                             <p>No submissions yet.</p>
                         )}
-                        <div className="mt-4">
-                            <CreateProjectSubmission
-                                projectInstanceId={projectInstance.id}
-                                submitter={session.user.id}
-                            />
-                        </div>
+                        {projectInstance.project.status !== 'completed' && (
+                            <div className="mt-4">
+                                <CreateProjectSubmission
+                                    projectInstanceId={projectInstance.id}
+                                    submitter={session.user.id}
+                                />
+                            </div>
+                        )}
                     </DashboardCard>
                     <DashboardCard className="flex-1 h-fit">
                         <h6 className="text-sm font-medium text-gray-300">GitHub</h6>
