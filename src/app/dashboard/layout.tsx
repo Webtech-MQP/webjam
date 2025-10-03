@@ -1,14 +1,14 @@
+import { Sidebar } from '@/components/sidebar';
+import { Toaster } from '@/components/ui/sonner';
 import { auth } from '@/server/auth';
 import { api } from '@/trpc/server';
-import { redirect } from 'next/navigation';
-import { Sidebar } from '../../components/sidebar';
-import { Toaster } from '@/components/ui/sonner';
+import { redirect, unauthorized } from 'next/navigation';
 
 export default async function Layout({ children }: { children: React.ReactNode }) {
     const session = await auth();
 
     if (!session) {
-        redirect('/');
+        return unauthorized();
     }
 
     const isAdmin = await api.users.isAdmin();
@@ -19,9 +19,9 @@ export default async function Layout({ children }: { children: React.ReactNode }
         redirect('/onboard');
     }
 
-    if (recruiterProfile && candidateProfile) {
-        redirect(`/sign-in/${session.user.id}/profiles`);
-    }
+    // if (candidateProfile && recruiterProfile) {
+    //     redirect('/sign-in/profiles');
+    // }
 
     return (
         <div className="flex h-screen">

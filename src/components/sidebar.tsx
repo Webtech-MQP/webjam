@@ -14,7 +14,7 @@ import { useCallback, useState } from 'react';
 const CANDIDATE_ROUTES = [
     {
         name: 'Home',
-        href: '/dashboard',
+        href: '/dashboard/home',
         icon: Home,
     },
     {
@@ -32,7 +32,7 @@ const CANDIDATE_ROUTES = [
 const ADMIN_ROUTES = [
     {
         name: 'Dashboard',
-        href: '/admin',
+        href: '/dashboard/home',
         icon: Home,
     },
     {
@@ -45,7 +45,7 @@ const ADMIN_ROUTES = [
 const RECRUITER_ROUTES = [
     {
         name: 'Home',
-        href: '/dashboard/recruiter',
+        href: '/dashboard/home',
         icon: Home,
     },
     {

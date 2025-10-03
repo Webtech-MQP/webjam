@@ -27,7 +27,7 @@ export default function RecruiterDashboardPage() {
     const [selectedTab, setSelectedTab] = useState<string | null>(null);
 
     const userId = session.data?.user.id;
-    const { data: me, isLoading } = api.recruiters.getOne.useQuery(userId ? { id: userId } : skipToken); // TODO: probably get rid of this
+    const { data: me } = api.recruiters.getOne.useQuery(userId ? { id: userId } : skipToken); // TODO: probably get rid of this
     const candidateLists = api.recruiters.getLists.useQuery(userId ? { id: userId } : skipToken);
 
     const removeCandidateFromList = api.recruiters.removeCandidateFromList.useMutation({
@@ -149,7 +149,7 @@ export default function RecruiterDashboardPage() {
                                         <form.Field
                                             name="name"
                                             validators={{
-                                                onChange: ({ value }) => (!value.trim() ? 'Reason is required.' : undefined),
+                                                onChange: ({ value }) => (!value.trim() ? 'Name is required.' : undefined),
                                             }}
                                         >
                                             {(field) => (

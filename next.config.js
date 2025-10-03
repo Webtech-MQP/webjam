@@ -20,6 +20,9 @@ const config = {
         unoptimized: true,
     },
     devIndicators: false,
+    experimental: {
+        authInterrupts: true,
+    },
 };
 
 export default config;

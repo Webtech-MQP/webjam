@@ -23,11 +23,7 @@ export default function ProfileCard({ profile }: { profile: Profile }) {
                     id: profile.userId,
                     role: isCandidate ? 'candidate' : 'recruiter',
                 });
-                if (isCandidate) {
-                    router.push('/dashboard');
-                } else {
-                    router.push('/dashboard/recruiter');
-                }
+                router.push('/dashboard/home');
             }}
         >
             <Image
