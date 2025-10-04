@@ -29,6 +29,16 @@ export const projectRouter = createTRPCRouter({
                         })
                     )
                     .optional(),
+                events: z
+                    .array(
+                        z.object({
+                            startTime: z.date(),
+                            endTime: z.date(),
+                            title: z.string(),
+                            isHeader: z.boolean(),
+                        })
+                    )
+                    .optional(),
             })
         )
         .mutation(async ({ ctx, input }) => {
@@ -64,6 +74,18 @@ export const projectRouter = createTRPCRouter({
                         projectId: input.id,
                         criterion: item.criterion,
                         weight: item.weight,
+                    }))
+                );
+            }
+            // Add events
+            if (input.events && input.events.length > 0) {
+                await ctx.db.insert(projectEvent).values(
+                    input.events.map((item) => ({
+                        projectId: input.id,
+                        startTime: item.startTime,
+                        endTime: item.endTime,
+                        title: item.title,
+                        isHeader: item.isHeader,
                     }))
                 );
             }
@@ -117,6 +139,7 @@ export const projectRouter = createTRPCRouter({
                     },
                 },
                 judgingCriteria: true,
+                events: true,
             },
         });
     }),
@@ -152,6 +175,16 @@ export const projectRouter = createTRPCRouter({
                         z.object({
                             criterion: z.string().min(1).max(512),
                             weight: z.number().int().min(0).max(100),
+                        })
+                    )
+                    .optional(),
+                events: z
+                    .array(
+                        z.object({
+                            startTime: z.date(),
+                            endTime: z.date(),
+                            title: z.string(),
+                            isHeader: z.boolean(),
                         })
                     )
                     .optional(),
@@ -203,6 +236,19 @@ export const projectRouter = createTRPCRouter({
                         projectId: input.id,
                         criterion: item.criterion,
                         weight: item.weight,
+                    }))
+                );
+            }
+            // Update events
+            await ctx.db.delete(projectEvent).where(eq(projectEvent.projectId, input.id));
+            if (input.events && input.events.length > 0) {
+                await ctx.db.insert(projectEvent).values(
+                    input.events.map((item) => ({
+                        projectId: input.id,
+                        startTime: item.startTime,
+                        endTime: item.endTime,
+                        title: item.title,
+                        isHeader: item.isHeader,
                     }))
                 );
             }
@@ -534,15 +580,14 @@ export const projectRouter = createTRPCRouter({
             }
         }),
 
-    createEvent: protectedProcedure
+    createEvent: adminProcedure
         .input(
             z.object({
-                projectId: z.string(),
                 startTime: z.date(),
                 endTime: z.date(),
                 title: z.string(),
-                description: z.string(),
                 isHeader: z.boolean().optional(),
+                projectId: z.string(),
             })
         )
         .mutation(async ({ ctx, input }) => {
@@ -558,19 +603,17 @@ export const projectRouter = createTRPCRouter({
                 startTime: input.startTime,
                 endTime: input.endTime,
                 title: input.title,
-                description: input.description,
                 isHeader: input.isHeader,
             });
         }),
 
-    updateEvent: publicProcedure
+    updateEvent: adminProcedure
         .input(
             z.object({
                 projectEventId: z.string(),
                 startTime: z.date().optional(),
                 endTime: z.date().optional(),
                 title: z.string().optional(),
-                description: z.string().optional(),
                 isHeader: z.boolean().optional(),
             })
         )
@@ -581,7 +624,6 @@ export const projectRouter = createTRPCRouter({
                     startTime: input.startTime,
                     endTime: input.endTime,
                     title: input.title,
-                    description: input.description,
                     isHeader: input.isHeader,
                 })
                 .where(eq(projectEvent.id, input.projectEventId));

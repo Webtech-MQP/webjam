@@ -134,7 +134,6 @@ export const projectEvent = createTable('project_timeline_event', (d) => ({
     startTime: d.integer({ mode: 'timestamp' }).notNull(),
     endTime: d.integer({ mode: 'timestamp' }).notNull(),
     title: d.text({ length: 256 }).notNull(),
-    description: d.text({ length: 256 }).notNull(),
     isHeader: d.integer('header', { mode: 'boolean' }).notNull().default(false),
     projectId: d
         .text()
