@@ -471,7 +471,6 @@ async function main() {
         return {
             id: createId(),
             title: `Week ${i + 1}`,
-            description: `Timeline header for Week ${i + 1}`,
             startTime: weekStart,
             endTime: weekEnd,
             isHeader: true,
@@ -483,7 +482,6 @@ async function main() {
         {
             id: createId(),
             title: 'Meet your teammates',
-            description: 'Kickoff session to meet your team.',
             startTime: addDays(BASE_DATE, 0),
             endTime: addDays(BASE_DATE, 6),
             isHeader: false,
@@ -492,7 +490,6 @@ async function main() {
         {
             id: createId(),
             title: 'Planning',
-            description: 'Plan out the project',
             startTime: addDays(BASE_DATE, 4),
             endTime: addDays(BASE_DATE, 8),
             isHeader: false,
@@ -501,7 +498,6 @@ async function main() {
         {
             id: createId(),
             title: 'Code Stuff',
-            description: 'The main implementation work.',
             startTime: addDays(BASE_DATE, 4),
             endTime: addDays(BASE_DATE, 28),
             isHeader: false,
@@ -510,7 +506,6 @@ async function main() {
         {
             id: createId(),
             title: 'Testing',
-            description: 'Final testing and bug fixes.',
             startTime: addDays(BASE_DATE, 24),
             endTime: addDays(BASE_DATE, 30),
             isHeader: false,
@@ -519,7 +514,6 @@ async function main() {
         {
             id: createId(),
             title: 'Submit Project',
-            description: 'Final project submission for review.',
             startTime: addDays(BASE_DATE, 28),
             endTime: addDays(BASE_DATE, 35),
             isHeader: false,
