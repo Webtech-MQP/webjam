@@ -54,16 +54,13 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
         // Do nothing
     }
 
-    const colorPalette = ['#404040', '#6366f1'];
-    const headerColor = '#e8871e';
-
     const earliestStartTime = Math.min(...events.map((e) => e.startTime.getTime()));
     const progressBar = (Date.now() - earliestStartTime) / (1000 * 60 * 60 * 24);
-    const sections = events.map((event, index) => ({
+    const sections = events.map((event) => ({
         start: (event.startTime.getTime() - earliestStartTime) / (1000 * 60 * 60 * 24),
         end: (event.endTime.getTime() - earliestStartTime) / (1000 * 60 * 60 * 24),
         name: event.title,
-        color: event.isHeader ? headerColor : event.title === 'Meet your teammates' ? (colorPalette[0] ?? '#999999') : (colorPalette[1] ?? '#999999'),
+        color: event.isHeader ? '#e8871e' : '#6366f1',
         header: event.isHeader,
     }));
 
