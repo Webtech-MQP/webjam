@@ -28,7 +28,8 @@ export const awardRouter = createTRPCRouter({
                 title: z.string().min(1).max(256),
                 description: z.string().min(1).max(1000),
                 imageUrl: z.string(),
-            }))
+            })
+        )
         .mutation(async ({ ctx, input }) => {
             const currentAward = await ctx.db.query.awards.findFirst({
                 where: eq(awards.id, input.id),

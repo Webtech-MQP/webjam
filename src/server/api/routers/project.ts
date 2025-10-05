@@ -2,7 +2,7 @@ import { env } from '@/env';
 import { sendJamEndEmail, sendJudgedEmail } from '@/lib/mailer';
 import { createPresignedPost, deleteS3Object, getS3KeyFromUrl, s3Client } from '@/lib/s3';
 import { adminProcedure, createTRPCRouter, protectedProcedure, publicProcedure } from '@/server/api/trpc';
-import { projectInstanceRankings, projectJudgingCriteria, projects, projectsTags, tags } from '@/server/db/schemas/projects';
+import { projectEvent, projectInstanceRankings, projectJudgingCriteria, projects, projectsTags, tags } from '@/server/db/schemas/projects';
 import { TRPCError } from '@trpc/server';
 import { eq } from 'drizzle-orm';
 import { nanoid } from 'nanoid';
@@ -26,6 +26,16 @@ export const projectRouter = createTRPCRouter({
                         z.object({
                             criterion: z.string().min(1).max(512),
                             weight: z.number().int().min(0).max(100),
+                        })
+                    )
+                    .optional(),
+                events: z
+                    .array(
+                        z.object({
+                            startTime: z.date(),
+                            endTime: z.date(),
+                            title: z.string(),
+                            isHeader: z.boolean(),
                         })
                     )
                     .optional(),
@@ -64,6 +74,18 @@ export const projectRouter = createTRPCRouter({
                         projectId: input.id,
                         criterion: item.criterion,
                         weight: item.weight,
+                    }))
+                );
+            }
+            // Add events
+            if (input.events && input.events.length > 0) {
+                await ctx.db.insert(projectEvent).values(
+                    input.events.map((item) => ({
+                        projectId: input.id,
+                        startTime: item.startTime,
+                        endTime: item.endTime,
+                        title: item.title,
+                        isHeader: item.isHeader,
                     }))
                 );
             }
@@ -117,6 +139,7 @@ export const projectRouter = createTRPCRouter({
                     },
                 },
                 judgingCriteria: true,
+                events: true,
             },
         });
     }),
@@ -152,6 +175,16 @@ export const projectRouter = createTRPCRouter({
                         z.object({
                             criterion: z.string().min(1).max(512),
                             weight: z.number().int().min(0).max(100),
+                        })
+                    )
+                    .optional(),
+                events: z
+                    .array(
+                        z.object({
+                            startTime: z.date(),
+                            endTime: z.date(),
+                            title: z.string(),
+                            isHeader: z.boolean(),
                         })
                     )
                     .optional(),
@@ -203,6 +236,19 @@ export const projectRouter = createTRPCRouter({
                         projectId: input.id,
                         criterion: item.criterion,
                         weight: item.weight,
+                    }))
+                );
+            }
+            // Update events
+            await ctx.db.delete(projectEvent).where(eq(projectEvent.projectId, input.id));
+            if (input.events && input.events.length > 0) {
+                await ctx.db.insert(projectEvent).values(
+                    input.events.map((item) => ({
+                        projectId: input.id,
+                        startTime: item.startTime,
+                        endTime: item.endTime,
+                        title: item.title,
+                        isHeader: item.isHeader,
                     }))
                 );
             }
@@ -533,4 +579,63 @@ export const projectRouter = createTRPCRouter({
                 });
             }
         }),
+
+    createEvent: adminProcedure
+        .input(
+            z.object({
+                startTime: z.date(),
+                endTime: z.date(),
+                title: z.string(),
+                isHeader: z.boolean().optional(),
+                projectId: z.string(),
+            })
+        )
+        .mutation(async ({ ctx, input }) => {
+            if (input.startTime >= input.endTime) {
+                throw new TRPCError({
+                    code: 'BAD_REQUEST',
+                    message: 'End date must be after start date',
+                });
+            }
+
+            return ctx.db.insert(projectEvent).values({
+                projectId: input.projectId,
+                startTime: input.startTime,
+                endTime: input.endTime,
+                title: input.title,
+                isHeader: input.isHeader,
+            });
+        }),
+
+    updateEvent: adminProcedure
+        .input(
+            z.object({
+                projectEventId: z.string(),
+                startTime: z.date().optional(),
+                endTime: z.date().optional(),
+                title: z.string().optional(),
+                isHeader: z.boolean().optional(),
+            })
+        )
+        .mutation(async ({ ctx, input }) => {
+            return ctx.db
+                .update(projectEvent)
+                .set({
+                    startTime: input.startTime,
+                    endTime: input.endTime,
+                    title: input.title,
+                    isHeader: input.isHeader,
+                })
+                .where(eq(projectEvent.id, input.projectEventId));
+        }),
+
+    getEvents: publicProcedure.input(z.object({ projectId: z.string() })).query(async ({ ctx, input }) => {
+        return ctx.db.query.projectEvent.findMany({
+            where: (projectEvent, { eq }) => eq(projectEvent.projectId, input.projectId),
+        });
+    }),
+
+    deleteEvent: protectedProcedure.input(z.object({ projectEventId: z.string() })).mutation(async ({ ctx, input }) => {
+        return ctx.db.delete(projectEvent).where(eq(projectEvent.id, input.projectEventId));
+    }),
 });

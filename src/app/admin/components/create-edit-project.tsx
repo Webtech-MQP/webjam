@@ -1,6 +1,7 @@
 'use client';
 
 import { ArrayInput } from '@/components/array-input';
+import { ProjectEventInput, type ProjectEvent } from '@/components/project-event-input';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Command, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
@@ -46,6 +47,14 @@ const defaultForm = z.object({
                 message: 'Judging criteria weights must total exactly 100%',
             }
         ),
+    events: z.array(
+        z.object({
+            startTime: z.date(),
+            endTime: z.date(),
+            title: z.string(),
+            isHeader: z.boolean(),
+        })
+    ),
 });
 
 const transformToUpload = defaultForm.transform((data) => ({
@@ -54,6 +63,7 @@ const transformToUpload = defaultForm.transform((data) => ({
     starts: new Date(data.startDateTime),
     ends: new Date(data.endDateTime),
     judgingCriteria: data.judgingCriteria,
+    events: data.events,
 }));
 
 export type InitialValuesType = z.input<typeof defaultForm>;
@@ -81,6 +91,7 @@ export default function AdminCreateEditProject(props: AdminCreateEditProjectProp
               imageUrl: '',
               tags: [],
               judgingCriteria: [],
+              events: [],
           };
 
     const [open, setOpen] = useState(false);
@@ -147,7 +158,7 @@ export default function AdminCreateEditProject(props: AdminCreateEditProjectProp
                                 currentImageUrl={field.state.value || undefined}
                                 uploadType="project"
                                 onImageChange={(imageUrl) => field.handleChange(imageUrl || '')}
-                                className={'w-40 h-40 box-content'}
+                                className={'w-40 h-40 box-content rounded-sm'}
                                 disabled={editProject.isPending}
                             />
                         )}
@@ -248,6 +259,20 @@ export default function AdminCreateEditProject(props: AdminCreateEditProjectProp
                             )}
                         </form.Field>
                     </div>
+                    <form.Field name="events">
+                        {(field) => (
+                            <div>
+                                <ProjectEventInput
+                                    title="Project Timeline Events"
+                                    allowCreate
+                                    allowDelete
+                                    onChange={(v: ProjectEvent[]) => field.handleChange(v)}
+                                    list={field.state.value}
+                                />
+                                {field.state.meta.errors.length > 0 && <div className="text-sm text-red-300 mt-1">{field.state.meta.errors.map((error) => error?.message).join(', ')}</div>}
+                            </div>
+                        )}
+                    </form.Field>
                     <form.Field name="tags">
                         {(field) => (
                             <>

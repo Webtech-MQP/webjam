@@ -40,7 +40,7 @@ export function SortableAwardItem({ award, onToggleVisibility }: SortableAwardIt
 
             <div className="h-10 w-10 overflow-hidden rounded-full border border-gray-700">
                 <Image
-                    src={award.award.imageURL}
+                    src={award.award.imageUrl ?? 'https://placehold.co/40x40/png'}
                     alt={award.award.title}
                     width={40}
                     height={40}

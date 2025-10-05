@@ -36,6 +36,7 @@ export default async function Page({ params }: Props) {
                 criterion: c.criterion,
                 weight: c.weight,
             })) || [],
+        events: initialValues?.events || [],
     };
     return (
         <div className="w-2/3 mx-auto py-10">
