@@ -2,11 +2,14 @@
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
 import { api } from '@/trpc/react';
 import { skipToken } from '@tanstack/react-query';
-import { ChevronDown, ChevronUp, Code, Folder, Home, LayoutDashboard, LogOut, Search, Users } from 'lucide-react';
+import { ChevronDown, ChevronUp, Code, Folder, Home, LayoutDashboard, LogOut, Moon, Search, Sun, Users } from 'lucide-react';
 import { signOut, useSession } from 'next-auth/react';
+import { useTheme } from 'next-themes';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useCallback, useState } from 'react';
@@ -54,6 +57,7 @@ const ADMIN_ROUTES = [
 const RECRUITER_ROUTES: Route[] = [];
 
 export function Sidebar() {
+    const { theme, setTheme } = useTheme();
     const path = usePathname();
     const { data: session } = useSession();
     const [profileOpen, setProfileOpen] = useState(false);
@@ -85,8 +89,8 @@ export function Sidebar() {
     const lightMode = session?.user.role === 'recruiter' && path === '/dashboard/home';
 
     return (
-        <div className="bg-primary dark:bg-background border-accent flex h-full w-64 flex-col border-r p-4">
-            <h1 className="text-black dark:text-primary font-bold">webjam</h1>
+        <div className="bg-accent dark:bg-background border-r flex h-full w-64 flex-col p-4">
+            <h1 className="text-primary dark:text-primary font-bold">webjam</h1>
             <nav className="flex-1">
                 {myInstances && myInstances.length > 0 && (
                     <div className="p-4 border mb-4">
@@ -149,6 +153,24 @@ export function Sidebar() {
                                 <Badge className="w-full bg-green-800 hover:bg-green-900">LOGGED IN AS ADMIN</Badge>
                             </Link>
                         )}
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button
+                                    variant="outline"
+                                    className="flex items-center gap-2"
+                                >
+                                    <p suppressHydrationWarning>{theme === 'light' ? 'Light' : 'Dark'} Mode</p>
+                                    {theme === 'light' && <Sun className="scale-100 rotate-0 transition-all dark:scale-0 dark:-rotate-90" />}
+                                    {theme === 'dark' && <Moon className="scale-0 rotate-90 transition-all dark:scale-100 dark:rotate-0" />}
+                                    <span className="sr-only">Toggle theme</span>
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                                <DropdownMenuItem onClick={() => setTheme('light')}>Light</DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => setTheme('dark')}>Dark</DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => setTheme('system')}>System</DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
                         {me && (
                             <div className="hover:text-primary flex items-center gap-3">
                                 <Avatar className="h-5 w-5">
@@ -176,7 +198,7 @@ export function Sidebar() {
                 </div>
                 <div
                     onClick={() => setProfileOpen((prevState) => !prevState)}
-                    className="border-accent flex w-full cursor-pointer items-center justify-between gap-4 rounded-md border p-2"
+                    className="flex w-full cursor-pointer items-center justify-between gap-4 rounded-md border p-2"
                 >
                     <div className="flex items-center gap-2">
                         <Avatar className="h-5 w-5">
@@ -196,7 +218,7 @@ function SidebarLink({ route, isMatch }: { route: Route; isMatch: boolean }) {
         <Link
             key={route.name}
             href={route.href}
-            className={cn('border-black dark:border-primary hover:-ml-[2px] dark:hover:text-primary hover:border-l-2 mb-4 flex items-center gap-3 p-4', isMatch && 'border-l-3 -ml-[3px] bg-white/10 dark:bg-primary/10 rounded-r')}
+            className={cn('border-black dark:border-primary hover:-ml-[2px] dark:hover:text-primary hover:border-l-2 mb-4 flex items-center gap-3 p-4', isMatch && 'border-l-3 -ml-[3px] bg-primary/10 dark:bg-white/10 dark:bg-primary/10 rounded-r')}
         >
             <route.icon className="h-5 w-5" />
             {route.name}

@@ -7,7 +7,7 @@ import Link from 'next/link';
 
 export function QuickActions() {
     return (
-        <Card className="bg-stone-950 border-b border-gray-700">
+        <Card className="border-b">
             <CardHeader>
                 <CardTitle className="text-lg text-foreground">Quick Actions</CardTitle>
             </CardHeader>

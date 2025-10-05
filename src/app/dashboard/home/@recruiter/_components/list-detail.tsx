@@ -5,8 +5,9 @@ import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuPortal, DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { api, type RouterOutputs } from '@/trpc/react';
 import { useForm } from '@tanstack/react-form';
-import { EllipsisVertical } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { ArrowRight, EllipsisVertical } from 'lucide-react';
+import Image from 'next/image';
+import Link from 'next/link';
 import { useState } from 'react';
 import { toast } from 'sonner';
 
@@ -45,7 +46,6 @@ export function ListDetail({ list }: ListDetailProps) {
 }
 
 function CandidateItem({ candidate, list, allLists }: CandidateItemProps) {
-    const router = useRouter();
     const utils = api.useUtils();
     const [isEditingComment, setIsEditingComment] = useState(false);
 
@@ -108,18 +108,19 @@ function CandidateItem({ candidate, list, allLists }: CandidateItemProps) {
         });
     };
 
-    const handleCandidateClick = () => {
-        router.push(`/users/${candidate.candidateId}`);
-    };
-
     return (
-        <div className="flex items-center justify-between w-full">
-            <div className="flex flex-col items-start gap-4 w-full border rounded border-gray-500 p-4">
+        <div className="flex flex-col items-start gap-4 w-full border rounded overflow-clip">
+            <div className="relative h-20 w-full">
+                <Image
+                    src={candidate.candidateProfile.imageUrl ?? ''}
+                    alt={candidate.candidateProfile.displayName}
+                    fill
+                    className="object-cover"
+                />
+            </div>
+            <div className="w-full p-4">
                 <div className="flex w-full">
-                    <div
-                        className="flex items-center gap-4 cursor-pointer"
-                        onClick={handleCandidateClick}
-                    >
+                    <div className="flex items-center gap-4">
                         <Avatar>
                             <AvatarImage
                                 src={candidate.candidateProfile.imageUrl ?? ''}
@@ -134,7 +135,7 @@ function CandidateItem({ candidate, list, allLists }: CandidateItemProps) {
                             <Button
                                 variant="outline"
                                 onClick={(e) => e.stopPropagation()}
-                                className="ml-auto hover:text-black"
+                                className="ml-auto"
                             >
                                 <EllipsisVertical />
                             </Button>
@@ -173,7 +174,7 @@ function CandidateItem({ candidate, list, allLists }: CandidateItemProps) {
                                 Edit comment
                             </DropdownMenuItem>
                             <DropdownMenuItem
-                                className="text-red-500"
+                                variant="destructive"
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     handleRemoveCandidate();
@@ -187,7 +188,7 @@ function CandidateItem({ candidate, list, allLists }: CandidateItemProps) {
 
                 {isEditingComment ? (
                     <form
-                        className="flex flex-col gap-2 mt-2 w-full"
+                        className="flex flex-col gap-2 mt-4 w-full"
                         onClick={(e) => e.stopPropagation()}
                         onSubmit={(e) => {
                             e.preventDefault();
@@ -229,9 +230,15 @@ function CandidateItem({ candidate, list, allLists }: CandidateItemProps) {
                         </div>
                     </form>
                 ) : (
-                    candidate.comments && <p className="text-gray-500">{candidate.comments}</p>
+                    candidate.comments && <p className="mt-4 text-gray-500">{candidate.comments}</p>
                 )}
             </div>
+            <Link
+                href={`/users/${candidate.candidateId}`}
+                className="flex items-center gap-4 justify-center bg-secondary w-full p-2"
+            >
+                Go to candidate <ArrowRight />
+            </Link>
         </div>
     );
 }

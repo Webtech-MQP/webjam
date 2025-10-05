@@ -15,16 +15,6 @@ export default async function AdminDashboardPage() {
     return (
         //TODO: change background color
         <div className="min-h-screen ">
-            <div className="bg-stone-950 border-b border-gray-700">
-                <div className="px-6 py-4">
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-4">
-                            <h1 className="text-xl font-semibold text-foreground">Admin Dashboard</h1>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
             <div className="p-6">
                 <StatsCards
                     projectSubmissionsCount={projectSubmissions.length}

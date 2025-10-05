@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { api } from '@/trpc/react';
 import { skipToken } from '@tanstack/react-query';
-import { LoaderCircle, Pencil, Plus, Trash } from 'lucide-react';
+import { Check, LoaderCircle, Pencil, Plus, Trash } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { notFound } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -15,6 +15,7 @@ export default function RecruiterDashboardPage() {
     const utils = api.useUtils();
     const [activeList, setActiveList] = useState<string | null>(null);
     const [listName, setListName] = useState<string>('');
+    const [editingListName, setEditingListName] = useState<string>('');
     const [editingId, setEditingId] = useState<string | null>(null);
 
     const userId = session.data?.user.id;
@@ -57,30 +58,53 @@ export default function RecruiterDashboardPage() {
     }
 
     return (
-        <div className="bg-neutral-50 min-h-screen -m-4 p-8 text-black">
+        <div className="min-h-screen -m-4 p-8 ">
             {me && <h1 className="text-3xl font-bold mb-8">Hello, {session.data?.user.name}!</h1>}
             <div className="flex gap-4">
                 <div className="flex flex-col gap-2 w-1/4">
                     {!!candidateLists && candidateLists.length > 0 ? (
                         candidateLists.map((list) => (
-                            <button
-                                className="relative cursor-pointer text-sm px-4 py-2 pl-6 rounded bg-none text-left"
+                            <div
+                                key={list.id}
+                                className="flex items-center h-12 gap-0 rounded px-4 py-2"
                                 style={{
                                     backgroundColor: getBackgroundColor(list.name, 0.2),
                                     outline: activeList == list.id ? `2px solid ${getBackgroundColor(list.name, 1)} ` : undefined,
                                 }}
-                                key={list.id}
-                                onClick={() => setActiveList(list.id)}
                             >
-                                {/*{editingId === list.id ? <}*/}
-                                {list.name}
-                                <div
-                                    className="absolute left-2 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full"
-                                    style={{
-                                        backgroundColor: getBackgroundColor(list.name, 1),
-                                    }}
-                                />
-                                <div className="absolute gap-2 right-0 top-1/2 -translate-y-1/2 flex flex-row-reverse items-center gap-0">
+                                <button
+                                    className="max-w-full overflow-auto flex flex-1 border-r-none items-center gap-2 cursor-pointer text-sm bg-none text-left"
+                                    onClick={() => setActiveList(list.id)}
+                                >
+                                    <div
+                                        className="w-2 h-2 rounded-full"
+                                        style={{
+                                            backgroundColor: getBackgroundColor(list.name, 1),
+                                        }}
+                                    />
+                                    {editingId === list.id ? (
+                                        <form
+                                            onSubmit={(e) => {
+                                                e.preventDefault();
+                                                updateList.mutate({ id: list.id, name: editingListName });
+                                                setEditingListName('');
+                                                setEditingId(null);
+                                            }}
+                                            className="flex-1 pr-2"
+                                        >
+                                            <input
+                                                value={editingListName}
+                                                onChange={(e) => setEditingListName(e.target.value)}
+                                                onClick={(e) => e.stopPropagation()}
+                                                autoFocus
+                                                className="min-w-0 w-full"
+                                            />
+                                        </form>
+                                    ) : (
+                                        <span className="flex-1 truncate">{list.name}</span>
+                                    )}
+                                </button>
+                                <div className="gap-2 flex flex-row-reverse items-center x-2">
                                     <Button
                                         size="icon"
                                         className="w-4 h-4"
@@ -93,12 +117,21 @@ export default function RecruiterDashboardPage() {
                                         size="icon"
                                         className="w-4 h-4"
                                         variant="ghost"
-                                        onClick={() => setEditingId(list.id)}
+                                        onClick={() => {
+                                            if (editingId === list.id) {
+                                                setEditingListName(list.name);
+                                                setEditingId(null);
+                                            } else {
+                                                setEditingListName(list.name);
+                                                setEditingId(list.id);
+                                            }
+                                        }}
+                                        type={editingId ? 'submit' : 'button'}
                                     >
-                                        <Pencil />
+                                        {editingId === list.id ? <Check /> : <Pencil />}
                                     </Button>
                                 </div>
-                            </button>
+                            </div>
                         ))
                     ) : (
                         <div className="text-gray-500">You have no candidate lists yet. Create one to get started!</div>
@@ -116,7 +149,7 @@ export default function RecruiterDashboardPage() {
                         >
                             <Input
                                 placeholder="List name"
-                                className="pr-10 border border-muted-foreground "
+                                className="pr-10 border"
                                 value={listName}
                                 onChange={(e) => setListName(e.target.value)}
                                 disabled={createList.isPending}
