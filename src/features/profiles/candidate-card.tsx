@@ -65,7 +65,7 @@ export function CandidateCard({ displayName, bio, location, language, experience
                     {language && (
                         <Badge
                             variant="outline"
-                            className="text-xs"
+                            className="text-xs dark:group-hover:border-white"
                         >
                             <CodeIcon className="mr-1 h-3 w-3" />
                             {language}
@@ -74,7 +74,7 @@ export function CandidateCard({ displayName, bio, location, language, experience
                     {experience && (
                         <Badge
                             variant="outline"
-                            className="text-xs"
+                            className="text-xs dark:group-hover:border-white"
                         >
                             <BriefcaseIcon className="mr-1 h-3 w-3" />
                             {experience}
@@ -82,7 +82,7 @@ export function CandidateCard({ displayName, bio, location, language, experience
                     )}
                     <Badge
                         variant="outline"
-                        className="text-xs"
+                        className="text-xs dark:group-hover:border-white"
                     >
                         {projectCount} {projectCount === 1 ? 'project' : 'projects'}
                     </Badge>

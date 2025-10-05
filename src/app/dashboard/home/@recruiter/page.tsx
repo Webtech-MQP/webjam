@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { api } from '@/trpc/react';
 import { skipToken } from '@tanstack/react-query';
-import { LoaderCircle, Plus } from 'lucide-react';
+import { LoaderCircle, Pencil, Plus, Trash } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { notFound } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -15,11 +15,22 @@ export default function RecruiterDashboardPage() {
     const utils = api.useUtils();
     const [activeList, setActiveList] = useState<string | null>(null);
     const [listName, setListName] = useState<string>('');
+    const [editingId, setEditingId] = useState<string | null>(null);
 
     const userId = session.data?.user.id;
     const { data: me, ...recruiterQuery } = api.recruiters.getOne.useQuery(userId ? { id: userId } : skipToken); // TODO: probably get rid of this
     const { data: candidateLists, ...candidateListsQuery } = api.recruiters.getLists.useQuery(userId ? { id: userId } : skipToken);
     const createList = api.recruiters.createOneList.useMutation({
+        onSuccess: () => {
+            void utils.recruiters.getLists.invalidate();
+        },
+    });
+    const deleteList = api.recruiters.deleteOneList.useMutation({
+        onSuccess: () => {
+            void utils.recruiters.getLists.invalidate();
+        },
+    });
+    const updateList = api.recruiters.updateOneList.useMutation({
         onSuccess: () => {
             void utils.recruiters.getLists.invalidate();
         },
@@ -61,6 +72,7 @@ export default function RecruiterDashboardPage() {
                                 key={list.id}
                                 onClick={() => setActiveList(list.id)}
                             >
+                                {/*{editingId === list.id ? <}*/}
                                 {list.name}
                                 <div
                                     className="absolute left-2 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full"
@@ -68,6 +80,24 @@ export default function RecruiterDashboardPage() {
                                         backgroundColor: getBackgroundColor(list.name, 1),
                                     }}
                                 />
+                                <div className="absolute gap-2 right-0 top-1/2 -translate-y-1/2 flex flex-row-reverse items-center gap-0">
+                                    <Button
+                                        size="icon"
+                                        className="w-4 h-4"
+                                        variant="ghost"
+                                        onClick={() => deleteList.mutate({ id: list.id })}
+                                    >
+                                        <Trash />
+                                    </Button>
+                                    <Button
+                                        size="icon"
+                                        className="w-4 h-4"
+                                        variant="ghost"
+                                        onClick={() => setEditingId(list.id)}
+                                    >
+                                        <Pencil />
+                                    </Button>
+                                </div>
                             </button>
                         ))
                     ) : (
