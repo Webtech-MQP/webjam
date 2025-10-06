@@ -1,4 +1,4 @@
-import { JamCard } from '@/components/jam-card';
+import { ProjectCard } from '@/components/project-card';
 import type { RouterOutputs } from '@/trpc/react';
 import Link from 'next/link';
 import { z } from 'zod';
@@ -20,7 +20,7 @@ export function JamGrid({ jams, name }: Props) {
                         target="_blank"
                         href={j.projectInstance.ranking?.submission.deploymentURL ?? '#'}
                     >
-                        <JamCard
+                        <ProjectCard
                             {...z
                                 .looseObject({})
                                 .transform((x) => (!!x ? x : undefined))

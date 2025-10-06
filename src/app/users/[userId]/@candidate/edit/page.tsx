@@ -7,10 +7,21 @@ import { Input } from '@/features/profiles/editor/input';
 import { cn } from '@/lib/utils';
 import { api } from '@/trpc/react';
 import { useForm } from '@tanstack/react-form';
-import { EyeIcon, EyeOffIcon, HandIcon, LinkedinIcon, LoaderCircle } from 'lucide-react';
+import { EyeIcon, EyeOffIcon, HandIcon, LoaderCircle } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { useParams, useRouter } from 'next/navigation';
 import { useRef, useState } from 'react';
+import z from 'zod';
+
+const formSchema = z.object({
+    displayName: z.string(),
+    publicEmail: z.email(),
+    bio: z.string(),
+    location: z.string(),
+    linkedinURL: z.url({ hostname: /^(www.)?linkedin.com$/, protocol: /^https$/ }).or(z.string().length(0)),
+    imageUrl: z.url(),
+    bannerUrl: z.string(),
+});
 
 export default function Page() {
     const { userId: encodedUserId } = useParams();
@@ -68,7 +79,6 @@ export default function Page() {
                 await awardEditorRef.current.saveChanges();
             }
             setIsSaving(false);
-            router.push(`/users/${userId}`);
         } catch (err) {
             console.error('Error during save:', err);
         }
@@ -77,13 +87,18 @@ export default function Page() {
     const form = useForm({
         defaultValues: {
             displayName: candidate?.displayName ?? '',
+            publicEmail: candidate?.publicEmail ?? '',
             bio: candidate?.bio ?? '',
+            location: candidate?.location ?? '',
             linkedinURL: candidate?.linkedinURL ?? '',
             imageUrl: candidate?.imageUrl ?? 'https://placehold.co/100.png',
             bannerUrl: candidate?.bannerUrl ?? 'https://placehold.co/100.png',
-        },
+        } satisfies z.infer<typeof formSchema>,
         onSubmit: (values) => {
             updateCandidate.mutate(values.value);
+        },
+        validators: {
+            onSubmit: formSchema,
         },
     });
 
@@ -147,38 +162,61 @@ export default function Page() {
                             </form.Field>
                             <form.Field name="displayName">
                                 {(field) => (
-                                    <Input
-                                        type="input"
-                                        value={field.state.value}
-                                        onBlur={field.handleBlur}
-                                        onChange={(e) => field.handleChange((e.target as HTMLInputElement).value)}
-                                        label="Display Name"
-                                    />
+                                    <div className="space-y-2">
+                                        <Input
+                                            type="input"
+                                            value={field.state.value}
+                                            onBlur={field.handleBlur}
+                                            onChange={(e) => field.handleChange((e.target as HTMLInputElement).value)}
+                                            label="Display Name"
+                                        />
+                                        {field.state.meta.errors.length > 0 && <div className="text-sm text-red-300 mt-1">{field.state.meta.errors.map((error) => error?.message).join(', ')}</div>}
+                                    </div>
                                 )}
                             </form.Field>
                             <form.Field name="bio">
                                 {(field) => (
-                                    <Input
-                                        type="input"
-                                        value={field.state.value}
-                                        onBlur={field.handleBlur}
-                                        className="w-full"
-                                        onChange={(e) => field.handleChange(e.target.value)}
-                                        label="Bio"
-                                    />
+                                    <div className="space-y-2">
+                                        <Input
+                                            type="input"
+                                            value={field.state.value}
+                                            onBlur={field.handleBlur}
+                                            className="w-full"
+                                            onChange={(e) => field.handleChange(e.target.value)}
+                                            label="Bio"
+                                        />
+                                        {field.state.meta.errors.length > 0 && <div className="text-sm text-red-300 mt-1">{field.state.meta.errors.map((error) => error?.message).join(', ')}</div>}
+                                    </div>
                                 )}
                             </form.Field>
-                            <form.Field name="linkedinURL">
+                            <form.Field name="location">
                                 {(field) => (
-                                    <Input
-                                        type="input"
-                                        value={field.state.value}
-                                        onBlur={field.handleBlur}
-                                        className="w-full"
-                                        onChange={(e) => field.handleChange(e.target.value)}
-                                        label="LinkedIn"
-                                        icon={<LinkedinIcon className="h-4 w-4" />}
-                                    />
+                                    <div className="space-y-2">
+                                        <Input
+                                            type="input"
+                                            value={field.state.value}
+                                            onBlur={field.handleBlur}
+                                            className="w-full"
+                                            onChange={(e) => field.handleChange(e.target.value)}
+                                            label="Location"
+                                        />
+                                        {field.state.meta.errors.length > 0 && <div className="text-sm text-red-300 mt-1">{field.state.meta.errors.map((error) => error?.message).join(', ')}</div>}
+                                    </div>
+                                )}
+                            </form.Field>
+                            <form.Field name="publicEmail">
+                                {(field) => (
+                                    <div className="space-y-2">
+                                        <Input
+                                            type="input"
+                                            value={field.state.value}
+                                            onBlur={field.handleBlur}
+                                            className="w-full"
+                                            onChange={(e) => field.handleChange(e.target.value)}
+                                            label="Public Email"
+                                        />
+                                        {field.state.meta.errors.length > 0 && <div className="text-sm text-red-300 mt-1">{field.state.meta.errors.map((error) => error?.message).join(', ')}</div>}
+                                    </div>
                                 )}
                             </form.Field>
                             {/* Awards Section */}

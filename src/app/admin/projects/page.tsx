@@ -1,4 +1,4 @@
-import { JamCard } from '@/components/jam-card';
+import { ProjectCard } from '@/components/project-card';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { api } from '@/trpc/server';
@@ -21,7 +21,7 @@ export default async function Page() {
                             href={`/admin/projects/${p.id}`}
                             className="w-full"
                         >
-                            <JamCard
+                            <ProjectCard
                                 key={p.id}
                                 className="h-80"
                                 {...p}

@@ -100,9 +100,9 @@ export const projectInstanceRouter = createTRPCRouter({
             },
         });
     }),
-    getMyActive: protectedProcedure.query(async ({ ctx }) => {
+    getMyActive: protectedProcedure.input(z.object({ withProject: z.boolean().default(false) }).default({ withProject: false })).query(async ({ input, ctx }) => {
         return ctx.db
-            .select(getTableColumns(projectInstances))
+            .select({ ...getTableColumns(projectInstances), project: getTableColumns(projects) })
             .from(projectInstances)
             .innerJoin(candidateProfilesToProjectInstances, eq(candidateProfilesToProjectInstances.projectInstanceId, projectInstances.id))
             .innerJoin(projects, eq(projectInstances.projectId, projects.id))
@@ -168,5 +168,20 @@ export const projectInstanceRouter = createTRPCRouter({
         }
 
         return ranking.rank;
+    }),
+
+    getMyProjectInstances: protectedProcedure.query(async ({ ctx }) => {
+        const results = await ctx.db.query.candidateProfilesToProjectInstances.findMany({
+            where: (candidateProfilesToProjectInstances, { eq }) => eq(candidateProfilesToProjectInstances.candidateId, ctx.session.user.id),
+            with: {
+                projectInstance: {
+                    with: {
+                        project: true,
+                    },
+                },
+            },
+        });
+
+        return results.map((result) => result.projectInstance);
     }),
 });

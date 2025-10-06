@@ -1,6 +1,6 @@
 'use client';
 
-import { JamCard } from '@/components/jam-card';
+import { ProjectCard } from '@/components/project-card';
 import { SkeletonCard } from '@/components/skeleton-card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -244,7 +244,7 @@ export default function JamFinderClient() {
                                 {projects?.map((project) => (
                                     <div key={project.id}>
                                         <Link href={`/dashboard/projects/${project.id}`}>
-                                            <JamCard
+                                            <ProjectCard
                                                 key={project.id}
                                                 title={project.title ?? 'Untitled Jam'}
                                                 startDateTime={project.startDateTime ?? new Date()}
@@ -286,12 +286,11 @@ export default function JamFinderClient() {
                                 {filteredProjectsQuery.data.map((project) => (
                                     <div key={project.id}>
                                         <Link href={`/dashboard/projects/${project.id}`}>
-                                            <JamCard
+                                            <ProjectCard
                                                 key={project.id}
                                                 title={project.title ?? 'Untitled Jam'}
                                                 startDateTime={project.startDateTime ?? new Date()}
                                                 endDateTime={project.endDateTime ?? new Date()}
-                                                numberOfTeammates={project.numberOfMembers}
                                                 imageUrl={project.imageUrl ?? 'https://placehold.co/150/png'}
                                                 tags={project.projectsToTags?.map((pt) => pt.tag) ?? []}
                                                 onClick={() => {

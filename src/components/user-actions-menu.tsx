@@ -35,7 +35,8 @@ export function UserActionsMenu({ reportedUserName, reportedUserId }: UserAction
             dialogCloseRef.current?.click();
         },
     });
-    const candidateLists = api.recruiters.getLists.useQuery(userId ? { id: userId } : skipToken);
+
+    const candidateLists = api.recruiters.getLists.useQuery(userId && session?.data?.user.role === 'recruiter' ? { id: userId } : skipToken);
     const addCandidateToList = api.recruiters.createOneListCandidate.useMutation({
         onSuccess: () => {
             toast.success('Candidate added to list!');
@@ -108,7 +109,7 @@ export function UserActionsMenu({ reportedUserName, reportedUserId }: UserAction
                         <Dialog>
                             <DialogTrigger asChild>
                                 <DropdownMenuItem
-                                    className="text-red-600"
+                                    variant="destructive"
                                     onSelect={(e) => {
                                         e.preventDefault();
                                         e.stopPropagation();

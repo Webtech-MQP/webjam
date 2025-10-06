@@ -26,6 +26,7 @@ export default async function Page({ params }: Props) {
         title: initialValues?.title || '',
         subtitle: initialValues?.subtitle || '',
         description: initialValues?.description || '',
+        instructions: initialValues?.instructions || '',
         requirements: initialValues?.requirements.split('\n') || [],
         startDateTime: initialValues?.startDateTime ? formatDateForInput(initialValues.startDateTime) : '',
         endDateTime: initialValues?.endDateTime ? formatDateForInput(initialValues.endDateTime) : '',

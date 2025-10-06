@@ -1,5 +1,5 @@
 'use client';
-import { JamCard } from '@/components/jam-card';
+import { ProjectCard } from '@/components/project-card';
 import { Button } from '@/components/ui/button';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import { cn } from '@/lib/utils';
@@ -127,7 +127,7 @@ export default function Home() {
                                             className={projects.length > 1 ? 'basis-1/2' : ''}
                                             key={project.id}
                                         >
-                                            <JamCard {...project} />
+                                            <ProjectCard {...project} />
                                         </CarouselItem>
                                     ))}
                                 </CarouselContent>

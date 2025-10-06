@@ -91,14 +91,14 @@ export function Sidebar() {
             <h1 className="text-primary dark:text-primary font-(family-name:--font-caprasimo)">webjam</h1>
             <nav className="mt-4 flex-1">
                 {myInstances && myInstances.length > 0 && (
-                    <div className="p-4 border mb-4">
-                        <p className="font-mono text-muted dark:text-muted-foreground">My Jams</p>
+                    <div className="p-4 border rounded mb-4">
+                        <p className="font-mono text-muted-foreground">My Jams</p>
                         <div className="flex flex-col space-y-4">
                             {myInstances.map((j) => (
                                 <Link
                                     key={j.id}
                                     href={`/dashboard/jams/${j.id}`}
-                                    className={cn('hover:text-primary flex items-center gap-3 p-4', path.startsWith(`/dashboard/jams/${j.id}`) && 'border-primary border-b-4')}
+                                    className={cn('hover:text-primary border-primary hover:border-l-1 hover:-ml-[1px] flex items-center gap-3 my-2 p-2', path.startsWith(`/dashboard/jams/${j.id}`) && 'border-l-3 -ml-[3px] bg-primary/10 dark:bg-primary/10 rounded-r')}
                                 >
                                     <Code className="h-5 w-5" />
                                     {j.teamName}

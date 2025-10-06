@@ -98,6 +98,7 @@ export const candidateRouter = createTRPCRouter({
             z
                 .object({
                     displayName: z.string(),
+                    publicEmail: z.email(),
                     bio: z.string(),
                     experience: z.string(),
                     location: z.string(),

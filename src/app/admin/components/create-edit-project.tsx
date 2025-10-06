@@ -25,6 +25,7 @@ const defaultForm = z.object({
     title: z.string().min(1, 'Title should be longer than 1 character.'),
     subtitle: z.string().min(1, 'Subtitle should be longer than 1 character.'),
     description: z.string(),
+    instructions: z.string(),
     requirements: z.array(z.string()),
     startDateTime: z.string().min(1, 'Must input a date.'),
     endDateTime: z.string().min(1, 'Must input a date.'),
@@ -85,6 +86,7 @@ export default function AdminCreateEditProject(props: AdminCreateEditProjectProp
               title: '',
               subtitle: '',
               description: '',
+              instructions: '',
               requirements: [],
               startDateTime: '',
               endDateTime: '',
@@ -197,6 +199,21 @@ export default function AdminCreateEditProject(props: AdminCreateEditProjectProp
                         {(field) => (
                             <>
                                 <Label htmlFor={field.name}>Description</Label>
+                                <Textarea
+                                    id={field.name}
+                                    name={field.name}
+                                    value={field.state.value}
+                                    onBlur={field.handleBlur}
+                                    onChange={(e) => field.handleChange(e.target.value)}
+                                />
+                                {field.state.meta.errors.length > 0 && <div className="text-sm text-red-300 mt-1">{field.state.meta.errors.map((error) => error?.message).join(', ')}</div>}
+                            </>
+                        )}
+                    </form.Field>
+                    <form.Field name="instructions">
+                        {(field) => (
+                            <>
+                                <Label htmlFor={field.name}>Instructions</Label>
                                 <Textarea
                                     id={field.name}
                                     name={field.name}

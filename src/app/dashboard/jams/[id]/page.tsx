@@ -73,7 +73,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
             )}
             <div className="flex flex-col gap-2 ">
                 <DashboardCard className="bg-card">
-                    <h1>
+                    <h1 className="text-primary">
                         {projectInstance.project.title} {rank && <span className="bg-primary text-white">Placed #{rank}</span>}
                     </h1>
                     <div className="flex justify-between items-center">
@@ -85,10 +85,12 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
                                 <Clock /> {projectInstance.project.deadline?.toLocaleDateString()}
                             </Badge>
                         </div>
-                        <ProjectInstanceRating
-                            projectInstanceId={projectInstance.id}
-                            isAdmin={isAdmin}
-                        />
+                        {rank != null && (
+                            <ProjectInstanceRating
+                                projectInstanceId={projectInstance.id}
+                                isAdmin={isAdmin}
+                            />
+                        )}
                     </div>
                     <div className="relative flex w-full gap-4">
                         <div className="flex-1">
@@ -96,6 +98,20 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
                                 sections={sections}
                                 progressBar={progressBar}
                             />
+                        </div>
+                    </div>
+                    <div className="mt-4 flex w-full divide-x gap-4">
+                        <div className="flex-1">
+                            <p className="text-muted-foreground mb-4">Instructions</p>
+                            <p>{projectInstance.project.instructions}</p>
+                        </div>
+                        <div className="flex-1">
+                            <p className="text-muted-foreground mb-4">Requirements</p>
+                            <ol className="space-y-2 list-inside marker:text-muted-foreground list-decimal">
+                                {projectInstance.project.requirements.split('\n').map((requirement, index) => (
+                                    <li key={index}>{requirement}</li>
+                                ))}
+                            </ol>
                         </div>
                     </div>
                 </DashboardCard>
@@ -120,7 +136,12 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
                                         </Avatar>
                                     </div>
                                     <p className="font-semibold">{projectCandidate.candidateProfile.displayName ?? projectCandidate.candidateProfile.displayName}</p>
-                                    <p className="text-sm text-gray-500">Placeholder</p>
+                                    <a
+                                        className="text-sm text-muted-foreground"
+                                        href={`mailto:${projectCandidate.candidateProfile.publicEmail}`}
+                                    >
+                                        {projectCandidate.candidateProfile.publicEmail}
+                                    </a>
                                     <UserActionsMenu
                                         reportedUserName={projectCandidate.candidateProfile.displayName}
                                         reportedUserId={projectCandidate.candidateProfile.userId}
@@ -131,92 +152,100 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
                     </CardContent>
                 </Card>
                 <div className="flex w-full gap-2 h-fit">
-                    <DashboardCard className="flex-1">
-                        <h6 className="text-sm font-medium text-gray-300">Submissions</h6>
-                        {submissions.length > 0 ? (
-                            <div className="flex flex-col-reverse gap-8">
-                                {submissions.map(async (submission, index) => (
-                                    <div
-                                        key={submission.id}
-                                        className="flex items-start justify-between flex-col"
-                                    >
-                                        <div className="flex-1 w-full flex items-center justify-between gap-2">
-                                            <p>Submission #{index + 1}</p>
-                                            <ProjectStatusBadge status={submission.status} />
-                                        </div>
-                                        <div className="my-2 flex w-full flex-col gap-1">
-                                            <p className="text-sm text-gray-500">
-                                                Submitted by{' '}
-                                                <a
-                                                    href={`/users/${submission.submittedBy}`}
-                                                    className="hover:underline"
-                                                >
-                                                    {(await api.users.getOne({ id: submission.submittedBy }))?.name}
-                                                </a>{' '}
-                                                on {submission.submittedOn?.toLocaleDateString()}
-                                            </p>
-                                        </div>
-                                        <div className="my-2 flex w-full flex-col gap-1">
-                                            {['approved', 'denied'].includes(submission.status ?? '') && (
+                    <Card className="flex-1">
+                        <CardHeader>
+                            <CardTitle>Submissions</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            {submissions.length > 0 ? (
+                                <div className="flex flex-col-reverse gap-8">
+                                    {submissions.map(async (submission, index) => (
+                                        <div
+                                            key={submission.id}
+                                            className="flex items-start justify-between flex-col"
+                                        >
+                                            <div className="flex-1 w-full flex items-center justify-between gap-2">
+                                                <p>Submission #{index + 1}</p>
+                                                <ProjectStatusBadge status={submission.status} />
+                                            </div>
+                                            <div className="my-2 flex w-full flex-col gap-1">
                                                 <p className="text-sm text-gray-500">
-                                                    Reviewed {submission.reviewedBy ? `by ${(await api.users.getOne({ id: submission.reviewedBy }))?.name}` : ''} on {submission.reviewedOn?.toLocaleDateString()}
+                                                    Submitted by{' '}
+                                                    <a
+                                                        href={`/users/${submission.submittedBy}`}
+                                                        className="hover:underline"
+                                                    >
+                                                        {(await api.users.getOne({ id: submission.submittedBy }))?.name}
+                                                    </a>{' '}
+                                                    on {submission.submittedOn?.toLocaleDateString()}
                                                 </p>
-                                            )}
-                                            {submission.notes && <p className="text-sm">Notes: {submission.notes}</p>}
+                                            </div>
+                                            <div className="my-2 flex w-full flex-col gap-1">
+                                                {['approved', 'denied'].includes(submission.status ?? '') && (
+                                                    <p className="text-sm text-gray-500">
+                                                        Reviewed {submission.reviewedBy ? `by ${(await api.users.getOne({ id: submission.reviewedBy }))?.name}` : ''} on {submission.reviewedOn?.toLocaleDateString()}
+                                                    </p>
+                                                )}
+                                                {submission.notes && <p className="text-sm">Notes: {submission.notes}</p>}
+                                            </div>
+                                            <div className="flex w-full items-center justify-between">
+                                                {submission.repositoryURL && (
+                                                    <a
+                                                        href={submission.repositoryURL}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="text-blue-500 hover:underline text-sm"
+                                                    >
+                                                        Repository{' '}
+                                                        <ExternalLink
+                                                            className="inline"
+                                                            size={16}
+                                                        />
+                                                    </a>
+                                                )}
+                                                {submission.deploymentURL && (
+                                                    <a
+                                                        href={submission.deploymentURL}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="text-blue-500 hover:underline text-sm"
+                                                    >
+                                                        Deployment{' '}
+                                                        <ExternalLink
+                                                            className="inline"
+                                                            size={16}
+                                                        />
+                                                    </a>
+                                                )}
+                                            </div>
+                                            {index > 0 && <hr className="mt-4 border-gray-300 w-full" />}
                                         </div>
-                                        <div className="flex w-full items-center justify-between">
-                                            {submission.repositoryURL && (
-                                                <a
-                                                    href={submission.repositoryURL}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    className="text-blue-500 hover:underline text-sm"
-                                                >
-                                                    Repository{' '}
-                                                    <ExternalLink
-                                                        className="inline"
-                                                        size={16}
-                                                    />
-                                                </a>
-                                            )}
-                                            {submission.deploymentURL && (
-                                                <a
-                                                    href={submission.deploymentURL}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    className="text-blue-500 hover:underline text-sm"
-                                                >
-                                                    Deployment{' '}
-                                                    <ExternalLink
-                                                        className="inline"
-                                                        size={16}
-                                                    />
-                                                </a>
-                                            )}
-                                        </div>
-                                        {index > 0 && <hr className="mt-4 border-gray-300 w-full" />}
-                                    </div>
-                                ))}
-                            </div>
-                        ) : (
-                            <p>No submissions yet.</p>
-                        )}
-                        {projectInstance.project.status !== 'completed' && (
-                            <div className="mt-4">
-                                <CreateProjectSubmission
-                                    projectInstanceId={projectInstance.id}
-                                    submitter={session.user.id}
-                                />
-                            </div>
-                        )}
-                    </DashboardCard>
-                    <DashboardCard className="flex-1 h-fit">
-                        <h6 className="text-sm font-medium text-gray-300">GitHub</h6>
-                        <GitGraph
-                            owner={'Webtech-MQP'}
-                            repoName={'webjam'}
-                        />
-                    </DashboardCard>
+                                    ))}
+                                </div>
+                            ) : (
+                                <p>No submissions yet.</p>
+                            )}
+                            {projectInstance.project.status !== 'completed' && (
+                                <div className="mt-4">
+                                    <CreateProjectSubmission
+                                        projectInstanceId={projectInstance.id}
+                                        submitter={session.user.id}
+                                    />
+                                </div>
+                            )}
+                        </CardContent>
+                    </Card>
+                    <Card className="flex-1 h-fit">
+                        <CardHeader>
+                            <CardTitle>GitHub</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <GitGraph
+                                owner={'Webtech-MQP'}
+                                repoName={'webjam'}
+                            />
+                        </CardContent>
+                    </Card>
                 </div>
             </div>
         </>

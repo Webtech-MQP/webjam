@@ -8,7 +8,7 @@ import { Badge } from './ui/badge';
 
 type Tag = RouterOutputs['projects']['getAll'][number]['projectsToTags'][number]['tag'];
 
-interface JamCardProps {
+interface ProjectCardProps {
     title: string;
     startDateTime: Date;
     endDateTime: Date;
@@ -21,7 +21,7 @@ interface JamCardProps {
     className?: string;
 }
 
-export function JamCard({ title, startDateTime, endDateTime, numberOfTeammates, imageUrl, rating, numberOfRatings, tags, onClick, className }: JamCardProps) {
+export function ProjectCard({ title, startDateTime, endDateTime, numberOfTeammates, imageUrl, rating, numberOfRatings, tags, onClick, className }: ProjectCardProps) {
     return (
         <DashboardCard
             onClick={onClick}
@@ -51,7 +51,7 @@ export function JamCard({ title, startDateTime, endDateTime, numberOfTeammates, 
                 </div>
                 {startDateTime && endDateTime && (
                     <p className="text-sm">
-                        {format(startDateTime, 'MMM dd, yyyy')} - {endDateTime ? format(endDateTime, 'MMM dd, yyyy') : 'Present'} • {numberOfTeammates} members
+                        {format(startDateTime, 'MMM dd, yyyy')} - {endDateTime ? format(endDateTime, 'MMM dd, yyyy') : 'Present'} {numberOfTeammates != undefined && `• ${numberOfTeammates} members`}
                     </p>
                 )}
                 {tags && tags.length > 0 && (
