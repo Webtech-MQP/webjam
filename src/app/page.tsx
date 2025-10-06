@@ -7,15 +7,8 @@ import { api } from '@/trpc/react';
 import Autoplay from 'embla-carousel-autoplay';
 import { ArrowRight } from 'lucide-react';
 import { motion } from 'motion/react';
-import { Caprasimo } from 'next/font/google';
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
-
-const caprasimo = Caprasimo({
-    subsets: ['latin'],
-    weight: '400',
-    variable: '--font-caprasimo',
-});
 
 export default function Home() {
     const [recruiterHover, setRecruiterHover] = useState(false);
@@ -70,7 +63,7 @@ export default function Home() {
     const { data: projects } = api.projects.getAll.useQuery();
 
     return (
-        <main className={`relative ${caprasimo.variable} bg-white h-screen max-h-screen w-screen`}>
+        <main className={`relative bg-white h-screen max-h-screen w-screen`}>
             <div
                 onMouseEnter={() => setRecruiterHover(true)}
                 onMouseLeave={() => setRecruiterHover(false)}

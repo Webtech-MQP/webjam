@@ -90,8 +90,8 @@ export function Sidebar() {
 
     return (
         <div className="bg-accent dark:bg-background border-r flex h-full w-64 flex-col p-4">
-            <h1 className="text-primary dark:text-primary font-bold">webjam</h1>
-            <nav className="flex-1">
+            <h1 className="text-primary dark:text-primary font-(family-name:--font-caprasimo)">webjam</h1>
+            <nav className="mt-4 flex-1">
                 {myInstances && myInstances.length > 0 && (
                     <div className="p-4 border mb-4">
                         <p className="font-mono text-muted dark:text-muted-foreground">My Jams</p>
@@ -147,7 +147,7 @@ export function Sidebar() {
             </nav>
             <div className="mt-auto">
                 <div className={cn('overflow-hidden transition-all duration-300', profileOpen ? '-translate-y-1 opacity-100' : 'pointer-events-none translate-y-4 opacity-0')}>
-                    <div className="items-left border-accent flex flex-col gap-4 rounded border-1 p-4">
+                    <div className="items-left flex flex-col gap-4 rounded border-1 p-4">
                         {isAdmin && (
                             <Link href="/admin">
                                 <Badge className="w-full bg-green-800 hover:bg-green-900">LOGGED IN AS ADMIN</Badge>
@@ -157,11 +157,14 @@ export function Sidebar() {
                             <DropdownMenuTrigger asChild>
                                 <Button
                                     variant="outline"
-                                    className="flex items-center gap-2"
+                                    className="flex justify-between items-center gap-2"
+                                    suppressHydrationWarning
                                 >
                                     <p suppressHydrationWarning>{theme === 'light' ? 'Light' : 'Dark'} Mode</p>
-                                    {theme === 'light' && <Sun className="scale-100 rotate-0 transition-all dark:scale-0 dark:-rotate-90" />}
-                                    {theme === 'dark' && <Moon className="scale-0 rotate-90 transition-all dark:scale-100 dark:rotate-0" />}
+                                    <div className="relative w-4 h-4">
+                                        <Sun className="absolute top-0 left-0 scale-100 rotate-0 transition-all dark:scale-0 dark:-rotate-90" />
+                                        <Moon className="abolute top-0 left-0 scale-0 rotate-90 transition-all dark:scale-100 dark:rotate-0" />
+                                    </div>
                                     <span className="sr-only">Toggle theme</span>
                                 </Button>
                             </DropdownMenuTrigger>

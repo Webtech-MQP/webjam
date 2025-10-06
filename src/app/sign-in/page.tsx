@@ -8,26 +8,25 @@ import { signIn } from 'next-auth/react';
 
 export default function SignInPage() {
     return (
-        <div className="flex h-screen items-center">
+        <div className="relative flex h-screen items-center">
             <motion.div
-                className="h-full bg-primary basis-2/5"
+                className="h-full bg-primary w-full"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.7, ease: 'easeOut' }}
             />
             <motion.div
-                className="flex flex-col items-center justify-center h-full basis-3/5"
+                className="flex bg-background absolute h-7/8 w-7/8 rounded-2xl flex-col items-center justify-center top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.7, ease: 'easeOut' }}
             >
                 <div className="text-center">
-                    <h1 className="text-primary">Webjam</h1>
-                    <h2>Sign in to your account</h2>
+                    <h1 className="text-primary font-(family-name:--font-caprasimo)">webjam</h1>
                 </div>
-                <Card className="w-full max-w-sm">
+                <Card className="mt-4 w-full max-w-sm">
                     <CardHeader>
-                        <CardTitle>Login to your account</CardTitle>
+                        <CardTitle>Sign in to your account</CardTitle>
                         <CardDescription>Select a provider to sign in. If you don&apos;t have an account, you can create one after signing in.</CardDescription>
                     </CardHeader>
                     <CardContent></CardContent>
