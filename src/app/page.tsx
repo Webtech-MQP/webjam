@@ -69,7 +69,7 @@ export default function Home() {
                 onMouseLeave={() => setRecruiterHover(false)}
                 className="absolute h-full w-2/3 right-0 top-0 bg-amber-100 "
             ></div>
-            <div className={cn('flex flex-col max-h-full z-20 dark bg-background w-7/8 rounded-r-xl py-4 px-8 h-full drop-shadow-lg drop-shadow-black border-r-2 shrink-0 transition-transform translate-0 ease-out duration-300', recruiterHover && '-translate-x-1/3')}>
+            <div className={cn('text-foreground dark flex flex-col max-h-full z-20 bg-background w-7/8 rounded-r-xl py-4 px-8 h-full drop-shadow-lg drop-shadow-black border-r-2 shrink-0 transition-transform translate-0 ease-out duration-300', recruiterHover && '-translate-x-1/3')}>
                 <header className=" flex flex-row flex-nowrap items-center justify-between">
                     <h1 className="font-(family-name:--font-caprasimo) text-primary">
                         <a href="#">webjam</a>

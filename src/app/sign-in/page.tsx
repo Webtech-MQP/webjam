@@ -8,7 +8,7 @@ import { signIn } from 'next-auth/react';
 
 export default function SignInPage() {
     return (
-        <div className="relative flex h-screen items-center">
+        <div className="dark relative flex h-screen items-center">
             <motion.div
                 className="h-full bg-primary w-full"
                 initial={{ opacity: 0 }}
