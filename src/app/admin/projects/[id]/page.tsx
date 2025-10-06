@@ -100,15 +100,15 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
                         )}
                     </div>
                     <div className="flex flex-col items-center justify-center gap-2">
-                        <ClipboardPenLine className={cn(project.projectInstances.length == 0 && 'animate-pulse text-red-300')} />
-                        <MoveDown className="text-stone-500" />
-                        <CodeXml className={cn(project.projectInstances.length > 0 && project.status !== 'completed' && project.status !== 'judging' && 'animate-pulse text-red-300')} />
-                        <MoveDown className="text-stone-500" />
-                        <Gavel className={cn(project.status === 'judging' && 'animate-pulse text-red-300')} />
-                        <MoveDown className="text-stone-500" />
-                        <LockIcon className={cn(project.status === 'completed' && 'text-red-300')} />
+                        <ClipboardPenLine className={cn(project.projectInstances.length == 0 && 'animate-pulse text-red-700 dark:text-red-300')} />
+                        <MoveDown className="text-muted-foreground" />
+                        <CodeXml className={cn(project.projectInstances.length > 0 && project.status !== 'completed' && project.status !== 'judging' && 'animate-pulse text-red-700 dark:text-red-300')} />
+                        <MoveDown className="text-muted-foreground-" />
+                        <Gavel className={cn(project.status === 'judging' && 'animate-pulse text-red-700 dark:text-red-300')} />
+                        <MoveDown className="text-muted-foreground" />
+                        <LockIcon className={cn(project.status === 'completed' && 'text-red-700 dark:text-red-300')} />
                     </div>
-                    <div className="text-muted-foreground hover:text-white transition-colors">{project.description}</div>
+                    <div className="text-muted-foreground dark:hover:text-white transition-colors">{project.description}</div>
                 </div>
             </DashboardCard>
             <div className="flex flex-1 gap-2 overflow-y-auto">

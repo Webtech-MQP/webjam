@@ -35,7 +35,7 @@ export default function SignInPage() {
                         <Button
                             variant="default"
                             className="w-full"
-                            onClick={() => signIn('github', { redirectTo: '/dashboard' })}
+                            onClick={() => signIn('github', { redirectTo: '/dashboard/home' })}
                         >
                             <Github />
                             Sign in with GitHub
@@ -43,7 +43,7 @@ export default function SignInPage() {
                         <Button
                             variant="default"
                             className="w-full"
-                            onClick={() => signIn('github', { redirectTo: '/dashboard' })}
+                            onClick={() => signIn('linkedin', { redirectTo: '/dashboard/home' })}
                         >
                             <Linkedin /> Sign in with LinkedIn
                         </Button>

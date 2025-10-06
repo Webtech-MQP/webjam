@@ -49,7 +49,7 @@ export function AwardBadge({ CandidateAward, size = 'md' }: AwardBadgeProps) {
             >
                 <DialogContent className="max-w-md border-gray-700 bg-stone-950">
                     <DialogHeader>
-                        <DialogTitle className="flex items-center gap-3 text-white">
+                        <DialogTitle className="flex items-center gap-3 text-foreground">
                             <div className="h-12 w-12 overflow-hidden rounded-full border-2 border-gray-600">
                                 <Image
                                     src={CandidateAward.award.imageURL}
@@ -73,14 +73,14 @@ export function AwardBadge({ CandidateAward, size = 'md' }: AwardBadgeProps) {
                             <div className="flex items-center gap-2 text-sm">
                                 <Calendar className="h-4 w-4 text-gray-400" />
                                 <span className="text-gray-400">Earned:</span>
-                                <span className="text-white">{CandidateAward.earnedAt?.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
+                                <span className="text-foreground">{CandidateAward.earnedAt?.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
                             </div>
 
                             {CandidateAward.projectSubmission && (
                                 <div className="flex items-center gap-2 text-sm">
                                     <Award className="h-4 w-4 text-gray-400" />
                                     <span className="text-gray-400">Submission Status:</span>
-                                    <span className="text-white capitalize">{CandidateAward.projectSubmission.status}</span>
+                                    <span className="text-foreground capitalize">{CandidateAward.projectSubmission.status}</span>
                                 </div>
                             )}
                         </div>

@@ -61,7 +61,7 @@ export function CandidateSearch({ initialPage = 1, initialSearchParams = {} }: C
                 </div>
 
                 <div className="relative">
-                    <MapPin className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
+                    <MapPin className="text-muted dark:text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
                     <Input
                         placeholder="Location"
                         className="w-40 pl-10"
@@ -77,7 +77,7 @@ export function CandidateSearch({ initialPage = 1, initialSearchParams = {} }: C
                 </div>
 
                 <div className="relative">
-                    <Code className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
+                    <Code className="text-muted dark:text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
                     <Input
                         placeholder="Language"
                         className="w-40 pl-10"
@@ -93,7 +93,7 @@ export function CandidateSearch({ initialPage = 1, initialSearchParams = {} }: C
                 </div>
 
                 <div className="relative">
-                    <Briefcase className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
+                    <Briefcase className="text-muted dark:text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
                     <Input
                         placeholder="Experience"
                         className="w-40 pl-10"
@@ -109,7 +109,7 @@ export function CandidateSearch({ initialPage = 1, initialSearchParams = {} }: C
                 </div>
 
                 <div className="relative">
-                    <Github className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
+                    <Github className="text-muted dark:text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
                     <Input
                         placeholder="GitHub username"
                         className="w-48 pl-10"
@@ -165,7 +165,7 @@ export function CandidateSearch({ initialPage = 1, initialSearchParams = {} }: C
                     </div>
                 )}
 
-                {candidates && candidates.length === 0 && !candidatesQuery.isLoading && <div className="text-muted-foreground text-center">No candidates found.</div>}
+                {candidates && candidates.length === 0 && !candidatesQuery.isLoading && <div className="text-muted dark:text-muted-foreground text-center">No candidates found.</div>}
 
                 {pagination && pagination.totalPages > 1 && (
                     <div className="mt-6 flex items-center justify-center gap-2">
@@ -194,7 +194,7 @@ export function CandidateSearch({ initialPage = 1, initialSearchParams = {} }: C
                                     </Button>
                                 );
                             })}
-                            {pagination.totalPages > 5 && <span className="text-muted-foreground text-sm">...</span>}
+                            {pagination.totalPages > 5 && <span className="text-muted dark:text-muted-foreground text-sm">...</span>}
                         </div>
 
                         <Button
@@ -210,7 +210,7 @@ export function CandidateSearch({ initialPage = 1, initialSearchParams = {} }: C
                 )}
 
                 {pagination && (
-                    <div className="text-muted-foreground mt-4 pb-4 text-center text-sm">
+                    <div className="text-muted dark:text-muted-foreground mt-4 pb-4 text-center text-sm">
                         Showing {(currentPage - 1) * 12 + 1} to {Math.min(currentPage * 12, pagination.total)} of {pagination.total} candidates
                     </div>
                 )}

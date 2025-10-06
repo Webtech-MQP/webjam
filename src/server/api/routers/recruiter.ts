@@ -53,10 +53,9 @@ export const recruiterRouter = createTRPCRouter({
         return lists;
     }),
 
-    createOneList: protectedProcedure.input(z.object({ name: z.string().min(1).max(100), description: z.string().max(255).optional() })).mutation(async ({ ctx, input }) => {
+    createOneList: protectedProcedure.input(z.object({ name: z.string().min(1).max(100) })).mutation(async ({ ctx, input }) => {
         await ctx.db.insert(lists).values({
             name: input.name,
-            description: input.description ?? '',
             recruiterId: ctx.session.user.id,
         });
     }),
@@ -103,6 +102,22 @@ export const recruiterRouter = createTRPCRouter({
         }
 
         return ctx.db.delete(lists).where(eq(lists.id, input.id));
+    }),
+
+    updateOneList: protectedProcedure.input(z.object({ id: z.cuid2(), name: z.string().min(1).max(100) })).mutation(async ({ ctx, input }) => {
+        const list = await ctx.db.query.lists.findFirst({
+            where: (lists, { eq }) => eq(lists.id, input.id),
+        });
+
+        if (!list) {
+            throw new TRPCError({ code: 'NOT_FOUND', message: 'List not found' });
+        }
+
+        if (list.recruiterId !== ctx.session.user.id) {
+            throw new TRPCError({ code: 'FORBIDDEN', message: 'Not your list' });
+        }
+
+        return ctx.db.update(lists).set({ name: input.name }).where(eq(lists.id, input.id));
     }),
 
     removeCandidateFromList: protectedProcedure.input(z.object({ listId: z.cuid2(), candidateId: z.cuid2() })).mutation(async ({ ctx, input }) => {

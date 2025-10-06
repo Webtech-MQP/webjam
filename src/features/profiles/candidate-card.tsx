@@ -51,7 +51,7 @@ export function CandidateCard({ displayName, bio, location, language, experience
                     <div className="min-w-0 flex-1">
                         <h3 className="truncate font-semibold">{displayName}</h3>
                         {location && (
-                            <div className="flex items-center gap-1 text-sm text-white">
+                            <div className="flex items-center gap-1 text-sm text-foreground">
                                 <MapPinIcon className="h-3 w-3" />
                                 <span className="truncate">{location}</span>
                             </div>
@@ -59,13 +59,13 @@ export function CandidateCard({ displayName, bio, location, language, experience
                     </div>
                 </div>
 
-                {bio && <p className="mb-3 line-clamp-2 text-sm text-white">{bio}</p>}
+                {bio && <p className="mb-3 line-clamp-2 text-sm text-foreground">{bio}</p>}
 
                 <div className="mb-3 flex flex-wrap gap-2">
                     {language && (
                         <Badge
                             variant="outline"
-                            className="text-xs"
+                            className="text-xs dark:group-hover:border-white"
                         >
                             <CodeIcon className="mr-1 h-3 w-3" />
                             {language}
@@ -74,7 +74,7 @@ export function CandidateCard({ displayName, bio, location, language, experience
                     {experience && (
                         <Badge
                             variant="outline"
-                            className="text-xs"
+                            className="text-xs dark:group-hover:border-white"
                         >
                             <BriefcaseIcon className="mr-1 h-3 w-3" />
                             {experience}
@@ -82,7 +82,7 @@ export function CandidateCard({ displayName, bio, location, language, experience
                     )}
                     <Badge
                         variant="outline"
-                        className="text-xs"
+                        className="text-xs dark:group-hover:border-white"
                     >
                         {projectCount} {projectCount === 1 ? 'project' : 'projects'}
                     </Badge>

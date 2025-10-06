@@ -4,12 +4,12 @@ import { GitGraph } from '@/components/git-graph';
 import { ProjectInstanceRating } from '@/components/project-instance-rating';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { UserActionsMenu } from '@/components/user-actions-menu';
 import { GanttChart } from '@/features/time-tracking/components/gantt-chart';
 import { auth } from '@/server/auth';
 import { api } from '@/trpc/server';
 import { ArrowRight, Clock, ExternalLink, ShieldUser, ShieldX, Users } from 'lucide-react';
-import Image from 'next/image';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 
@@ -37,7 +37,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
                 <p>You are not a member of this Jam.</p>
                 <Link
                     className="text-primary hover:underline flex gap-2"
-                    href="/dashboard/jam-finder"
+                    href="/dashboard/jams"
                 >
                     Search for Jams. <ArrowRight />
                 </Link>
@@ -55,12 +55,12 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
     return (
         <>
             {isAdmin && (
-                <div className="bg-green-200 w-full rounded text-background p-2 mb-2 flex gap-2">
+                <div className="bg-green-900  dark:bg-green-200 w-full rounded text-background p-2 mb-2 flex gap-2">
                     <ShieldUser /> You are viewing this Jam as an admin.
                 </div>
             )}
             <div className="flex flex-col gap-2 ">
-                <DashboardCard>
+                <DashboardCard className="bg-card">
                     <h1>{projectInstance.project.title}</h1>
                     <div className="flex justify-between items-center">
                         <div className="flex gap-2">
@@ -77,22 +77,6 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
                         />
                     </div>
                     <div className="relative flex w-full gap-4">
-                        <div className="relative h-32 w-32 rounded-lg">
-                            <Image
-                                src="https://placehold.co/150/png"
-                                alt="Project Image"
-                                fill
-                                objectFit="contain"
-                                className="rounded"
-                            />
-                            <a
-                                target="_blank"
-                                href="https://example.com"
-                                className="group absolute flex h-full w-full items-center bg-black/50 hover:bg-black/70"
-                            >
-                                <ExternalLink className="group-hover:stroke-primary mx-auto" />
-                            </a>
-                        </div>
                         <div className="flex-1">
                             <GanttChart
                                 sections={[
@@ -144,33 +128,37 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
                         </div>
                     </div>
                 </DashboardCard>
-                <DashboardCard>
-                    <h6 className="text-sm font-medium text-gray-300">Members</h6>
-                    <div className="relative flex w-full flex-col gap-4">
-                        {projectInstance.teamMembers.map((projectCandidate, index) => (
-                            <div
-                                key={index}
-                                className="flex items-center gap-2"
-                            >
-                                <div className="relative aspect-square w-8">
-                                    <Avatar>
-                                        <AvatarImage
-                                            src={projectCandidate.candidateProfile.imageUrl ? projectCandidate.candidateProfile.imageUrl : undefined}
-                                            alt={projectCandidate.candidateProfile.displayName}
-                                        />
-                                        <AvatarFallback>{projectCandidate.candidateProfile.displayName.charAt(0)}</AvatarFallback>
-                                    </Avatar>
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Members</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="relative flex w-full flex-col gap-4">
+                            {projectInstance.teamMembers.map((projectCandidate, index) => (
+                                <div
+                                    key={index}
+                                    className="flex items-center gap-2"
+                                >
+                                    <div className="relative aspect-square w-8">
+                                        <Avatar>
+                                            <AvatarImage
+                                                src={projectCandidate.candidateProfile.imageUrl ? projectCandidate.candidateProfile.imageUrl : undefined}
+                                                alt={projectCandidate.candidateProfile.displayName}
+                                            />
+                                            <AvatarFallback>{projectCandidate.candidateProfile.displayName.charAt(0)}</AvatarFallback>
+                                        </Avatar>
+                                    </div>
+                                    <p className="font-semibold">{projectCandidate.candidateProfile.displayName ?? projectCandidate.candidateProfile.displayName}</p>
+                                    <p className="text-sm text-gray-500">Placeholder</p>
+                                    <UserActionsMenu
+                                        reportedUserName={projectCandidate.candidateProfile.displayName}
+                                        reportedUserId={projectCandidate.candidateProfile.userId}
+                                    />
                                 </div>
-                                <p className="font-semibold">{projectCandidate.candidateProfile.displayName ?? projectCandidate.candidateProfile.displayName}</p>
-                                <p className="text-sm text-gray-500">{projectCandidate.candidateProfile.publicEmail}</p>
-                                <UserActionsMenu
-                                    reportedUserName={projectCandidate.candidateProfile.displayName}
-                                    reportedUserId={projectCandidate.candidateProfile.userId}
-                                />
-                            </div>
-                        ))}
-                    </div>
-                </DashboardCard>
+                            ))}
+                        </div>
+                    </CardContent>
+                </Card>
                 <div className="flex w-full gap-2 h-fit">
                     <DashboardCard className="flex-1">
                         <h6 className="text-sm font-medium text-gray-300">Submissions</h6>

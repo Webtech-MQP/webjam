@@ -4,6 +4,7 @@ import { accounts, sessions, users, verificationTokens } from '@/server/db/schem
 import { DrizzleAdapter } from '@auth/drizzle-adapter';
 import { type DefaultSession, type NextAuthConfig } from 'next-auth';
 import GithubProvider from 'next-auth/providers/github';
+import LinkedInProvider from 'next-auth/providers/linkedin';
 import { type SqlFlavorOptions } from 'node_modules/@auth/drizzle-adapter/lib/utils';
 
 /**
@@ -17,6 +18,7 @@ declare module 'next-auth' {
         user: {
             id: string;
             githubAuthToken: string;
+            linkedinAuthToken: string;
             role: 'candidate' | 'recruiter' | 'admin';
         } & DefaultSession['user'];
     }
@@ -42,6 +44,10 @@ export const authConfig = {
                     githubUsername: profile.login,
                 };
             },
+        }),
+        LinkedInProvider({
+            clientId: env.AUTH_LINKEDIN_ID,
+            clientSecret: env.AUTH_LINKEDIN_SECRET,
         }),
         /**
          * ...add more providers here.

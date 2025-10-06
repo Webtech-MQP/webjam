@@ -145,10 +145,10 @@ export default function ProjectRegistrationSection({ projectId, defaultQuestions
                                             }}
                                         >
                                             <div className="flex items-center gap-4">
-                                                <GripVertical className="h-5 w-5 text-muted-foreground" />
+                                                <GripVertical className="h-5 w-5 text-muted dark:text-muted-foreground" />
                                                 <div>
                                                     <p className="text-sm font-medium">{question.question}</p>
-                                                    <p className="text-sm text-muted-foreground">
+                                                    <p className="text-sm text-muted dark:text-muted-foreground">
                                                         {question.type} {question.required ? '(Required)' : '(Optional)'}
                                                     </p>
                                                 </div>
@@ -162,7 +162,7 @@ export default function ProjectRegistrationSection({ projectId, defaultQuestions
                                             </Button>
                                         </div>
                                     ))}
-                                    {selectedQuestions.length === 0 && <div className="p-4 text-center text-sm text-muted-foreground">No questions selected</div>}
+                                    {selectedQuestions.length === 0 && <div className="p-4 text-center text-sm text-muted dark:text-muted-foreground">No questions selected</div>}
                                 </div>
                             </div>
 
@@ -176,7 +176,7 @@ export default function ProjectRegistrationSection({ projectId, defaultQuestions
                                         >
                                             <div>
                                                 <p className="text-sm font-medium">{question.question}</p>
-                                                <p className="text-sm text-muted-foreground">
+                                                <p className="text-sm text-muted dark:text-muted-foreground">
                                                     {question.type} {question.required ? '(Required)' : '(Optional)'}
                                                 </p>
                                             </div>
@@ -189,7 +189,7 @@ export default function ProjectRegistrationSection({ projectId, defaultQuestions
                                             </Button>
                                         </div>
                                     ))}
-                                    {availableQuestions.length === 0 && <div className="p-4 text-center text-sm text-muted-foreground">No available questions</div>}
+                                    {availableQuestions.length === 0 && <div className="p-4 text-center text-sm text-muted dark:text-muted-foreground">No available questions</div>}
                                 </div>
                             </div>
                         </div>
@@ -218,16 +218,16 @@ export default function ProjectRegistrationSection({ projectId, defaultQuestions
                         key={question.id}
                         className="flex items-center gap-4 p-4"
                     >
-                        <span className="text-sm text-muted-foreground">{index + 1}.</span>
+                        <span className="text-sm text-muted dark:text-muted-foreground">{index + 1}.</span>
                         <div>
                             <p className="text-sm font-medium">{question.question}</p>
-                            <p className="text-sm text-muted-foreground">
+                            <p className="text-sm text-muted dark:text-muted-foreground">
                                 {question.type} {question.required ? '(Required)' : '(Optional)'}
                             </p>
                         </div>
                     </div>
                 ))}
-                {selectedQuestions.length === 0 && <div className="p-4 text-center text-sm text-muted-foreground">No registration questions set up yet</div>}
+                {selectedQuestions.length === 0 && <div className="p-4 text-center text-sm text-muted dark:text-muted-foreground">No registration questions set up yet</div>}
             </div>
         </div>
     );

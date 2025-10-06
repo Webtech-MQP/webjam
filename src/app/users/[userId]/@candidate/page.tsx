@@ -21,8 +21,6 @@ export default async function Page({ params }: Props) {
 
     const session = await auth();
 
-    console.log(userId);
-
     const candidate = await api.candidates.getOne(userId.startsWith('@') ? { githubUsername: userId.slice(1) } : { id: userId });
 
     if (!candidate) {
@@ -40,7 +38,7 @@ export default async function Page({ params }: Props) {
     return (
         <div>
             <div>
-                <div className="relative h-60 w-full -m-4">
+                <div className="relative h-80 w-full -mt-4 -mx-4">
                     {/* Banner Image */}
                     <Image
                         src="https://placehold.co/1920x1080/png"
@@ -71,7 +69,7 @@ export default async function Page({ params }: Props) {
                             />
                         </div>
                         <Image
-                            src={candidate.imageUrl ?? 'https://placehold.co/100.png'}
+                            src={candidate.imageUrl ?? ''}
                             className="relative z-20 -mt-30 box-content rounded-xl border-6 border-(--color-background)"
                             alt="Profile picture"
                             height={100}
