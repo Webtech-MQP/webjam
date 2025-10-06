@@ -1,9 +1,11 @@
 import { env } from '@/env';
 import { sendJamEndEmail, sendJudgedEmail } from '@/lib/mailer';
+import { createPresignedPost, deleteS3Object, getS3KeyFromUrl, s3Client } from '@/lib/s3';
 import { adminProcedure, createTRPCRouter, protectedProcedure, publicProcedure } from '@/server/api/trpc';
-import { projectInstanceRankings, projectJudgingCriteria, projects, projectsTags, tags } from '@/server/db/schemas/projects';
+import { projectEvent, projectInstanceRankings, projectJudgingCriteria, projects, projectsTags, tags } from '@/server/db/schemas/projects';
 import { TRPCError } from '@trpc/server';
 import { eq } from 'drizzle-orm';
+import { nanoid } from 'nanoid';
 import { z } from 'zod';
 
 export const projectRouter = createTRPCRouter({
@@ -24,6 +26,16 @@ export const projectRouter = createTRPCRouter({
                         z.object({
                             criterion: z.string().min(1).max(512),
                             weight: z.number().int().min(0).max(100),
+                        })
+                    )
+                    .optional(),
+                events: z
+                    .array(
+                        z.object({
+                            startTime: z.date(),
+                            endTime: z.date(),
+                            title: z.string(),
+                            isHeader: z.boolean(),
                         })
                     )
                     .optional(),
@@ -62,6 +74,18 @@ export const projectRouter = createTRPCRouter({
                         projectId: input.id,
                         criterion: item.criterion,
                         weight: item.weight,
+                    }))
+                );
+            }
+            // Add events
+            if (input.events && input.events.length > 0) {
+                await ctx.db.insert(projectEvent).values(
+                    input.events.map((item) => ({
+                        projectId: input.id,
+                        startTime: item.startTime,
+                        endTime: item.endTime,
+                        title: item.title,
+                        isHeader: item.isHeader,
                     }))
                 );
             }
@@ -115,6 +139,7 @@ export const projectRouter = createTRPCRouter({
                     },
                 },
                 judgingCriteria: true,
+                events: true,
             },
         });
     }),
@@ -133,7 +158,7 @@ export const projectRouter = createTRPCRouter({
         });
     }),
 
-    updateOne: publicProcedure
+    updateOne: adminProcedure
         .input(
             z.object({
                 id: z.cuid2(),
@@ -141,7 +166,7 @@ export const projectRouter = createTRPCRouter({
                 subtitle: z.string().min(0).max(1000),
                 description: z.string().min(0).max(10000),
                 requirements: z.string().min(0).max(10000),
-                imageUrl: z.string().min(0).max(1000),
+                imageUrl: z.url(),
                 starts: z.date(),
                 ends: z.date(),
                 tags: z.array(z.string().min(1).max(1000)).optional(),
@@ -153,9 +178,28 @@ export const projectRouter = createTRPCRouter({
                         })
                     )
                     .optional(),
+                events: z
+                    .array(
+                        z.object({
+                            startTime: z.date(),
+                            endTime: z.date(),
+                            title: z.string(),
+                            isHeader: z.boolean(),
+                        })
+                    )
+                    .optional(),
             })
         )
         .mutation(async ({ ctx, input }) => {
+            const currentProject = await ctx.db.query.projects.findFirst({
+                where: eq(projects.id, input.id),
+            });
+
+            if (input.imageUrl && currentProject?.imageUrl && currentProject.imageUrl !== input.imageUrl) {
+                const oldKey = getS3KeyFromUrl(currentProject.imageUrl);
+                if (oldKey) await deleteS3Object(oldKey);
+            }
+
             await ctx.db
                 .update(projects)
                 .set({
@@ -192,6 +236,19 @@ export const projectRouter = createTRPCRouter({
                         projectId: input.id,
                         criterion: item.criterion,
                         weight: item.weight,
+                    }))
+                );
+            }
+            // Update events
+            await ctx.db.delete(projectEvent).where(eq(projectEvent.projectId, input.id));
+            if (input.events && input.events.length > 0) {
+                await ctx.db.insert(projectEvent).values(
+                    input.events.map((item) => ({
+                        projectId: input.id,
+                        startTime: item.startTime,
+                        endTime: item.endTime,
+                        title: item.title,
+                        isHeader: item.isHeader,
                     }))
                 );
             }
@@ -486,5 +543,99 @@ export const projectRouter = createTRPCRouter({
         });
 
         return rankings;
+    }),
+
+    generateUploadUrl: adminProcedure
+        .input(
+            z.object({
+                fileType: z.string(),
+                fileSize: z.number().max(5 * 1024 * 1024), // 5MB limit
+                uploadType: z.enum(['profile', 'banner', 'project', 'award']),
+            })
+        )
+        .mutation(async ({ ctx, input }) => {
+            const fileExtension = input.fileType.split('/')[1];
+            const fileName = `${input.uploadType}/${nanoid()}.${fileExtension}`;
+            try {
+                const { url, fields } = await createPresignedPost(s3Client, {
+                    Bucket: process.env.AWS_S3_BUCKET_NAME!,
+                    Key: fileName,
+                    Conditions: [['content-length-range', 0, input.fileSize], { 'Content-Type': input.fileType }],
+                    Fields: {
+                        'Content-Type': input.fileType,
+                    },
+                    Expires: 600, // 10 minutes
+                });
+                return {
+                    uploadUrl: url,
+                    fields,
+                    fileName,
+                    fileUrl: `https://${process.env.AWS_S3_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${fileName}`,
+                };
+            } catch (error) {
+                throw new TRPCError({
+                    code: 'INTERNAL_SERVER_ERROR',
+                    message: 'Failed to generate upload URL',
+                });
+            }
+        }),
+
+    createEvent: adminProcedure
+        .input(
+            z.object({
+                startTime: z.date(),
+                endTime: z.date(),
+                title: z.string(),
+                isHeader: z.boolean().optional(),
+                projectId: z.string(),
+            })
+        )
+        .mutation(async ({ ctx, input }) => {
+            if (input.startTime >= input.endTime) {
+                throw new TRPCError({
+                    code: 'BAD_REQUEST',
+                    message: 'End date must be after start date',
+                });
+            }
+
+            return ctx.db.insert(projectEvent).values({
+                projectId: input.projectId,
+                startTime: input.startTime,
+                endTime: input.endTime,
+                title: input.title,
+                isHeader: input.isHeader,
+            });
+        }),
+
+    updateEvent: adminProcedure
+        .input(
+            z.object({
+                projectEventId: z.string(),
+                startTime: z.date().optional(),
+                endTime: z.date().optional(),
+                title: z.string().optional(),
+                isHeader: z.boolean().optional(),
+            })
+        )
+        .mutation(async ({ ctx, input }) => {
+            return ctx.db
+                .update(projectEvent)
+                .set({
+                    startTime: input.startTime,
+                    endTime: input.endTime,
+                    title: input.title,
+                    isHeader: input.isHeader,
+                })
+                .where(eq(projectEvent.id, input.projectEventId));
+        }),
+
+    getEvents: publicProcedure.input(z.object({ projectId: z.string() })).query(async ({ ctx, input }) => {
+        return ctx.db.query.projectEvent.findMany({
+            where: (projectEvent, { eq }) => eq(projectEvent.projectId, input.projectId),
+        });
+    }),
+
+    deleteEvent: protectedProcedure.input(z.object({ projectEventId: z.string() })).mutation(async ({ ctx, input }) => {
+        return ctx.db.delete(projectEvent).where(eq(projectEvent.id, input.projectEventId));
     }),
 });

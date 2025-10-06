@@ -3,6 +3,7 @@ import * as awardSchema from '@/server/db/schemas/awards';
 import * as userSchema from '@/server/db/schemas/profiles';
 import * as registrationSchema from '@/server/db/schemas/project-registration';
 import * as projectSchema from '@/server/db/schemas/projects';
+import { projectEvent } from '@/server/db/schemas/projects';
 import { createId } from '@paralleldrive/cuid2';
 import { drizzle } from 'drizzle-orm/libsql';
 import { reset } from 'drizzle-seed';
@@ -415,21 +416,21 @@ async function main() {
             id: createId(),
             title: 'Innovative Workflow Designer',
             description: 'Awarded for designing an innovative task workflow that enhances productivity and user engagement.',
-            imageURL: 'https://placehold.co/100x100/4CAF50/FFFFFF?text=🚀',
+            imageUrl: 'https://placehold.co/100x100/4CAF50/FFFFFF?text=🚀',
             createdAt: new Date('2025-09-01'),
         },
         {
             id: createId(),
             title: 'Automation Master',
             description: 'Recognized for implementing smart automation features that significantly reduce manual workload.',
-            imageURL: 'https://placehold.co/100x100/2196F3/FFFFFF?text=🤖',
+            imageUrl: 'https://placehold.co/100x100/2196F3/FFFFFF?text=🤖',
             createdAt: new Date('2025-09-15'),
         },
         {
             id: createId(),
             title: 'Healthcare Hero',
             description: 'Awarded for building a robust and user-friendly patient management system that improves healthcare workflows.',
-            imageURL: 'https://placehold.co/100x100/FF5722/FFFFFF?text=❤️',
+            imageUrl: 'https://placehold.co/100x100/FF5722/FFFFFF?text=❤️',
             createdAt: new Date('2025-10-01'),
         },
     ];
@@ -456,6 +457,73 @@ async function main() {
 
     await db.insert(schema.candidateAward).values(candidateAwardsData);
     console.log('Candidate awards seeded!');
+
+    const BASE_DATE = new Date('2025-09-17T00:00:00Z');
+
+    function addDays(date: Date, days: number): Date {
+        return new Date(date.getTime() + days * 24 * 60 * 60 * 1000);
+    }
+
+    const weekHeaders = Array.from({ length: 5 }, (_, i) => {
+        const weekStart = addDays(BASE_DATE, i * 7);
+        const weekEnd = addDays(BASE_DATE, (i + 1) * 7);
+
+        return {
+            id: createId(),
+            title: `Week ${i + 1}`,
+            startTime: weekStart,
+            endTime: weekEnd,
+            isHeader: true,
+            projectId,
+        };
+    });
+
+    const events = [
+        {
+            id: createId(),
+            title: 'Meet your teammates',
+            startTime: addDays(BASE_DATE, 0),
+            endTime: addDays(BASE_DATE, 6),
+            isHeader: false,
+            projectId,
+        },
+        {
+            id: createId(),
+            title: 'Planning',
+            startTime: addDays(BASE_DATE, 4),
+            endTime: addDays(BASE_DATE, 8),
+            isHeader: false,
+            projectId,
+        },
+        {
+            id: createId(),
+            title: 'Code Stuff',
+            startTime: addDays(BASE_DATE, 4),
+            endTime: addDays(BASE_DATE, 28),
+            isHeader: false,
+            projectId,
+        },
+        {
+            id: createId(),
+            title: 'Testing',
+            startTime: addDays(BASE_DATE, 24),
+            endTime: addDays(BASE_DATE, 30),
+            isHeader: false,
+            projectId,
+        },
+        {
+            id: createId(),
+            title: 'Submit Project',
+            startTime: addDays(BASE_DATE, 28),
+            endTime: addDays(BASE_DATE, 35),
+            isHeader: false,
+            projectId,
+        },
+    ];
+
+    await db.insert(projectEvent).values([...weekHeaders, ...events]);
+
+    console.log('Project Events seeded!');
 }
 
 main()

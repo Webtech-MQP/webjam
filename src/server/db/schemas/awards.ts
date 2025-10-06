@@ -11,7 +11,7 @@ export const awards = createTable('award', (d) => ({
         .primaryKey(),
     title: d.text({ length: 256 }).notNull(),
     description: d.text({ length: 1000 }),
-    imageURL: d.text({ length: 255 }).notNull(),
+    imageUrl: d.text({ length: 255 }).notNull(),
     createdAt: d.integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
 }));
 

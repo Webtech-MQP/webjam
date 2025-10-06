@@ -10,6 +10,10 @@ const config = {
         remotePatterns: [
             {
                 protocol: 'https',
+                hostname: 'mqpwebjam.s3.us-east-1.amazonaws.com',
+            },
+            {
+                protocol: 'https',
                 hostname: 'placehold.co',
             },
             {

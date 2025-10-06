@@ -28,6 +28,8 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
 
     const submissions = await api.projectSubmission.getAllSubmissionsForProjectInstance({ projectInstanceId: id });
 
+    const events = await api.projects.getEvents({ projectId: projectInstance!.projectId });
+
     if (!projectInstance) return <div>Not found!</div>;
 
     if (!projectInstance.teamMembers.some((t) => t.candidateId == session.user.id) && !isAdmin) {
@@ -51,6 +53,16 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
     } catch {
         // Do nothing
     }
+
+    const earliestStartTime = Math.min(...events.map((e) => e.startTime.getTime()));
+    const progressBar = (Date.now() - earliestStartTime) / (1000 * 60 * 60 * 24);
+    const sections = events.map((event) => ({
+        start: (event.startTime.getTime() - earliestStartTime) / (1000 * 60 * 60 * 24),
+        end: (event.endTime.getTime() - earliestStartTime) / (1000 * 60 * 60 * 24),
+        name: event.title,
+        color: event.isHeader ? '#e8871e' : '#6366f1',
+        header: event.isHeader,
+    }));
 
     return (
         <>
@@ -79,51 +91,8 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
                     <div className="relative flex w-full gap-4">
                         <div className="flex-1">
                             <GanttChart
-                                sections={[
-                                    {
-                                        name: 'Week 1',
-                                        color: '#e8871e',
-                                        start: 0,
-                                        end: 7,
-                                        header: true,
-                                    },
-                                    {
-                                        name: 'Week 2',
-                                        color: '#e8871e',
-                                        start: 7,
-                                        end: 14,
-                                        header: true,
-                                    },
-                                    {
-                                        name: 'Week 3',
-                                        color: '#e8871e',
-                                        start: 14,
-                                        end: 21,
-                                        header: true,
-                                    },
-                                    {
-                                        name: 'Week 4',
-                                        color: '#e8871e',
-                                        start: 21,
-                                        end: 28,
-                                        header: true,
-                                    },
-                                    {
-                                        name: 'Week 5',
-                                        color: '#e8871e',
-                                        start: 28,
-                                        end: 35,
-                                        header: true,
-                                    },
-                                    {
-                                        name: 'Meet your teammates',
-                                        color: '#404040',
-                                        start: 0,
-                                        end: 6,
-                                    },
-                                    { name: 'Code Stuff', color: '#6366f1', start: 4, end: 28 },
-                                ]}
-                                progressBar={10}
+                                sections={sections}
+                                progressBar={progressBar}
                             />
                         </div>
                     </div>

@@ -41,7 +41,7 @@ export default async function Page({ params }: Props) {
                 <div className="relative h-80 w-full -mt-4 -mx-4">
                     {/* Banner Image */}
                     <Image
-                        src="https://placehold.co/1920x1080/png"
+                        src={candidate.bannerUrl ?? 'https://placehold.co/1920x1080/png'}
                         alt="Profile banner"
                         fill
                         className="object-cover"

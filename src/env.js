@@ -15,6 +15,10 @@ export const env = createEnv({
         AUTH_LINKEDIN_SECRET: z.string(),
         GEMINI_API_KEY: z.string().optional(),
         MATCHER_URL: z.string().url().default('http://localhost:8000'),
+        AWS_REGION: z.string().optional(),
+        AWS_S3_BUCKET_NAME: z.string().optional(),
+        AWS_ACCESS_KEY_ID: z.string().optional(),
+        AWS_SECRET_ACCESS_KEY: z.string().optional(),
     },
 
     /**
@@ -39,6 +43,10 @@ export const env = createEnv({
         AUTH_LINKEDIN_SECRET: process.env.AUTH_LINKEDIN_SECRET,
         GEMINI_API_KEY: process.env.GEMINI_API_KEY,
         MATCHER_URL: process.env.MATCHER_URL,
+        AWS_REGION: process.env.AWS_REGION,
+        AWS_S3_BUCKET_NAME: process.env.S3_BUCKET,
+        AWS_ACCESS_KEY_ID: process.env.AWS_ACCESS_KEY_ID,
+        AWS_SECRET_ACCESS_KEY: process.env.AWS_SECRET_ACCESS_KEY,
         // NEXT_PUBLIC_CLIENTVAR: process.env.NEXT_PUBLIC_CLIENTVAR,
     },
     /**

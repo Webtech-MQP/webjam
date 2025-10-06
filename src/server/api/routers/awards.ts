@@ -1,3 +1,4 @@
+import { deleteS3Object, getS3KeyFromUrl } from '@/lib/s3';
 import { adminProcedure, createTRPCRouter, protectedProcedure } from '@/server/api/trpc';
 import { awards, candidateAward } from '@/server/db/schemas/awards';
 import { and, eq } from 'drizzle-orm';
@@ -9,15 +10,37 @@ export const awardRouter = createTRPCRouter({
             z.object({
                 title: z.string().min(1).max(256),
                 description: z.string().min(1).max(1000),
-                imageURL: z.string(),
+                imageUrl: z.string(),
             })
         )
         .mutation(async ({ ctx, input }) => {
             return ctx.db.insert(awards).values({
                 title: input.title,
                 description: input.description,
-                imageURL: input.imageURL,
+                imageUrl: input.imageUrl,
             });
+        }),
+
+    updateOne: adminProcedure
+        .input(
+            z.object({
+                id: z.cuid2(),
+                title: z.string().min(1).max(256),
+                description: z.string().min(1).max(1000),
+                imageUrl: z.string(),
+            })
+        )
+        .mutation(async ({ ctx, input }) => {
+            const currentAward = await ctx.db.query.awards.findFirst({
+                where: eq(awards.id, input.id),
+            });
+
+            if (input.imageUrl && currentAward?.imageUrl && currentAward.imageUrl !== input.imageUrl) {
+                const oldKey = getS3KeyFromUrl(currentAward.imageUrl);
+                if (oldKey) await deleteS3Object(oldKey);
+            }
+
+            return ctx.db.update(awards).set(input).where(eq(awards.id, input.id));
         }),
 
     getAll: adminProcedure.query(async ({ ctx }) => {
