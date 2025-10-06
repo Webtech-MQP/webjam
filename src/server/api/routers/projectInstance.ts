@@ -100,6 +100,27 @@ export const projectInstanceRouter = createTRPCRouter({
             },
         });
     }),
+
+    updateOne: protectedProcedure
+        .input(
+            z
+                .object({
+                    id: z.cuid2(),
+                    teamName: z.string(),
+                    repoUrl: z
+                        .string()
+                        .refine((v) => v.match(/^(?:https:\/\/)?github.com\/[^\/]+\/[^\/]+\/?$/))
+                        .or(z.string().length(0)),
+                    projectId: z.string(),
+                })
+                .partial()
+                .required({ id: true })
+        )
+        .mutation(async ({ ctx, input }) => {
+            const updatedData = Object.fromEntries(Object.entries(input).filter(([key, value]) => key !== 'id' && value !== undefined));
+            return ctx.db.update(projectInstances).set(updatedData).where(eq(projectInstances.id, input.id));
+        }),
+
     getMyActive: protectedProcedure.input(z.object({ withProject: z.boolean().default(false) }).default({ withProject: false })).query(async ({ input, ctx }) => {
         return ctx.db
             .select({ ...getTableColumns(projectInstances), project: getTableColumns(projects) })

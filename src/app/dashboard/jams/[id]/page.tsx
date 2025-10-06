@@ -9,9 +9,9 @@ import { UserActionsMenu } from '@/components/user-actions-menu';
 import { GanttChart } from '@/features/time-tracking/components/gantt-chart';
 import { auth } from '@/server/auth';
 import { api } from '@/trpc/server';
-import { ArrowRight, Clock, ExternalLink, ShieldUser, ShieldX, Users } from 'lucide-react';
-import Link from 'next/link';
+import { ArrowRight, Clock, ExternalLink, Link, ShieldUser, ShieldX, Users } from 'lucide-react';
 import { redirect } from 'next/navigation';
+import { LinkRepoButton } from './_components/link-repo-button';
 
 export default async function Page({ params }: { params: Promise<{ id: string }> }) {
     const session = await auth();
@@ -63,6 +63,9 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
         color: event.isHeader ? '#e8871e' : '#6366f1',
         header: event.isHeader,
     }));
+
+    const ghOwner = projectInstance.repoUrl?.split('/')[1];
+    const ghRepoName = projectInstance.repoUrl?.split('/')[2];
 
     return (
         <>
@@ -236,15 +239,18 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
                         </CardContent>
                     </Card>
                     <Card className="flex-1 h-fit">
-                        <CardHeader>
+                        <CardHeader className="items-center flex justify-between">
                             <CardTitle>GitHub</CardTitle>
+                            <LinkRepoButton projectInstanceId={projectInstance.id} />
                         </CardHeader>
-                        <CardContent>
-                            <GitGraph
-                                owner={'Webtech-MQP'}
-                                repoName={'webjam'}
-                            />
-                        </CardContent>
+                        {ghOwner && ghRepoName && (
+                            <CardContent>
+                                <GitGraph
+                                    owner={ghOwner}
+                                    repoName={ghRepoName}
+                                />
+                            </CardContent>
+                        )}
                     </Card>
                 </div>
             </div>

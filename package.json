@@ -13,8 +13,8 @@
         "dev": "next dev --turbo",
         "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,mdx}\" --cache",
         "format:write": "prettier --write \"**/*.{ts,tsx,js,jsx,mdx}\" --cache",
-        "lint": "next lint",
-        "lint:fix": "next lint --fix",
+        "lint": "biome lint",
+        "lint:fix": "biome lint --fix",
         "preview": "next build && next start",
         "start": "next start",
         "typecheck": "tsc --noEmit",
@@ -83,6 +83,7 @@
         "zod": "^4.0.8"
     },
     "devDependencies": {
+        "@biomejs/biome": "^2.2.5",
         "@eslint/eslintrc": "^3.3.1",
         "@paralleldrive/cuid2": "^2.2.2",
         "@tailwindcss/postcss": "^4.0.15",

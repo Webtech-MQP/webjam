@@ -13,6 +13,7 @@ import { useTheme } from 'next-themes';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useCallback, useState } from 'react';
+import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 
 type Route = {
     name: string;
@@ -72,8 +73,6 @@ export function Sidebar() {
         );
     }, [path]);
 
-    const { data: isAdmin } = api.users.isAdmin.useQuery();
-
     const { data: me } = api.candidates.getOne.useQuery(
         session
             ? {
@@ -87,9 +86,9 @@ export function Sidebar() {
     });
 
     return (
-        <div className="bg-accent dark:bg-background border-r flex h-full w-64 flex-col p-4">
+        <div className="shrink-0 max-h-screen overflow-auto bg-accent dark:bg-background border-r flex h-full w-64 flex-col p-4">
             <h1 className="text-primary dark:text-primary font-(family-name:--font-caprasimo)">webjam</h1>
-            <nav className="mt-4 flex-1">
+            <nav className="mt-4">
                 {myInstances && myInstances.length > 0 && (
                     <div className="p-4 border rounded mb-4">
                         <p className="font-mono text-muted-foreground">My Jams</p>
@@ -122,7 +121,7 @@ export function Sidebar() {
                             isMatch={closestMatch().href === route.href}
                         />
                     ))}
-                {session?.user.role === 'recruiter' &&
+                {session?.user.isRecruiter &&
                     RECRUITER_ROUTES.map((route, index) => (
                         <SidebarLink
                             key={index}
@@ -130,7 +129,7 @@ export function Sidebar() {
                             isMatch={closestMatch().href === route.href}
                         />
                     ))}
-                {isAdmin && (
+                {session?.user.isAdmin && (
                     <>
                         <div className="my-auto" />
                         {ADMIN_ROUTES.map((route, index) => (
@@ -143,78 +142,78 @@ export function Sidebar() {
                     </>
                 )}
             </nav>
-            <div className="mt-auto">
-                <div className={cn('overflow-hidden transition-all duration-300', profileOpen ? '-translate-y-1 opacity-100' : 'pointer-events-none translate-y-4 opacity-0')}>
-                    <div className="items-left flex flex-col gap-4 rounded border-1 p-4">
-                        {isAdmin && (
-                            <Link href="/admin">
-                                <Badge className="w-full bg-green-800 hover:bg-green-900">LOGGED IN AS ADMIN</Badge>
-                            </Link>
-                        )}
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <Button
-                                    variant="outline"
-                                    className="flex justify-between items-center gap-2"
-                                    suppressHydrationWarning
-                                >
-                                    <p suppressHydrationWarning>{theme === 'light' ? 'Light' : 'Dark'} Mode</p>
-                                    <div className="relative w-4 h-4">
-                                        <Sun className="absolute top-0 left-0 scale-100 rotate-0 transition-all dark:scale-0 dark:-rotate-90" />
-                                        <Moon className="abolute top-0 left-0 scale-0 rotate-90 transition-all dark:scale-100 dark:rotate-0" />
-                                    </div>
-                                    <span className="sr-only">Toggle theme</span>
-                                </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                                <DropdownMenuItem onClick={() => setTheme('light')}>Light</DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => setTheme('dark')}>Dark</DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => setTheme('system')}>System</DropdownMenuItem>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
-                        {me && (
-                            <div className="hover:text-primary flex items-center gap-3">
-                                <Avatar className="h-5 w-5">
-                                    <AvatarImage src={session?.user.image ?? undefined} />
-                                    <AvatarFallback>{session?.user?.name?.split(' ')[0]?.charAt(0)}</AvatarFallback>
-                                </Avatar>
-                                <Link
-                                    href={`/users/${session?.user.id}`}
-                                    className="cursor-pointer text-left transition-colors"
-                                >
-                                    View Profile
-                                </Link>
-                            </div>
-                        )}
-                        <div className="hover:text-primary flex items-center gap-3">
-                            <LogOut className="h-5 w-5" />
-                            <button
-                                className="hover:text-primary cursor-pointer text-left transition-colors"
-                                onClick={() =>
-                                    signOut({
-                                        redirectTo: '/',
-                                    })
-                                }
-                            >
-                                Sign out
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                <div
-                    onClick={() => setProfileOpen((prevState) => !prevState)}
-                    className="flex w-full cursor-pointer items-center justify-between gap-4 rounded-md border p-2"
+            <Popover>
+                <PopoverContent
+                    className="p-4 bg-none w-56 flex items-left flex-col gap-4"
+                    side="top"
                 >
-                    <div className="flex items-center gap-2">
-                        <Avatar className="h-5 w-5">
-                            <AvatarImage src={session?.user.image ?? undefined} />
-                            <AvatarFallback>{session?.user?.name?.split(' ')[0]?.charAt(0)}</AvatarFallback>
-                        </Avatar>
-                        <p className="">My profile</p>
+                    {session?.user?.isAdmin && (
+                        <Link href="/admin">
+                            <Badge className="w-full bg-green-800 hover:bg-green-900">LOGGED IN AS ADMIN</Badge>
+                        </Link>
+                    )}
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button
+                                variant="outline"
+                                className="flex justify-between items-center gap-2"
+                                suppressHydrationWarning
+                            >
+                                <p suppressHydrationWarning>{theme === 'light' ? 'Light' : 'Dark'} Mode</p>
+                                <div className="relative w-4 h-4">
+                                    <Sun className="absolute top-0 left-0 scale-100 rotate-0 transition-all dark:scale-0 dark:-rotate-90" />
+                                    <Moon className="abolute top-0 left-0 scale-0 rotate-90 transition-all dark:scale-100 dark:rotate-0" />
+                                </div>
+                                <span className="sr-only">Toggle theme</span>
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => setTheme('light')}>Light</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => setTheme('dark')}>Dark</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => setTheme('system')}>System</DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                    {me && (
+                        <div className="hover:text-primary flex items-center gap-3">
+                            <Avatar className="h-5 w-5">
+                                <AvatarImage src={session?.user.image ?? undefined} />
+                                <AvatarFallback>{session?.user?.name?.split(' ')[0]?.charAt(0)}</AvatarFallback>
+                            </Avatar>
+                            <Link
+                                href={`/users/${session?.user.id}`}
+                                className="cursor-pointer text-left transition-colors"
+                            >
+                                View Profile
+                            </Link>
+                        </div>
+                    )}
+                    <div className="hover:text-primary flex items-center gap-3">
+                        <LogOut className="h-5 w-5" />
+                        <button
+                            className="hover:text-primary cursor-pointer text-left transition-colors"
+                            onClick={() =>
+                                signOut({
+                                    redirectTo: '/',
+                                })
+                            }
+                        >
+                            Sign out
+                        </button>
                     </div>
-                    {profileOpen ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
-                </div>
-            </div>
+                </PopoverContent>
+                <PopoverTrigger asChild>
+                    <button className="mt-auto flex w-full cursor-pointer items-center justify-between gap-4 rounded-md border p-2">
+                        <div className="flex items-center gap-2">
+                            <Avatar className="h-5 w-5">
+                                <AvatarImage src={session?.user.image ?? undefined} />
+                                <AvatarFallback>{session?.user?.name?.split(' ')[0]?.charAt(0)}</AvatarFallback>
+                            </Avatar>
+                            <p className="">My profile</p>
+                        </div>
+                        {profileOpen ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
+                    </button>
+                </PopoverTrigger>
+            </Popover>
         </div>
     );
 }

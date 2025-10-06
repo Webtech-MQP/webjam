@@ -36,7 +36,7 @@ export function UserActionsMenu({ reportedUserName, reportedUserId }: UserAction
         },
     });
 
-    const candidateLists = api.recruiters.getLists.useQuery(userId && session?.data?.user.role === 'recruiter' ? { id: userId } : skipToken);
+    const candidateLists = api.recruiters.getLists.useQuery(userId && session?.data?.user.isRecruiter ? { id: userId } : skipToken);
     const addCandidateToList = api.recruiters.createOneListCandidate.useMutation({
         onSuccess: () => {
             toast.success('Candidate added to list!');
@@ -83,7 +83,7 @@ export function UserActionsMenu({ reportedUserName, reportedUserId }: UserAction
                 >
                     <DropdownMenuLabel>Actions</DropdownMenuLabel>
                     <DropdownMenuGroup>
-                        {session.data?.user.role === 'recruiter' && (
+                        {session.data?.user.isRecruiter && (
                             <DropdownMenuSub>
                                 <DropdownMenuSubTrigger>Add {reportedUserName} to</DropdownMenuSubTrigger>
                                 <DropdownMenuPortal>

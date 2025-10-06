@@ -1,6 +1,7 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { api } from '@/trpc/react';
 import { skipToken } from '@tanstack/react-query';
@@ -44,25 +45,22 @@ export default function RecruiterDashboardPage() {
     }, [candidateListsQuery.isSuccess, candidateLists, activeList]);
 
     if (session.status === 'loading' || candidateListsQuery.isLoading || recruiterQuery.isLoading) {
-        return (
-            <div className="-m-4 p-8 bg-neutral-100 text-black">
-                <div className="h-screen overflow-y-hidden flex items-center justify-center animate-spin">
-                    <LoaderCircle />
-                </div>
-            </div>
-        );
+        return <LoaderCircle />;
     }
 
     if (candidateListsQuery.isError || recruiterQuery.isError) {
         return notFound();
     }
 
+    const activeListObj = candidateLists?.find((list) => list.id === activeList);
+
     return (
-        <div className="min-h-screen -m-4 p-8 ">
+        <div className="h-full flex flex-col -m-4 p-8 ">
             {me && <h1 className="text-3xl font-bold mb-8">Hello, {session.data?.user.name}!</h1>}
-            <div className="flex gap-4">
+            <div className="flex items-stretch flex-1 gap-4">
                 <div className="flex flex-col gap-2 w-1/4">
-                    {!!candidateLists && candidateLists.length > 0 ? (
+                    {!!candidateLists &&
+                        candidateLists.length > 0 &&
                         candidateLists.map((list) => (
                             <div
                                 key={list.id}
@@ -74,7 +72,8 @@ export default function RecruiterDashboardPage() {
                             >
                                 <button
                                     className="max-w-full overflow-auto flex flex-1 border-r-none items-center gap-2 cursor-pointer text-sm bg-none text-left"
-                                    onClick={() => setActiveList(list.id)}
+                                    onClick={() => editingId !== list.id && setActiveList(list.id)}
+                                    disabled={editingId === list.id}
                                 >
                                     <div
                                         className="w-2 h-2 rounded-full"
@@ -83,59 +82,67 @@ export default function RecruiterDashboardPage() {
                                         }}
                                     />
                                     {editingId === list.id ? (
-                                        <form
-                                            onSubmit={(e) => {
-                                                e.preventDefault();
-                                                updateList.mutate({ id: list.id, name: editingListName });
-                                                setEditingListName('');
-                                                setEditingId(null);
-                                            }}
-                                            className="flex-1 pr-2"
-                                        >
+                                        <div className="flex-1 pr-2">
                                             <input
                                                 value={editingListName}
                                                 onChange={(e) => setEditingListName(e.target.value)}
                                                 onClick={(e) => e.stopPropagation()}
+                                                onKeyDown={(e) => {
+                                                    if (e.key === 'Enter') {
+                                                        e.preventDefault();
+                                                        if (editingListName.trim()) {
+                                                            updateList.mutate({ id: list.id, name: editingListName.trim() });
+                                                        }
+                                                        setEditingListName('');
+                                                        setEditingId(null);
+                                                    } else if (e.key === 'Escape') {
+                                                        setEditingListName('');
+                                                        setEditingId(null);
+                                                    }
+                                                }}
                                                 autoFocus
-                                                className="min-w-0 w-full"
+                                                className="appearance-none min-w-0 w-full bg-transparent border-none outline-none"
                                             />
-                                        </form>
+                                        </div>
                                     ) : (
                                         <span className="flex-1 truncate">{list.name}</span>
                                     )}
                                 </button>
-                                <div className="gap-2 flex flex-row-reverse items-center x-2">
+                                <div className="gap-0 flex flex-row-reverse items-center x-2">
                                     <Button
+                                        type="button"
                                         size="icon"
-                                        className="w-4 h-4"
+                                        className="w-6 h-6"
                                         variant="ghost"
                                         onClick={() => deleteList.mutate({ id: list.id })}
                                     >
                                         <Trash />
                                     </Button>
                                     <Button
+                                        type="button"
                                         size="icon"
-                                        className="w-4 h-4"
+                                        className="w-6 h-6"
                                         variant="ghost"
                                         onClick={() => {
                                             if (editingId === list.id) {
-                                                setEditingListName(list.name);
+                                                // Save the changes
+                                                if (editingListName.trim()) {
+                                                    updateList.mutate({ id: list.id, name: editingListName.trim() });
+                                                }
+                                                setEditingListName('');
                                                 setEditingId(null);
                                             } else {
+                                                // Enter edit mode
                                                 setEditingListName(list.name);
                                                 setEditingId(list.id);
                                             }
                                         }}
-                                        type={editingId ? 'submit' : 'button'}
                                     >
                                         {editingId === list.id ? <Check /> : <Pencil />}
                                     </Button>
                                 </div>
                             </div>
-                        ))
-                    ) : (
-                        <div className="text-gray-500">You have no candidate lists yet. Create one to get started!</div>
-                    )}
+                        ))}
                     <div className="relative">
                         <form
                             onSubmit={(e) => {
@@ -165,16 +172,21 @@ export default function RecruiterDashboardPage() {
                         </form>
                     </div>
                 </div>
-                <div className="flex-1">
-                    {!!activeList && !!candidateLists ? (
-                        <ListDetail
-                            key={activeList}
-                            list={candidateLists.find((list) => list.id === activeList)!}
-                        />
-                    ) : (
-                        <div className="text-gray-500">You have no candidate lists yet. Create one to get started!</div>
-                    )}
-                </div>
+                <Card className="flex-1">
+                    <CardHeader>
+                        <CardTitle>{activeListObj ? activeListObj.name : 'No List Selected'}</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        {!!activeListObj && !!candidateLists ? (
+                            <ListDetail
+                                key={activeList}
+                                list={activeListObj}
+                            />
+                        ) : (
+                            <div className="text-gray-500">You have no candidate lists yet. Create one to get started!</div>
+                        )}
+                    </CardContent>
+                </Card>
             </div>
         </div>
     );
