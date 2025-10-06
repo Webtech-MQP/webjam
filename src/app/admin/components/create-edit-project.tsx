@@ -417,18 +417,6 @@ export default function AdminCreateEditProject(props: AdminCreateEditProjectProp
     );
 }
 
-function isValidHttpUrl(str: string) {
-    let url;
-
-    try {
-        url = new URL(str);
-    } catch {
-        return false;
-    }
-
-    return url.protocol === 'http:' || url.protocol === 'https:';
-}
-
 /**
  *
  * @param date Date object.

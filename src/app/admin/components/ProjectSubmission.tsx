@@ -8,12 +8,7 @@ import Link from 'next/link';
 type ProjectSubmission = RouterOutputs['projectSubmission']['getAll'][number] & { actionable: boolean; submissionNumber?: number };
 
 export default function ProjectSubmission({ submission }: { submission: ProjectSubmission }) {
-    const utils = api.useUtils();
-
-    const myRatingRaw = api.projectSubmission.getMyRating.useQuery({ submissionId: submission.id });
     const avgRating = api.projectSubmission.getAvgRating.useQuery({ submissionId: submission.id });
-
-    const myRating = myRatingRaw.data ?? 0;
 
     return (
         <div

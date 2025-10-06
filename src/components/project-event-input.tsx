@@ -163,7 +163,12 @@ export const ProjectEventInput = ({ title = 'Project Timeline Events', list = []
                 <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-4 space-y-3">
                     <div className="flex items-center gap-4">
                         <div className="flex flex-col">
-                            <Label htmlFor="new-title" className="text-xs">Title</Label>
+                            <Label
+                                htmlFor="new-title"
+                                className="text-xs"
+                            >
+                                Title
+                            </Label>
                             <Input
                                 id="new-title"
                                 value={newEvent.title}
@@ -172,7 +177,12 @@ export const ProjectEventInput = ({ title = 'Project Timeline Events', list = []
                             />
                         </div>
                         <div className="flex flex-col">
-                            <Label htmlFor="new-start" className="text-xs">Start</Label>
+                            <Label
+                                htmlFor="new-start"
+                                className="text-xs"
+                            >
+                                Start
+                            </Label>
                             <Input
                                 id="new-start"
                                 type="date"
@@ -181,7 +191,12 @@ export const ProjectEventInput = ({ title = 'Project Timeline Events', list = []
                             />
                         </div>
                         <div className="flex flex-col">
-                            <Label htmlFor="new-end" className="text-xs">End</Label>
+                            <Label
+                                htmlFor="new-end"
+                                className="text-xs"
+                            >
+                                End
+                            </Label>
                             <Input
                                 id="new-end"
                                 type="date"
@@ -190,7 +205,12 @@ export const ProjectEventInput = ({ title = 'Project Timeline Events', list = []
                             />
                         </div>
                         <div className="flex flex-col gap-2">
-                            <Label htmlFor="new-header" className="text-xs">Header</Label>
+                            <Label
+                                htmlFor="new-header"
+                                className="text-xs"
+                            >
+                                Header
+                            </Label>
                             <Switch
                                 id="new-header"
                                 checked={newEvent.isHeader}

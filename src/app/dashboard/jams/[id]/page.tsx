@@ -73,7 +73,9 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
             )}
             <div className="flex flex-col gap-2 ">
                 <DashboardCard className="bg-card">
-                    <h1>{projectInstance.project.title}</h1>
+                    <h1>
+                        {projectInstance.project.title} {rank && <span className="bg-primary text-white">Placed #{rank}</span>}
+                    </h1>
                     <div className="flex justify-between items-center">
                         <div className="flex gap-2">
                             <Badge className="bg-indigo-500">

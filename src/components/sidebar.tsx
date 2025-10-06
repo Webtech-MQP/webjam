@@ -86,8 +86,6 @@ export function Sidebar() {
         throwOnError: false,
     });
 
-    const lightMode = session?.user.role === 'recruiter' && path === '/dashboard/home';
-
     return (
         <div className="bg-accent dark:bg-background border-r flex h-full w-64 flex-col p-4">
             <h1 className="text-primary dark:text-primary font-(family-name:--font-caprasimo)">webjam</h1>
@@ -192,7 +190,11 @@ export function Sidebar() {
                             <LogOut className="h-5 w-5" />
                             <button
                                 className="hover:text-primary cursor-pointer text-left transition-colors"
-                                onClick={() => signOut()}
+                                onClick={() =>
+                                    signOut({
+                                        redirectTo: '/',
+                                    })
+                                }
                             >
                                 Sign out
                             </button>
@@ -221,7 +223,7 @@ function SidebarLink({ route, isMatch }: { route: Route; isMatch: boolean }) {
         <Link
             key={route.name}
             href={route.href}
-            className={cn('border-black dark:border-primary hover:-ml-[2px] dark:hover:text-primary hover:border-l-2 mb-4 flex items-center gap-3 p-4', isMatch && 'border-l-3 -ml-[3px] bg-primary/10 dark:bg-white/10 dark:bg-primary/10 rounded-r')}
+            className={cn('border-black dark:border-primary hover:-ml-[2px] dark:hover:text-primary hover:border-l-2 mb-4 flex items-center gap-3 p-4', isMatch && 'border-l-3 -ml-[3px] bg-primary/10 dark:bg-primary/10 rounded-r')}
         >
             <route.icon className="h-5 w-5" />
             {route.name}

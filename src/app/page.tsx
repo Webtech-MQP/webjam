@@ -7,14 +7,16 @@ import { api } from '@/trpc/react';
 import Autoplay from 'embla-carousel-autoplay';
 import { ArrowRight } from 'lucide-react';
 import { motion } from 'motion/react';
+import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 
 export default function Home() {
     const [recruiterHover, setRecruiterHover] = useState(false);
     const [squares, setSquares] = useState<[number, boolean][]>([]);
-    const [rows, setRows] = useState(0);
     const gridRef = useRef<HTMLDivElement>(null);
+
+    const session = useSession();
 
     const calculateSquares = () => {
         if (!gridRef.current) return;
@@ -32,7 +34,6 @@ export default function Home() {
         const squaresPerColumn = Math.floor((containerHeight + gap) / totalSquareSize);
         const totalSquares = squaresPerRow * squaresPerColumn;
 
-        setRows(squaresPerColumn);
         setSquares(Array.from({ length: totalSquares }, (_, i) => [i, Math.random() < i / squaresPerRow / (totalSquares / squaresPerRow)]));
     };
 
@@ -83,7 +84,7 @@ export default function Home() {
                             asChild
                         >
                             <Link href="/sign-in">
-                                Get started <ArrowRight />
+                                {session.data ? 'Go to dashboard' : 'Get started'} <ArrowRight />
                             </Link>
                         </Button>
                     </nav>

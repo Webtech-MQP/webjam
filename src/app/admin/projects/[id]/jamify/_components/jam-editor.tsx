@@ -94,10 +94,6 @@ export function JamEditor(props: Props) {
             e.returnValue = ''; // Needed for Chrome
         };
 
-        const handleBrowseAway = (url: string) => {
-            if (window.confirm('You have unsaved changes. Are you sure you want to leave?')) return;
-        };
-
         window.addEventListener('beforeunload', handleWindowClose);
 
         return () => {
