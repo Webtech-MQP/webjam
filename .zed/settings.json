@@ -5,11 +5,11 @@
 {
     "languages": {
         "TypeScript": {
-            "language_servers": ["!typescript-language-server", "!eslint", "..."]
+            "language_servers": ["biome", "!typescript-language-server", "!eslint", "..."]
         },
 
         "TSX": {
-            "language_servers": ["!typescript-language-server", "!eslint", "..."]
+            "language_servers": ["biome", "!typescript-language-server", "!eslint", "..."]
         },
 
         "JavaScript": {

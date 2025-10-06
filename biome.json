@@ -38,7 +38,8 @@
                         "noUnsafeNegation": "off",
                         "noVar": "error",
                         "noWith": "off",
-                        "useGetterReturn": "off"
+                        "useGetterReturn": "off",
+                        "noEmptyBlockStatements": "off"
                     }
                 }
             }
@@ -60,7 +61,8 @@
                         "noExtraNonNullAssertion": "error",
                         "noMisleadingInstantiator": "error",
                         "noUnsafeDeclarationMerging": "error",
-                        "useNamespaceKeyword": "error"
+                        "useNamespaceKeyword": "error",
+                        "noEmptyBlockStatements": "warn"
                     }
                 }
             }
@@ -93,7 +95,8 @@
                         "noUnsafeNegation": "off",
                         "noVar": "error",
                         "noWith": "off",
-                        "useGetterReturn": "off"
+                        "useGetterReturn": "off",
+                        "noEmptyBlockStatements": "off"
                     }
                 }
             }
@@ -116,7 +119,8 @@
                         "noMisleadingInstantiator": "error",
                         "noUnsafeDeclarationMerging": "error",
                         "useAwait": "error",
-                        "useNamespaceKeyword": "error"
+                        "useNamespaceKeyword": "error",
+                        "noEmptyBlockStatements": "off"
                     }
                 }
             }
@@ -149,7 +153,8 @@
                         "noUnsafeNegation": "off",
                         "noVar": "error",
                         "noWith": "off",
-                        "useGetterReturn": "off"
+                        "useGetterReturn": "off",
+                        "noEmptyBlockStatements": "off"
                     }
                 }
             }
@@ -170,7 +175,8 @@
                     },
                     "suspicious": {
                         "noEmptyBlockStatements": "error",
-                        "useAdjacentOverloadSignatures": "error"
+                        "useAdjacentOverloadSignatures": "error",
+                        "noEmptyBlockStatements": "off"
                     }
                 }
             }
@@ -181,7 +187,7 @@
                 "rules": {
                     "correctness": { "noUnusedVariables": "warn" },
                     "style": { "useConsistentArrayType": "off" },
-                    "suspicious": { "useAwait": "off" }
+                    "suspicious": { "useAwait": "off", "noEmptyBlockStatements": "off" }
                 }
             }
         }
