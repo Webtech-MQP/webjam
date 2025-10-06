@@ -36,7 +36,7 @@ export default async function Page({ params, searchParams }: { params: Promise<{
                 <CardHeader>
                     <CardTitle>Edit Jams</CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="flex flex-col h-full gap-2">
                     <JamEditor
                         projectId={id}
                         profiles={profiles}

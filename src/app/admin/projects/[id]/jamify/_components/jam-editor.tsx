@@ -50,7 +50,7 @@ function DroppableTeam({ teamIndex, team, profiles }: { teamIndex: number; team:
     return (
         <div
             ref={setNodeRef}
-            className={`min-w-1/4 flex-1 rounded-lg p-4 space-y-2 transition-colors ${isOver ? 'bg-stone-700' : 'bg-stone-900'}`}
+            className={`min-w-1/4 flex-1 rounded-lg p-4 space-y-2 transition-colors bg-secondary ${isOver && 'outline-2 outline-primary'}`}
         >
             <h1>Team {String.fromCharCode(teamIndex + 65)}</h1>
             {team.map((userId) => (
