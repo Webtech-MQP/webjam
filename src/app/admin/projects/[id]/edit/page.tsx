@@ -37,6 +37,7 @@ export default async function Page({ params }: Props) {
                 weight: c.weight,
             })) || [],
         events: initialValues?.events || [],
+        awards: initialValues?.awards?.map((a) => a.awardId) || [],
     };
     return (
         <div className="w-2/3 mx-auto py-10">

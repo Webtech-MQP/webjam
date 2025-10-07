@@ -1,10 +1,12 @@
 'use client';
 
 import { ArrayInput } from '@/components/array-input';
+import { ProjectAwardsInput } from '@/components/project-awards-input';
 import { ProjectEventInput, type ProjectEvent } from '@/components/project-event-input';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Command, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { ImageUpload } from '@/components/ui/image-uploader';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -55,6 +57,7 @@ const defaultForm = z.object({
             isHeader: z.boolean(),
         })
     ),
+    awards: z.array(z.string()),
 });
 
 const transformToUpload = defaultForm.transform((data) => ({
@@ -92,14 +95,24 @@ export default function AdminCreateEditProject(props: AdminCreateEditProjectProp
               tags: [],
               judgingCriteria: [],
               events: [],
+              awards: [],
           };
 
     const [open, setOpen] = useState(false);
     const [tagInput, setTagInput] = useState('');
+    const [isCreateAwardOpen, setIsCreateAwardOpen] = useState(false);
+    const [newAward, setNewAward] = useState({
+        title: '',
+        description: '',
+        imageUrl: '',
+    });
+
     const createTag = api.projects.createTag.useMutation();
     const createProject = api.projects.create.useMutation();
     const tags = api.projects.getAllTags.useQuery();
     const editProject = api.projects.updateOne.useMutation();
+    const availableAwards = api.awards.getAll.useQuery();
+    const createAward = api.awards.createAward.useMutation();
 
     const form = useForm({
         defaultValues: initialData,
@@ -391,6 +404,100 @@ export default function AdminCreateEditProject(props: AdminCreateEditProjectProp
                                 />
                                 {field.state.meta.errors.length > 0 && <div className="text-sm text-red-300 mt-1">{field.state.meta.errors.map((error) => error?.message).join(', ')}</div>}
                             </div>
+                        )}
+                    </form.Field>
+                    <form.Field name="awards">
+                        {(field) => (
+                            <>
+                                <ProjectAwardsInput
+                                    awards={availableAwards.data || []}
+                                    projectAwards={field.state.value}
+                                    onAwardToggle={(awardId) => {
+                                        const newValue = field.state.value.includes(awardId) ? field.state.value.filter((id) => id !== awardId) : [...field.state.value, awardId];
+                                        field.handleChange(newValue);
+                                    }}
+                                    onCreateAward={() => setIsCreateAwardOpen(true)}
+                                    allowEdit={true}
+                                />
+
+                                <Dialog
+                                    open={isCreateAwardOpen}
+                                    onOpenChange={setIsCreateAwardOpen}
+                                >
+                                    <DialogContent>
+                                        <DialogHeader>
+                                            <DialogTitle>Create New Award</DialogTitle>
+                                        </DialogHeader>
+                                        <div className="grid gap-4 py-4">
+                                            <div className="mx-auto">
+                                                <ImageUpload
+                                                    currentImageUrl={newAward.imageUrl}
+                                                    uploadType="award"
+                                                    onImageChange={(imageUrl) => setNewAward((prev) => ({ ...prev, imageUrl: imageUrl || '' }))}
+                                                    className="w-40 h-40 rounded-md"
+                                                />
+                                            </div>
+                                            <div className="grid gap-2">
+                                                <Label htmlFor="title">Title</Label>
+                                                <Input
+                                                    id="title"
+                                                    value={newAward.title}
+                                                    onChange={(e) => setNewAward((prev) => ({ ...prev, title: e.target.value }))}
+                                                />
+                                            </div>
+                                            <div className="grid gap-2">
+                                                <Label htmlFor="description">Description</Label>
+                                                <Textarea
+                                                    id="description"
+                                                    value={newAward.description}
+                                                    onChange={(e) => setNewAward((prev) => ({ ...prev, description: e.target.value }))}
+                                                />
+                                            </div>
+                                            <div className="flex justify-end gap-3">
+                                                <Button
+                                                    type="button"
+                                                    variant="secondary"
+                                                    onClick={() => {
+                                                        setIsCreateAwardOpen(false);
+                                                        setNewAward({ title: '', description: '', imageUrl: '' });
+                                                    }}
+                                                >
+                                                    Cancel
+                                                </Button>
+                                                <Button
+                                                    type="button"
+                                                    onClick={async () => {
+                                                        if (!newAward.title || !newAward.imageUrl) {
+                                                            toast.error('Title and image are required');
+                                                            return;
+                                                        }
+
+                                                        const promise = createAward.mutateAsync({
+                                                            title: newAward.title,
+                                                            description: newAward.description,
+                                                            imageUrl: newAward.imageUrl,
+                                                        });
+
+                                                        toast.promise(promise, {
+                                                            loading: 'Creating award...',
+                                                            success: () => {
+                                                                setIsCreateAwardOpen(false);
+                                                                setNewAward({ title: '', description: '', imageUrl: '' });
+                                                                void availableAwards.refetch();
+                                                                return 'Award created successfully!';
+                                                            },
+                                                            error: 'Failed to create award',
+                                                        });
+                                                    }}
+                                                    disabled={createAward.isPending}
+                                                >
+                                                    Create Award
+                                                </Button>
+                                            </div>
+                                        </div>
+                                    </DialogContent>
+                                </Dialog>
+                            </>
                         )}
                     </form.Field>
                     <ProjectRegistrationSection projectId={props.projectId} />

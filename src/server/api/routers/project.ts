@@ -2,8 +2,8 @@ import { env } from '@/env';
 import { sendJamEndEmail, sendJudgedEmail } from '@/lib/mailer';
 import { createPresignedPost, deleteS3Object, getS3KeyFromUrl, s3Client } from '@/lib/s3';
 import { adminProcedure, createTRPCRouter, protectedProcedure, publicProcedure } from '@/server/api/trpc';
-import { projectEvent, projectInstanceRankings, projectJudgingCriteria, projects, projectsTags, tags } from '@/server/db/schemas/projects';
 import { projectAward } from '@/server/db/schemas/awards';
+import { projectEvent, projectInstanceRankings, projectJudgingCriteria, projects, projectsTags, tags } from '@/server/db/schemas/projects';
 import { TRPCError } from '@trpc/server';
 import { eq } from 'drizzle-orm';
 import { nanoid } from 'nanoid';
@@ -40,8 +40,7 @@ export const projectRouter = createTRPCRouter({
                         })
                     )
                     .optional(),
-                awards: z
-                    .array(z.cuid2()).optional(),
+                awards: z.array(z.cuid2()).optional(),
             })
         )
         .mutation(async ({ ctx, input }) => {
@@ -205,8 +204,7 @@ export const projectRouter = createTRPCRouter({
                         })
                     )
                     .optional(),
-                awards: z
-                    .array(z.cuid2()).optional(),
+                awards: z.array(z.cuid2()).optional(),
             })
         )
         .mutation(async ({ ctx, input }) => {
@@ -271,7 +269,7 @@ export const projectRouter = createTRPCRouter({
                     }))
                 );
             }
-            //Update awards 
+            //Update awards
             if (input.awards && input.awards.length > 0) {
                 await ctx.db.delete(projectAward).where(eq(projectAward.projectId, input.id));
 
