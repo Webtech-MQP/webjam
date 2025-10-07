@@ -141,7 +141,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
                                             target="_blank"
                                             href={j.repoUrl}
                                         >
-                                            <ExternalLink className="hover:text-primary cursor-pointer" />
+                                            <ExternalLink className="h-4 w-4hover:text-primary cursor-pointer" />
                                         </Link>
                                     )}
                                 </div>
@@ -150,17 +150,19 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
                     </CardContent>
                 </Card>
             </div>
-            <ProjectSubmissions submissions={latestSubmissions} />
-            <ProjectRankings
-                rankings={project.projectInstances.flatMap((instance, index) =>
-                    instance.ranking
-                        ? {
-                              projectInstance: instance,
-                              rank: instance.ranking.rank,
-                          }
-                        : []
-                )}
-            />
+            {project.status !== 'completed' && <ProjectSubmissions submissions={latestSubmissions} />}
+            {project.status === 'completed' && (
+                <ProjectRankings
+                    rankings={project.projectInstances.flatMap((instance, index) =>
+                        instance.ranking
+                            ? {
+                                  projectInstance: instance,
+                                  rank: instance.ranking.rank,
+                              }
+                            : []
+                    )}
+                />
+            )}
         </div>
     );
 }

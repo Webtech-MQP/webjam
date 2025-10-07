@@ -2,6 +2,7 @@ import { AwardsSection } from '@/components/awards/awards-display-section';
 import { Button } from '@/components/ui/button';
 import { UserActionsMenu } from '@/components/user-actions-menu';
 import { JamGrid } from '@/features/profiles/jam-grid';
+import { cn } from '@/lib/utils';
 import { auth } from '@/server/auth';
 import { api } from '@/trpc/server';
 import { GithubIcon, LinkedinIcon, PencilIcon } from 'lucide-react';
@@ -38,15 +39,16 @@ export default async function Page({ params }: Props) {
     return (
         <div>
             <div>
-                <div className="relative h-80 w-full -mt-4 -mx-4">
-                    {/* Banner Image */}
-                    <Image
-                        src={candidate.bannerUrl ?? 'https://placehold.co/1920x1080/png'}
-                        alt="Profile banner"
-                        fill
-                        className="object-cover"
-                        priority
-                    />
+                <div className={cn('relative h-80 w-full -mt-4 -mx-4', !candidate.bannerUrl && 'bg-primary')}>
+                    {candidate.bannerUrl && (
+                        <Image
+                            src={candidate.bannerUrl}
+                            alt="Profile banner"
+                            fill
+                            className="object-cover"
+                            priority
+                        />
+                    )}
                 </div>
                 <div className="relative space-y-8 p-15">
                     <div className="z-30">

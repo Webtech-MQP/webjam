@@ -5,7 +5,7 @@ interface Props {
 export default function Layout({ children }: Props) {
     return (
         <>
-            <div className="h-full">{children}</div>
+            <div className="max-h-full overflow-auto">{children}</div>
         </>
     );
 }

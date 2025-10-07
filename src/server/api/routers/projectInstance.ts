@@ -1,5 +1,5 @@
 import { sendJamStartEmail } from '@/lib/mailer';
-import { adminProcedure, createTRPCRouter, protectedProcedure, publicProcedure } from '@/server/api/trpc';
+import { createTRPCRouter, protectedProcedure, publicProcedure } from '@/server/api/trpc';
 import { candidateProfilesToProjectInstances, projectInstanceRatings, projectInstances, projects } from '@/server/db/schemas/projects';
 import { TRPCError } from '@trpc/server';
 import { and, eq, getTableColumns, gte } from 'drizzle-orm';
@@ -171,12 +171,12 @@ export const projectInstanceRouter = createTRPCRouter({
         );
     }),
 
-    getAvgProjectInstanceRating: adminProcedure.input(z.object({ projectInstanceId: z.cuid2() })).query(async ({ ctx, input }) => {
-        const ratings = await ctx.db.query.projectInstanceRatings.findMany({
-            where: (rating, { eq }) => eq(rating.projectInstanceId, input.projectInstanceId),
+    getAvgProjectInstanceRating: protectedProcedure.input(z.object({ projectInstanceId: z.cuid2() })).query(async ({ ctx, input }) => {
+        const rating = await ctx.db.query.projectInstanceRankings.findFirst({
+            where: (r, { eq }) => eq(r.projectInstanceId, input.projectInstanceId),
         });
 
-        return ratings.reduce((acc, r) => acc + r.rating, 0) / (ratings.length || 1);
+        return rating.calculatedScore;
     }),
 
     getRank: publicProcedure.input(z.object({ projectInstanceId: z.cuid2() })).query(async ({ ctx, input }) => {

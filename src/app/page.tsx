@@ -1,10 +1,10 @@
 'use client';
 import { ProjectCard } from '@/components/project-card';
 import { Button } from '@/components/ui/button';
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
+import { Carousel, CarouselContent, CarouselItem } from '@/components/ui/carousel';
 import { cn } from '@/lib/utils';
 import { api } from '@/trpc/react';
-import Autoplay from 'embla-carousel-autoplay';
+import Autoscroll from 'embla-carousel-auto-scroll';
 import { ArrowRight } from 'lucide-react';
 import { motion } from 'motion/react';
 import { useSession } from 'next-auth/react';
@@ -59,12 +59,12 @@ export default function Home() {
         }),
     };
 
-    const carouselPlugin = useRef(Autoplay({ delay: 500 }));
+    const carouselPlugin = useRef(Autoscroll({ stopOnFocusIn: false }));
 
     const { data: projects } = api.projects.getAll.useQuery();
 
     return (
-        <main className={`relative bg-white h-screen max-h-screen w-screen`}>
+        <main className="relative bg-white h-screen max-h-screen w-screen">
             <div
                 onMouseEnter={() => setRecruiterHover(true)}
                 onMouseLeave={() => setRecruiterHover(false)}
@@ -109,7 +109,7 @@ export default function Home() {
                             ></motion.div>
                         ))}
                     </div>
-                    <div className="space-y-8 flex-1 text-4xl font-(family-name:--font-overpass)">
+                    <div className="max-w-full overflow-auto space-y-8 flex-1 text-4xl font-(family-name:--font-overpass)">
                         <p>
                             A portfolio you&apos;ll be <span className="text-primary">proud of.</span>
                         </p>
@@ -118,7 +118,7 @@ export default function Home() {
                         </p>
                         <div>
                             <Carousel
-                                className="mx-10"
+                                className="max-w-full mask-x-from-70% mask-x-to-90%0"
                                 plugins={[carouselPlugin.current]}
                             >
                                 <CarouselContent>
@@ -127,12 +127,13 @@ export default function Home() {
                                             className={projects.length > 1 ? 'basis-1/2' : ''}
                                             key={project.id}
                                         >
-                                            <ProjectCard {...project} />
+                                            <ProjectCard
+                                                {...project}
+                                                tags={project.projectsToTags.map((pt) => pt.tag)}
+                                            />
                                         </CarouselItem>
                                     ))}
                                 </CarouselContent>
-                                <CarouselNext />
-                                <CarouselPrevious />
                             </Carousel>
                         </div>
                     </div>

@@ -87,7 +87,9 @@ export function Sidebar() {
 
     return (
         <div className="shrink-0 max-h-screen overflow-auto bg-accent dark:bg-background border-r flex h-full w-64 flex-col p-4">
-            <h1 className="text-primary dark:text-primary font-(family-name:--font-caprasimo)">webjam</h1>
+            <Link href="/">
+                <h1 className="text-primary dark:text-primary font-(family-name:--font-caprasimo)">webjam</h1>
+            </Link>
             <nav className="mt-4">
                 {myInstances && myInstances.length > 0 && (
                     <div className="p-4 border rounded mb-4">

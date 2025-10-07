@@ -175,8 +175,7 @@
                     },
                     "suspicious": {
                         "noEmptyBlockStatements": "error",
-                        "useAdjacentOverloadSignatures": "error",
-                        "noEmptyBlockStatements": "off"
+                        "useAdjacentOverloadSignatures": "error"
                     }
                 }
             }

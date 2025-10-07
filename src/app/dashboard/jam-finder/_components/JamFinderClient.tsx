@@ -10,6 +10,7 @@ import { Form, FormControl, FormField, FormItem, FormMessage } from '@/component
 import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Slider } from '@/components/ui/slider';
+import { cn } from '@/lib/utils';
 import { api } from '@/trpc/react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { format } from 'date-fns';
@@ -262,10 +263,13 @@ export default function JamFinderClient() {
                     )}
                     {!finderParams && (
                         <div className="relative h-full">
-                            <div className="absolute inset-0 overflow-y-auto pb-6">
-                                <div className="flex flex-wrap">
+                            <div className="overflow-y-auto pb-6">
+                                <div className={cn('mt-4 grid grid-cols-1 gap-4 overflow-y-auto md:grid-cols-2 lg:grid-cols-3', !!activeProjectId && 'grid-cols-1 md:grid-cols-1 lg:grid-cols-1')}>
                                     {projects?.map((project) => (
-                                        <div key={project.id}>
+                                        <div
+                                            className="min-w-64 max-w-128"
+                                            key={project.id}
+                                        >
                                             <Link href={pathname + '?' + createQueryString('project-id', project.id)}>
                                                 <ProjectCard
                                                     key={project.id}
@@ -305,7 +309,7 @@ export default function JamFinderClient() {
                                 <div>
                                     Found {filteredProjectsQuery.data.length} {filteredProjectsQuery.data.length === 1 ? 'jam' : 'jams'}
                                 </div>
-                                <div className="mt-4 grid grid-cols-1 gap-4 overflow-y-auto md:grid-cols-2 lg:grid-cols-3">
+                                <div className={cn('mt-4 grid grid-cols-1 gap-4 overflow-y-auto md:grid-cols-2 lg:grid-cols-3', !!activeProjectId && 'grid-cols-1 md:grid-cols-1 lg:grid-cols-1')}>
                                     {filteredProjectsQuery.data.map((project) => (
                                         <div key={project.id}>
                                             <Link href={`/dashboard/projects/${project.id}`}>
@@ -332,21 +336,23 @@ export default function JamFinderClient() {
                     )}
                 </div>
             </div>
-            {activeProjectId && (
-                <AnimatePresence>
-                    <motion.div
-                        className="transform"
-                        initial={{ translateX: '100%' }}
-                        animate={{ translateX: 0 }}
-                        transition={{
-                            duration: 0.3,
-                            ease: 'easeInOut',
-                        }}
-                    >
-                        <ProjectDetail id={activeProjectId} />
-                    </motion.div>
-                </AnimatePresence>
-            )}
+            <div className="min-h-full">
+                {activeProjectId && (
+                    <AnimatePresence>
+                        <motion.div
+                            className="h-full transform"
+                            initial={{ translateX: '100%' }}
+                            animate={{ translateX: 0 }}
+                            transition={{
+                                duration: 0.3,
+                                ease: 'easeInOut',
+                            }}
+                        >
+                            <ProjectDetail id={activeProjectId} />
+                        </motion.div>
+                    </AnimatePresence>
+                )}
+            </div>
         </div>
     );
 }

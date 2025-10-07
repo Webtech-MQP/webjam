@@ -12,7 +12,6 @@ import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import z from 'zod';
 import { TextField } from './text-input';
-
 const onboardingSchema = z.object({
     isRecruiter: z.string().refine((val) => val === 'yes' || val === 'no', {
         message: 'Please select recruiter status',

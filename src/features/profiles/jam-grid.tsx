@@ -10,7 +10,7 @@ type Props = {
 
 export function JamGrid({ jams, name }: Props) {
     return (
-        <div>
+        <div className="grid grid-cols-2 xl:grid-cols-3 gap-4">
             {jams?.map((j) => (
                 <div
                     key={j.projectInstanceId}

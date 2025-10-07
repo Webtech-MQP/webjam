@@ -13,7 +13,7 @@ type ProjectInstanceRatingProps = {
 export function ProjectInstanceRating({ projectInstanceId, isAdmin }: ProjectInstanceRatingProps) {
     const utils = api.useUtils();
 
-    const myRatingRaw = isAdmin ? api.projectInstances.getAvgProjectInstanceRating.useQuery({ projectInstanceId }) : api.projectInstances.getMyProjectInstanceRating.useQuery({ projectInstanceId });
+    const myRatingRaw = api.projectInstances.getAvgProjectInstanceRating.useQuery({ projectInstanceId });
 
     const rate = api.projectInstances.createOrUpdateRating.useMutation({
         onSettled: () => utils.projectInstances.getMyProjectInstanceRating.invalidate({ projectInstanceId }),

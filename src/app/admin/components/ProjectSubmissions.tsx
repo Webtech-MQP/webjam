@@ -11,16 +11,18 @@ interface ProjectSubmissionsProps {
 }
 
 export function ProjectSubmissions({ submissions }: ProjectSubmissionsProps) {
-    const submissionsWithActionable = submissions.map((submission) => ({
-        ...submission,
-        actionable: submission.projectInstance.project.status === 'judging',
-    }));
+    const submissionsWithActionable = submissions
+        .map((submission) => ({
+            ...submission,
+            actionable: submission.projectInstance.project.status === 'judging',
+        }))
+        .slice(0, 5);
 
     return (
         <Card className="border-b border-muted">
             <CardHeader>
                 <div className="flex items-center justify-between">
-                    <CardTitle className="text-lg text-foreground">Pending Submissions</CardTitle>
+                    <CardTitle className="text-lg text-foreground">Recent Submissions</CardTitle>
                 </div>
             </CardHeader>
             <CardContent>

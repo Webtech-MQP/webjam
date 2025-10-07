@@ -17,12 +17,13 @@ interface CandidateCardProps {
     githubUsername?: string;
     linkedinURL?: string;
     imageUrl?: string;
+    bannerUrl?: string;
     projectCount?: number;
     onClick?: () => void;
     className?: string;
 }
 
-export function CandidateCard({ displayName, bio, location, language, experience, githubUsername, linkedinURL, imageUrl, projectCount = 0, onClick, className }: CandidateCardProps) {
+export function CandidateCard({ displayName, bio, location, language, experience, githubUsername, linkedinURL, imageUrl, bannerUrl, projectCount = 0, onClick, className }: CandidateCardProps) {
     return (
         <DashboardCard
             onClick={onClick}
@@ -30,7 +31,7 @@ export function CandidateCard({ displayName, bio, location, language, experience
         >
             <div className="relative -mt-6 mb-0 h-32 w-full rounded-t-lg">
                 <Image
-                    src={imageUrl ?? 'https://placehold.co/400x128/png'}
+                    src={bannerUrl ?? 'https://placehold.co/400x128/png'}
                     alt={`${displayName} banner`}
                     fill
                     className="object-cover"

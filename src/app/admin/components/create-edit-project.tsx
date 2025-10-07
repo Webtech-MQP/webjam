@@ -19,6 +19,7 @@ import { useState } from 'react';
 import { toast } from 'sonner';
 import z from 'zod';
 import { JudgingCriteriaInput, type JudgingCriterion } from '../../../components/judging-criteria-input';
+import ProjectAwardsSection from './ProjectAwardsSection';
 import ProjectRegistrationSection from './ProjectRegistrationSection';
 
 const defaultForm = z.object({
@@ -56,6 +57,7 @@ const defaultForm = z.object({
             isHeader: z.boolean(),
         })
     ),
+    awards: z.array(z.string()),
 });
 
 const transformToUpload = defaultForm.transform((data) => ({
@@ -94,6 +96,7 @@ export default function AdminCreateEditProject(props: AdminCreateEditProjectProp
               tags: [],
               judgingCriteria: [],
               events: [],
+              awards: [],
           };
 
     const [open, setOpen] = useState(false);
@@ -145,7 +148,7 @@ export default function AdminCreateEditProject(props: AdminCreateEditProjectProp
     const isNewProject = props.projectId === undefined;
 
     return (
-        <div className="grid w-full items-center gap-3">
+        <div className="max-h-full overflow-auto flex-1 w-full items-center gap-3">
             <form
                 onSubmit={async (e) => {
                     e.preventDefault();
@@ -411,6 +414,7 @@ export default function AdminCreateEditProject(props: AdminCreateEditProjectProp
                         )}
                     </form.Field>
                     <ProjectRegistrationSection projectId={props.projectId} />
+                    <ProjectAwardsSection projectId={props.projectId} />
                     <form.Subscribe selector={(state) => [state.isPristine]}>
                         {([isPristine]) => (
                             <Button

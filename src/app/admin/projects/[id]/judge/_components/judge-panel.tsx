@@ -51,10 +51,10 @@ export function JudgePanel({ project }: Props) {
                                             layout
                                             key={submission.id}
                                             className="flex items-center justify-stretch gap-4 p-3 pr-0 divide-border rounded cursor-pointer"
-                                            transition={{
-                                                duration: 0.2,
-                                                ease: 'anticipate',
-                                            }}
+                                            // transition={{
+                                            //     duration: 0.2,
+                                            //     ease: 'anticipate',
+                                            // }}
                                             // onMouseEnter={(e) => setHoveredRankingRef(e.currentTarget)}
                                             {...register(submissionId)}
                                         >

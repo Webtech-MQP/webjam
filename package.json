@@ -21,6 +21,7 @@
         "prepare": "husky",
         "seed": "dotenv -e .env -- tsx scripts/seed.ts",
         "dev:setup": "pnpm install && drizzle-kit push --force && pnpm run seed",
+        "db:setup": "rm -f db.sqlite && pnpm run db:push && pnpm run seed",
         "pretty": "prettier --write \"./**/*.{js,jsx,mjs,cjs,ts,tsx,json}\""
     },
     "dependencies": {
@@ -59,7 +60,7 @@
         "date-fns": "^4.1.0",
         "drizzle-orm": "^0.41.0",
         "drizzle-seed": "^0.3.1",
-        "embla-carousel-autoplay": "^8.6.0",
+        "embla-carousel-auto-scroll": "^8.6.0",
         "embla-carousel-react": "^8.6.0",
         "lucide-react": "^0.522.0",
         "motion": "^12.23.9",
@@ -85,6 +86,7 @@
     "devDependencies": {
         "@biomejs/biome": "^2.2.5",
         "@eslint/eslintrc": "^3.3.1",
+        "@faker-js/faker": "^10.0.0",
         "@paralleldrive/cuid2": "^2.2.2",
         "@tailwindcss/postcss": "^4.0.15",
         "@types/node": "^20.14.10",

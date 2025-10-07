@@ -156,6 +156,7 @@ export function CandidateSearch({ initialPage = 1, initialSearchParams = {} }: C
                                         githubUsername={candidate.user.githubUsername ?? undefined}
                                         linkedinURL={candidate.linkedinURL ?? undefined}
                                         imageUrl={candidate.imageUrl ?? undefined}
+                                        bannerUrl={candidate.bannerUrl ?? undefined}
                                         projectCount={candidate.candidateProfilesToProjectInstances.length}
                                         onClick={() => router.push(`/users/${candidate.userId}`)}
                                     />

@@ -38,9 +38,10 @@ export default async function Page({ params }: Props) {
                 weight: c.weight,
             })) || [],
         events: initialValues?.events || [],
+        awards: [],
     };
     return (
-        <div className="w-2/3 mx-auto py-10">
+        <div className="flex flex-col py-10">
             <h1>Edit Project</h1>
             <AdminCreateEditProject
                 initialData={transformedInitialValues}
