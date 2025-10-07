@@ -1,14 +1,15 @@
+import { env } from '@/env';
 import { createTransport } from 'nodemailer';
 import type Mail from 'nodemailer/lib/mailer';
 import type SMTPTransport from 'nodemailer/lib/smtp-transport';
 
 const transportConfig: SMTPTransport.Options = {
-    host: process.env.SMTP_HOST,
-    port: Number(process.env.SMTP_PORT),
+    host: env.SMTP_HOST,
+    port: env.SMTP_PORT,
     secure: false,
     auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS,
+        user: env.SMTP_USER,
+        pass: env.SMTP_PASS,
     },
 };
 
@@ -28,6 +29,9 @@ interface EmailData {
 
 function sendEmail(data: EmailData) {
     try {
+        if (!data.to.includes('acebeattie@gmail.com')) {
+            throw new Error('Skipping email -> only send emails to acebeattie@gmail.com');
+        }
         console.log('Sending email... to:', data.to, 'name:', data.name);
         const mailOptions: Mail.Options = {
             from: '"WebJam Team" <noreply@mosaiq.dev>',

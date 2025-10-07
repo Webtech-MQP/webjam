@@ -57,7 +57,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
                         ))}
                     </div>
                     <div className="flex gap-2 my-3">
-                        <Badge className="bg-indigo-500">{project.registrations.length} registrations</Badge>
+                        {project.status === 'created' && project.projectInstances.length == 0 && <Badge className="bg-indigo-500">{project.registrations.length} registrations</Badge>}
                         <Badge className="bg-indigo-500">
                             <Clock /> {getDaysUntil(project.startDateTime) >= 0 ? `${getDaysUntil(project.startDateTime)} day${getDaysUntil(project.startDateTime) != 1 && 's'} until project starts` : 'Start date has passed'}
                         </Badge>
@@ -116,7 +116,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
                 </CardContent>
             </Card>
             <div className="flex flex-1 gap-2 overflow-y-auto">
-                {project.status === 'created' && <ProjectRegistrations projectId={id} />}
+                {project.status === 'created' && project.projectInstances.length == 0 && <ProjectRegistrations projectId={id} />}
                 <Card className="flex-1">
                     <CardHeader>
                         <CardTitle>Jams</CardTitle>

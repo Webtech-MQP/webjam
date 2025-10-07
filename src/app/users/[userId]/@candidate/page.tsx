@@ -39,7 +39,7 @@ export default async function Page({ params }: Props) {
     return (
         <div>
             <div>
-                <div className={cn('relative h-80 w-full -mt-4 -mx-4', !candidate.bannerUrl && 'bg-primary')}>
+                <div className={cn('relative h-80 w-[calc(100% + 4px)] -mt-4 -mx-4', !candidate.bannerUrl && 'bg-primary')}>
                     {candidate.bannerUrl && (
                         <Image
                             src={candidate.bannerUrl}
@@ -72,7 +72,7 @@ export default async function Page({ params }: Props) {
                         </div>
                         <Image
                             src={candidate.imageUrl ?? ''}
-                            className="relative z-20 -mt-30 box-content rounded-xl border-6 border-(--color-background)"
+                            className="relative h-20 w-20 z-20 -mt-30 box-content rounded-xl border-6 border-(--color-background)"
                             alt="Profile picture"
                             height={100}
                             width={100}

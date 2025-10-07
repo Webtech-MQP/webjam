@@ -16,20 +16,20 @@ export default async function AdminDashboardPage() {
         //TODO: change background color
         <div className="min-h-screen ">
             <div className="p-6">
-                <StatsCards
-                    projectSubmissionsCount={projectSubmissions.length}
-                    activeReportsCount={activeReports.length}
-                    todaysActivityCount={projectSubmissionsToday!.count + reportsToday!.count}
-                />
-
-                <div className="grid gap-6 lg:grid-cols-3">
-                    <div className="lg:col-span-2 space-y-6 h-full">
-                        <ReportsList reports={activeReports} />
-                    </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <StatsCards
+                        projectSubmissionsCount={projectSubmissions.length}
+                        activeReportsCount={activeReports.length}
+                        todaysActivityCount={projectSubmissionsToday!.count + reportsToday!.count}
+                    />
 
                     <div className="space-y-6 h-full">
                         <QuickActions />
                     </div>
+                </div>
+
+                <div className="w-full">
+                    <ReportsList reports={activeReports} />
                 </div>
             </div>
             <div className="p-6">

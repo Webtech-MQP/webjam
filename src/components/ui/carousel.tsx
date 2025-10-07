@@ -45,6 +45,7 @@ function Carousel({ orientation = 'horizontal', opts, setApi, plugins, className
         {
             ...opts,
             axis: orientation === 'horizontal' ? 'x' : 'y',
+            loop: true,
         },
         plugins
     );

@@ -10,20 +10,19 @@ import { Form, FormControl, FormField, FormItem, FormMessage } from '@/component
 import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Slider } from '@/components/ui/slider';
-import { cn } from '@/lib/utils';
 import { api } from '@/trpc/react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { format } from 'date-fns';
 import { ChevronDown, ChevronUp, Search, Sliders } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
-import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
 const formSchema = z.object({
-    jamName: z.string().min(1, 'Jam name is required'),
+    jamName: z.string().min(0, 'Jam name is required'),
     numberOfTeammates: z.array(z.number()).min(1).max(10).optional(),
     dateRange: z
         .object({
@@ -63,7 +62,12 @@ export default function JamFinderClient() {
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     function handleSubmit(values: JamFinderForm) {
-        setFinderParams(values);
+        console.log(values);
+        if (values.jamName === '' && (values.numberOfTeammates == undefined || values.numberOfTeammates.length == 0) && (values.dateRange == undefined || (values.dateRange?.to == undefined && values.dateRange?.from == undefined)) && (values.tags == undefined || values.tags?.length == 0)) {
+            setFinderParams(null);
+        } else {
+            setFinderParams(values);
+        }
     }
 
     const filteredProjectsQuery = api.projects.findProjects.useQuery(
@@ -98,9 +102,55 @@ export default function JamFinderClient() {
         [searchParams]
     );
 
+    const removeQueryParam = useCallback(
+        (name: string) => {
+            const params = new URLSearchParams(searchParams.toString());
+            params.delete(name);
+
+            return params.toString();
+        },
+        [searchParams]
+    );
+
+    const handleCloseProject = useCallback(() => {
+        const newUrl = pathname + '?' + removeQueryParam('project-id');
+        window.history.pushState({}, '', newUrl.endsWith('?') ? pathname : newUrl);
+        setSelectedProject(null);
+        setIsModalOpen(false);
+    }, [pathname, removeQueryParam]);
+
+    // Handle browser navigation and initial URL state
+    useEffect(() => {
+        const handlePopState = () => {
+            const currentParams = new URLSearchParams(window.location.search);
+            const projectId = currentParams.get('project-id');
+
+            if (projectId) {
+                setSelectedProject(projectId);
+                setIsModalOpen(true);
+            } else {
+                setSelectedProject(null);
+                setIsModalOpen(false);
+            }
+        };
+
+        // Handle initial load
+        if (activeProjectId) {
+            setSelectedProject(activeProjectId);
+            setIsModalOpen(true);
+        }
+
+        // Listen for browser navigation
+        window.addEventListener('popstate', handlePopState);
+
+        return () => {
+            window.removeEventListener('popstate', handlePopState);
+        };
+    }, [activeProjectId]);
+
     return (
-        <div className="h-full flex gap-4">
-            <div className="min-w-2/5 flex flex-1 h-full flex-col">
+        <div className="h-full gap-4">
+            <div className="min-w-full">
                 <Form {...form}>
                     <form
                         onSubmit={form.handleSubmit(handleSubmit)}
@@ -252,8 +302,8 @@ export default function JamFinderClient() {
                 <div className="mt-4 -mb-6 flex-1">
                     {projectsQuery.isLoading && !finderParams && (
                         <div className="relative h-full">
-                            <div className="absolute inset-0 overflow-y-clip pb-6">
-                                <div className="grid grid-cols-1 gap-4 overflow-y-clip md:grid-cols-2 lg:grid-cols-3">
+                            <div className="absolute inset-0 overflow-y-auto pb-6">
+                                <div className="mt-4 grid grid-cols-1 gap-4 overflow-y-auto md:grid-cols-2 lg:grid-cols-3">
                                     {Array.from({ length: 9 }).map((_, i) => (
                                         <SkeletonCard key={i} />
                                     ))}
@@ -264,27 +314,25 @@ export default function JamFinderClient() {
                     {!finderParams && (
                         <div className="relative h-full">
                             <div className="overflow-y-auto pb-6">
-                                <div className={cn('mt-4 grid grid-cols-1 gap-4 overflow-y-auto md:grid-cols-2 lg:grid-cols-3', !!activeProjectId && 'grid-cols-1 md:grid-cols-1 lg:grid-cols-1')}>
+                                <div className="mt-4 grid grid-cols-1 gap-4 overflow-y-auto md:grid-cols-2 lg:grid-cols-3">
                                     {projects?.map((project) => (
                                         <div
                                             className="min-w-64 max-w-128"
                                             key={project.id}
                                         >
-                                            <Link href={pathname + '?' + createQueryString('project-id', project.id)}>
-                                                <ProjectCard
-                                                    key={project.id}
-                                                    title={project.title ?? 'Untitled Jam'}
-                                                    startDateTime={project.startDateTime ?? new Date()}
-                                                    endDateTime={project.endDateTime ?? new Date()}
-                                                    numberOfTeammates={project.numberOfMembers}
-                                                    imageUrl={project.imageUrl ?? 'https://placehold.co/150/png'}
-                                                    tags={project.projectsToTags?.map((pt) => pt.tag) ?? []}
-                                                    onClick={() => {
-                                                        setSelectedProject(project.id);
-                                                        setIsModalOpen(true);
-                                                    }}
-                                                />
-                                            </Link>
+                                            <ProjectCard
+                                                key={project.id}
+                                                title={project.title ?? 'Untitled Jam'}
+                                                startDateTime={project.startDateTime ?? new Date()}
+                                                endDateTime={project.endDateTime ?? new Date()}
+                                                numberOfTeammates={project.numberOfMembers}
+                                                imageUrl={project.imageUrl ?? 'https://placehold.co/150/png'}
+                                                tags={project.projectsToTags?.map((pt) => pt.tag) ?? []}
+                                                onClick={() => {
+                                                    const newUrl = pathname + '?' + createQueryString('project-id', project.id);
+                                                    window.history.pushState({}, '', newUrl);
+                                                }}
+                                            />
                                         </div>
                                     ))}
                                 </div>
@@ -305,27 +353,26 @@ export default function JamFinderClient() {
                     )}
                     {filteredProjectsQuery.data && filteredProjectsQuery.data.length > 0 ? (
                         <div className="relative h-full">
-                            <div className="absolute inset-0 overflow-y-auto pb-6">
-                                <div>
-                                    Found {filteredProjectsQuery.data.length} {filteredProjectsQuery.data.length === 1 ? 'jam' : 'jams'}
-                                </div>
-                                <div className={cn('mt-4 grid grid-cols-1 gap-4 overflow-y-auto md:grid-cols-2 lg:grid-cols-3', !!activeProjectId && 'grid-cols-1 md:grid-cols-1 lg:grid-cols-1')}>
-                                    {filteredProjectsQuery.data.map((project) => (
-                                        <div key={project.id}>
-                                            <Link href={`/dashboard/projects/${project.id}`}>
-                                                <ProjectCard
-                                                    key={project.id}
-                                                    title={project.title ?? 'Untitled Jam'}
-                                                    startDateTime={project.startDateTime ?? new Date()}
-                                                    endDateTime={project.endDateTime ?? new Date()}
-                                                    imageUrl={project.imageUrl ?? 'https://placehold.co/150/png'}
-                                                    tags={project.projectsToTags?.map((pt) => pt.tag) ?? []}
-                                                    onClick={() => {
-                                                        setSelectedProject(project.id);
-                                                        setIsModalOpen(true);
-                                                    }}
-                                                />
-                                            </Link>
+                            <div className="overflow-y-auto pb-6">
+                                <div className="mt-4 grid grid-cols-1 gap-4 overflow-y-auto md:grid-cols-2 lg:grid-cols-3">
+                                    {filteredProjectsQuery.data?.map((project) => (
+                                        <div
+                                            className="min-w-64 max-w-128"
+                                            key={project.id}
+                                        >
+                                            <ProjectCard
+                                                key={project.id}
+                                                title={project.title ?? 'Untitled Jam'}
+                                                startDateTime={project.startDateTime ?? new Date()}
+                                                endDateTime={project.endDateTime ?? new Date()}
+                                                numberOfTeammates={project.numberOfMembers}
+                                                imageUrl={project.imageUrl ?? 'https://placehold.co/150/png'}
+                                                tags={project.projectsToTags?.map((pt) => pt.tag) ?? []}
+                                                onClick={() => {
+                                                    const newUrl = pathname + '?' + createQueryString('project-id', project.id);
+                                                    window.history.pushState({}, '', newUrl);
+                                                }}
+                                            />
                                         </div>
                                     ))}
                                 </div>
@@ -336,23 +383,32 @@ export default function JamFinderClient() {
                     )}
                 </div>
             </div>
-            <div className="min-h-full">
-                {activeProjectId && (
-                    <AnimatePresence>
-                        <motion.div
-                            className="h-full transform"
-                            initial={{ translateX: '100%' }}
-                            animate={{ translateX: 0 }}
-                            transition={{
-                                duration: 0.3,
-                                ease: 'easeInOut',
-                            }}
-                        >
-                            <ProjectDetail id={activeProjectId} />
-                        </motion.div>
-                    </AnimatePresence>
+            {activeProjectId &&
+                typeof document !== 'undefined' &&
+                createPortal(
+                    <div className="fixed inset-0 z-[200]">
+                        <div className="fixed top-2 right-2 w-[40vw] h-[calc(100vh-16px)]">
+                            <AnimatePresence>
+                                <motion.div
+                                    className="h-full transform"
+                                    initial={{ translateX: '100%' }}
+                                    animate={{ translateX: 0 }}
+                                    exit={{ translateX: '100%' }}
+                                    transition={{
+                                        duration: 0.3,
+                                        ease: 'easeInOut',
+                                    }}
+                                >
+                                    <ProjectDetail
+                                        onClose={handleCloseProject}
+                                        id={activeProjectId}
+                                    />
+                                </motion.div>
+                            </AnimatePresence>
+                        </div>
+                    </div>,
+                    document.body
                 )}
-            </div>
         </div>
     );
 }

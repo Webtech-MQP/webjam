@@ -91,8 +91,8 @@ export default function Page() {
             bio: candidate?.bio ?? '',
             location: candidate?.location ?? '',
             linkedinURL: candidate?.linkedinURL ?? '',
-            imageUrl: candidate?.imageUrl ?? 'https://placehold.co/100.png',
-            bannerUrl: candidate?.bannerUrl ?? 'https://placehold.co/100.png',
+            imageUrl: candidate?.imageUrl ?? '',
+            bannerUrl: candidate?.bannerUrl ?? '',
         } satisfies z.infer<typeof formSchema>,
         onSubmit: (values) => {
             updateCandidate.mutate(values.value);

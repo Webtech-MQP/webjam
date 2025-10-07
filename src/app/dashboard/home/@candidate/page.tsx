@@ -71,7 +71,7 @@ export default function CandidatePage() {
                         </div>
                     )}
                 </CardContent>
-            </Card>
+            </Card>{' '}
         </div>
     );
 }

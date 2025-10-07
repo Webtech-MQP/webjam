@@ -116,13 +116,13 @@ export function ProjectRegistrationFlow({ projectId, open, onClose }: ProjectReg
                                         value={option}
                                         checked={currentAnswer === option}
                                         onChange={(e) => updateAnswer(e.target.value)}
-                                        className="peer h-5 w-5 cursor-pointer appearance-none rounded-full border border-stone-300 bg-white checked:border-[#d37c04] checked:bg-white focus:outline-none focus:ring-2 focus:ring-[#d37c04]/25"
+                                        className="text-muted-foreground peer h-5 w-5 cursor-pointer appearance-none rounded-full border border-stone-300 bg-white checked:border-[#d37c04] checked:bg-white focus:outline-none focus:ring-2 focus:ring-[#d37c04]/25"
                                     />
                                     <div className="pointer-events-none absolute top-1/2 left-1/2 h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#d37c04] opacity-0 transition-opacity peer-checked:opacity-100"></div>
                                 </div>
                                 <Label
                                     htmlFor={option}
-                                    className="text-sm font-normal cursor-pointer select-none text-stone-200 peer-checked:text-foreground"
+                                    className="text-sm font-normal cursor-pointer select-none text-muted-foreground peer-checked:text-foreground"
                                 >
                                     {option}
                                 </Label>
@@ -164,7 +164,7 @@ export function ProjectRegistrationFlow({ projectId, open, onClose }: ProjectReg
                                     {index + 1}. {question.question}
                                     {question.required && <span className="text-red-500 ml-1">*</span>}
                                 </Label>
-                                <p className="text-sm text-muted dark:text-muted-foreground border p-2 rounded-md">{answer?.answer || 'No answer provided'}</p>
+                                <p className="text-sm text-muted-foreground dark:text-muted-foreground border p-2 rounded-md">{answer?.answer || 'No answer provided'}</p>
                             </div>
                         );
                     })}

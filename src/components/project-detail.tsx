@@ -12,6 +12,7 @@ import { Card, CardContent } from './ui/card';
 
 export interface ProjectDetailProps {
     id: string;
+    onClose?: () => void;
 }
 
 export const ProjectDetail = (props: ProjectDetailProps) => {
@@ -45,7 +46,7 @@ export const ProjectDetail = (props: ProjectDetailProps) => {
                 variant="secondary"
                 size="icon"
                 onClick={() => {
-                    router.push(pathname);
+                    if (props.onClose) props.onClose();
                 }}
             >
                 <X />

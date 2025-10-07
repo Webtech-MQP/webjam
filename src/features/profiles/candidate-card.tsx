@@ -32,7 +32,7 @@ export function CandidateCard({ displayName, bio, location, language, experience
             <div className={cn('relative -mt-6 mb-0 h-32 w-full rounded-t-lg', !bannerUrl && 'bg-primary')}>
                 {bannerUrl && (
                     <Image
-                        src={bannerUrl ?? 'https://placehold.co/400x128/png'}
+                        src={bannerUrl ?? ''}
                         alt={`${displayName} banner`}
                         fill
                         className="object-cover"

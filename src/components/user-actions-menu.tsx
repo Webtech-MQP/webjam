@@ -229,7 +229,7 @@ export function UserActionsMenu({ reportedUserName, reportedUserId }: UserAction
                             label="Comment (optional)"
                             value={comment}
                             onChange={(e) => setComment(e.target.value)}
-                            className="w-full"
+                            className="border w-full"
                         />
                         <DialogFooter>
                             <DialogClose asChild>

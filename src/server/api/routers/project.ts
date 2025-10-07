@@ -278,6 +278,7 @@ export const projectRouter = createTRPCRouter({
                 to: z.date().optional(),
                 groupSize: z.number().optional(),
                 tags: z.array(z.string()).optional(),
+                onlyEligible: z.boolean().optional(),
             })
         )
         .query(async ({ ctx, input }) => {

@@ -19,6 +19,11 @@ export const env = createEnv({
         AWS_S3_BUCKET_NAME: z.string().optional(),
         AWS_ACCESS_KEY_ID: z.string().optional(),
         AWS_SECRET_ACCESS_KEY: z.string().optional(),
+
+        SMTP_HOST: z.string(),
+        SMTP_PORT: z.coerce.number(),
+        SMTP_USER: z.string().min(0),
+        SMTP_PASS: z.string().min(0),
     },
 
     /**
@@ -47,6 +52,11 @@ export const env = createEnv({
         AWS_S3_BUCKET_NAME: process.env.S3_BUCKET,
         AWS_ACCESS_KEY_ID: process.env.AWS_ACCESS_KEY_ID,
         AWS_SECRET_ACCESS_KEY: process.env.AWS_SECRET_ACCESS_KEY,
+        SMTP_HOST: process.env.SMTP_HOST,
+        SMTP_PORT: process.env.SMTP_PORT,
+        SMTP_USER: process.env.SMTP_USER,
+        SMTP_PASS: process.env.SMTP_PASS,
+
         // NEXT_PUBLIC_CLIENTVAR: process.env.NEXT_PUBLIC_CLIENTVAR,
     },
     /**

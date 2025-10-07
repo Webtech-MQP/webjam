@@ -61,7 +61,7 @@ export function OnboardingWizard() {
             if (value.isRecruiter === 'no') {
                 router.push(!!session.data?.user.id ? `/users/${session.data.user.id}` : '/dashboard');
             } else {
-                router.push('/dashboard/recruiter');
+                router.push('/dashboard/home');
             }
         },
         validators: {

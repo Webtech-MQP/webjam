@@ -19,9 +19,10 @@ interface ProjectCardProps {
     tags?: Tag[];
     onClick?: () => void;
     className?: string;
+    explicitStatus?: string;
 }
 
-export function ProjectCard({ title, startDateTime, endDateTime, numberOfTeammates, imageUrl, rating, numberOfRatings, tags, onClick, className }: ProjectCardProps) {
+export function ProjectCard({ title, startDateTime, endDateTime, numberOfTeammates, imageUrl, rating, numberOfRatings, tags, onClick, className, explicitStatus }: ProjectCardProps) {
     return (
         <DashboardCard
             onClick={onClick}
@@ -37,6 +38,17 @@ export function ProjectCard({ title, startDateTime, endDateTime, numberOfTeammat
                     />
                 ) : (
                     <div className="w-full h-full bg-primary flex-1 rounded-t-lg" />
+                )}
+                {explicitStatus && (
+                    <Badge
+                        className={cn('absolute top-2 left-2', {
+                            'bg-green-800': explicitStatus === 'completed',
+                            'bg-primary': explicitStatus === 'judging',
+                            'bg-blue-800': explicitStatus === 'created',
+                        })}
+                    >
+                        {explicitStatus.charAt(0).toUpperCase() + explicitStatus.slice(1)}
+                    </Badge>
                 )}
             </div>
             <div className="group-hover:bg-primary flex w-full flex-0 flex-col items-start rounded-b-lg p-3 transition-colors duration-300">

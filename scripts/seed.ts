@@ -27,7 +27,7 @@ async function main() {
 
     type userRoles = 'candidate' | 'recruiter' | 'admin';
     console.log('Seeding users...');
-    const users = Array.from({ length: 5 }).map(() => ({
+    const users = Array.from({ length: 10 }).map(() => ({
         id: createId(),
         name: faker.person.fullName(),
         email: faker.internet.email(),
@@ -47,7 +47,7 @@ async function main() {
                   location: faker.location.state(),
                   bio: faker.person.bio(),
                   linkedinURL: 'https://linkedin.com/in/' + u.githubUsername,
-                  imageUrl: faker.image.personPortrait(),
+                  imageUrl: faker.image.dataUri({ color: faker.color.rgb() }),
                   bannerUrl: faker.image.urlPicsumPhotos({ width: 1920, height: 1080 }),
               }
             : []
@@ -61,7 +61,7 @@ async function main() {
         Math.random() > 0.7
             ? {
                   candidateId: u.id,
-                  reporterId: candidateProfiles[Math.floor(Math.random() * candidateProfiles.length)]!.userId,
+                  reporterId: u.id !== candidateProfiles[0]!.userId ? candidateProfiles[0]!.userId : candidateProfiles[1]!.userId,
                   reason: faker.lorem.sentence(),
               }
             : []
@@ -250,15 +250,18 @@ async function main() {
     console.log('Questions connected to project!');
 
     const registrations = candidateProfiles.flatMap((candidate) =>
-        Array.from({ length: randBetween(0, 2) }).map(() => ({
-            id: createId(),
-            projectId: projects[randBetween(0, projects.length - 1)]!.id,
-            candidateId: candidate.userId,
-            submittedAt: faker.date.recent(),
-            status: 'pending' as const,
-            // TODO: fix
-            preferredRole: 'fullstack' as const,
-        }))
+        faker.helpers
+            .shuffle(projects)
+            .slice(0, randBetween(12, 13))
+            .map((p) => ({
+                id: createId(),
+                projectId: p.id,
+                candidateId: candidate.userId,
+                submittedAt: faker.date.recent(),
+                status: 'pending' as const,
+                // TODO: fix
+                preferredRole: 'fullstack' as const,
+            }))
     );
 
     await db.insert(schema.projectRegistrations).values(registrations).onConflictDoNothing();
@@ -275,7 +278,7 @@ async function main() {
     });
 
     console.log('Adding registration answers...');
-    await db.insert(schema.projectRegistrationAnswer).values(registrationAnswers);
+    await db.insert(schema.projectRegistrationAnswer).values(registrationAnswers).onConflictDoNothing();
     console.log('Registration answers added!');
 
     console.log('Seeding awards...');

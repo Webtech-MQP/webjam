@@ -27,7 +27,7 @@ export default function ProfileCard({ profile }: { profile: Profile }) {
             }}
         >
             <Image
-                src={profile?.imageUrl ?? 'https://placehold.co/100x100/png'}
+                src={profile?.imageUrl ?? ''}
                 alt="Profile Image"
                 width={100}
                 height={100}

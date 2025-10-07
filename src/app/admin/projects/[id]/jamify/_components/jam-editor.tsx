@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { api, type RouterOutputs } from '@/trpc/react';
 import type { DragEndEvent, DragStartEvent } from '@dnd-kit/core';
 import { DndContext, DragOverlay, closestCenter, useDraggable, useDroppable } from '@dnd-kit/core';
-import { ArrowRight, Eye, GripVertical, LoaderCircle, Plus } from 'lucide-react';
+import { ArrowRight, GripVertical, LoaderCircle, Plus } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
@@ -37,7 +37,6 @@ function DraggableUser({ userId, profiles }: { userId: string; profiles: Props['
         >
             <GripVertical />
             <p className="font-bold">{profiles.find((p) => p.userId === userId)?.displayName}</p>
-            <Eye className="ml-auto" />
         </div>
     );
 }
@@ -189,7 +188,6 @@ export function JamEditor(props: Props) {
                         <div className="p-2 bg-white/40 backdrop-blur-lg rounded flex gap-2 items-center cursor-grab">
                             <GripVertical />
                             <p className="font-bold">{props.profiles.find((p) => p.userId === activeUser)?.displayName}</p>
-                            <Eye className="ml-auto" />
                         </div>
                     ) : null}
                 </DragOverlay>

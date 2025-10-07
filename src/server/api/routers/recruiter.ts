@@ -281,6 +281,7 @@ export const recruiterRouter = createTRPCRouter({
                 displayName: z.string(),
                 bio: z.string(),
                 location: z.string().default(''),
+                publicEmail: z.email(),
             })
         )
         .mutation(async ({ input, ctx }) => {
@@ -299,6 +300,7 @@ export const recruiterRouter = createTRPCRouter({
             return ctx.db.insert(recruiterProfiles).values({
                 userId: ctx.session.user.id,
                 displayName: input.displayName,
+                displayEmail: input.publicEmail,
                 bio: input.bio,
                 location: input.location,
                 imageUrl: user?.image,

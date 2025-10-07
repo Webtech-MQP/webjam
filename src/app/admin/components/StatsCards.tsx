@@ -1,7 +1,7 @@
 'use client';
 
 import { Card, CardContent } from '@/components/ui/card';
-import { Activity, AlertTriangle, FileText } from 'lucide-react';
+import { Activity, AlertTriangle } from 'lucide-react';
 
 interface StatsCardsProps {
     projectSubmissionsCount: number;
@@ -11,21 +11,7 @@ interface StatsCardsProps {
 
 export function StatsCards({ projectSubmissionsCount, activeReportsCount, todaysActivityCount }: StatsCardsProps) {
     return (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-            <Card className="bg-primary/5 dark:bg-orange-950/20">
-                <CardContent className="p-6">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <p className="text-sm font-medium text-gray-400">Pending Reviews</p>
-                            <p className="text-3xl font-bold text-foreground">{projectSubmissionsCount}</p>
-                        </div>
-                        <div className="w-12 h-12 rounded-lg flex items-center justify-center bg-orange-400/10 text-orange-400">
-                            <FileText className="w-6 h-6" />
-                        </div>
-                    </div>
-                </CardContent>
-            </Card>
-
+        <>
             <Card className=" bg-primary/5 dark:bg-orange-950/20">
                 <CardContent className="p-6">
                     <div className="flex items-center justify-between">
@@ -53,6 +39,6 @@ export function StatsCards({ projectSubmissionsCount, activeReportsCount, todays
                     </div>
                 </CardContent>
             </Card>
-        </div>
+        </>
     );
 }
