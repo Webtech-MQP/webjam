@@ -29,13 +29,15 @@ export function CandidateCard({ displayName, bio, location, language, experience
             onClick={onClick}
             className={cn('group flex h-80 cursor-pointer flex-col items-start overflow-hidden px-0 pb-0', className)}
         >
-            <div className="relative -mt-6 mb-0 h-32 w-full rounded-t-lg">
-                <Image
-                    src={bannerUrl ?? 'https://placehold.co/400x128/png'}
-                    alt={`${displayName} banner`}
-                    fill
-                    className="object-cover"
-                />
+            <div className={cn('relative -mt-6 mb-0 h-32 w-full rounded-t-lg', !bannerUrl && 'bg-primary')}>
+                {bannerUrl && (
+                    <Image
+                        src={bannerUrl ?? 'https://placehold.co/400x128/png'}
+                        alt={`${displayName} banner`}
+                        fill
+                        className="object-cover"
+                    />
+                )}
             </div>
             <div className="group-hover:bg-primary flex w-full flex-1 flex-col items-start rounded-b-lg p-4 transition-colors duration-300">
                 <div className="mb-3 flex w-full flex-col items-start gap-3">

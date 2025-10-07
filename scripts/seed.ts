@@ -116,7 +116,7 @@ async function main() {
                 .map(() => faker.lorem.sentence())
                 .join('\n'),
             instructions: faker.lorem.paragraph(),
-            imageUrl: faker.image.url({ width: 1080, height: 1920 }),
+            imageUrl: faker.image.urlPicsumPhotos({ width: 1080, height: 1920 }),
             status: statuses[Math.floor(Math.random() * 3)]!,
             repoURL: 'https://github.com/Webtech-MQP/webjam',
             deadline: endDate!,

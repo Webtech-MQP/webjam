@@ -37,6 +37,7 @@ export const authConfig = {
         GithubProvider({
             clientId: env.AUTH_GITHUB_ID,
             clientSecret: env.AUTH_GITHUB_SECRET,
+            allowDangerousEmailAccountLinking: true,
             profile(profile) {
                 return {
                     id: profile.id.toString(),
@@ -50,6 +51,15 @@ export const authConfig = {
         LinkedInProvider({
             clientId: env.AUTH_LINKEDIN_ID,
             clientSecret: env.AUTH_LINKEDIN_SECRET,
+            allowDangerousEmailAccountLinking: true,
+            profile(profile) {
+                return {
+                    id: profile.sub,
+                    name: profile.name,
+                    email: profile.email,
+                    image: profile.picture,
+                };
+            },
         }),
         /**
          * ...add more providers here.

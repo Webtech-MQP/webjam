@@ -118,7 +118,7 @@ export default function Home() {
                         </p>
                         <div>
                             <Carousel
-                                className="max-w-full mask-x-from-70% mask-x-to-90%0"
+                                className="max-w-full mask-x-from-70% mask-x-to-100%"
                                 plugins={[carouselPlugin.current]}
                             >
                                 <CarouselContent>
