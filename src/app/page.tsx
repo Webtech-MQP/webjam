@@ -142,7 +142,7 @@ export default function Home() {
                     </div>
                     <div className="max-w-full overflow-auto space-y-8 flex-1 text-4xl font-(family-name:--font-overpass)">
                         <p>
-                            A portfolio you&apos;ll be <span className="text-primary">proud of.</span>
+                            Build a portfolio you&apos;ll be <span className="text-primary">proud of.</span>
                         </p>
                         <p className="text-5xl">
                             <span className="text-primary font-(family-name:--font-caprasimo)">webjam</span> is a team-based game-jam platform for every type of software.
