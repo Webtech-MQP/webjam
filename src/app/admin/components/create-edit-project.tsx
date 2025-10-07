@@ -113,6 +113,7 @@ export default function AdminCreateEditProject(props: AdminCreateEditProjectProp
     const editProject = api.projects.updateOne.useMutation();
     const availableAwards = api.awards.getAll.useQuery();
     const createAward = api.awards.createAward.useMutation();
+    const deleteAward = api.awards.deleteAward.useMutation();
 
     const form = useForm({
         defaultValues: initialData,
@@ -417,6 +418,20 @@ export default function AdminCreateEditProject(props: AdminCreateEditProjectProp
                                         field.handleChange(newValue);
                                     }}
                                     onCreateAward={() => setIsCreateAwardOpen(true)}
+                                    onDeleteAward={(awardId) => {
+                                        const promise = deleteAward.mutateAsync({ awardId });
+                                        toast.promise(promise, {
+                                            loading: 'Deleting award...',
+                                            success: () => {
+                                                if (field.state.value.includes(awardId)) {
+                                                    field.handleChange(field.state.value.filter(id => id !== awardId));
+                                                }
+                                                void availableAwards.refetch();
+                                                return 'Award deleted successfully!';
+                                            },
+                                            error: 'Failed to delete award',
+                                        });
+                                    }}
                                     allowEdit={true}
                                 />
 

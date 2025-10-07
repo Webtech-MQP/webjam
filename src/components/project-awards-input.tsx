@@ -2,7 +2,7 @@
 
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { Plus, X } from 'lucide-react';
+import { Plus, Trash, X } from 'lucide-react';
 import Image from 'next/image';
 
 export interface Award {
@@ -18,10 +18,20 @@ interface ProjectAwardsInputProps {
     projectAwards: string[];
     onAwardToggle: (awardId: string) => void;
     onCreateAward?: () => void;
+    onDeleteAward?: (awardId: string) => void;
     allowEdit?: boolean;
+    isAdmin?: boolean;
 }
 
-export const ProjectAwardsInput = ({ title = 'Project Awards', awards = [], projectAwards = [], onAwardToggle, allowEdit = true, onCreateAward }: ProjectAwardsInputProps) => {
+export const ProjectAwardsInput = ({ 
+    title = 'Project Awards', 
+    awards = [], 
+    projectAwards = [], 
+    onAwardToggle, 
+    allowEdit = true,
+    onCreateAward,
+    onDeleteAward
+}: ProjectAwardsInputProps) => {
     return (
         <div className="space-y-4">
             <div className="flex items-center justify-between">
@@ -56,17 +66,31 @@ export const ProjectAwardsInput = ({ title = 'Project Awards', awards = [], proj
                             <div className="flex-1 min-w-0">
                                 <div className="flex items-start justify-between gap-2">
                                     <h3 className="font-medium truncate">{award.title}</h3>
-                                    {allowEdit && (
-                                        <Button
-                                            type="button"
-                                            variant={isAttached ? 'destructive' : 'outline'}
-                                            size="sm"
-                                            onClick={() => onAwardToggle(award.id)}
-                                            className="flex-shrink-0"
-                                        >
-                                            {isAttached ? <X className="h-4 w-4" /> : 'Attach'}
-                                        </Button>
-                                    )}
+                                    <div className="flex gap-2">
+                                        {allowEdit && (
+                                            <Button
+                                                type="button"
+                                                variant={isAttached ? 'destructive' : 'outline'}
+                                                size="sm"
+                                                onClick={() => onAwardToggle(award.id)}
+                                                className="flex-shrink-0"
+                                            >
+                                                {isAttached ? <X className="h-4 w-4" /> : 'Attach'}
+                                            </Button>
+                                        )}
+                                        {/*honestly have no idea where to put this it looks terrible here*/}
+                                        {onDeleteAward && (
+                                            <Button
+                                                type="button"
+                                                variant="ghost"
+                                                size="sm"
+                                                onClick={() => onDeleteAward(award.id)}
+                                                className="flex-shrink-0 text-destructive hover:text-destructive"
+                                            >
+                                                <Trash className="h-4 w-4" />
+                                            </Button>
+                                        )}
+                                    </div>
                                 </div>
                                 <p className="text-sm text-muted-foreground line-clamp-2 mt-1">{award.description}</p>
                             </div>
