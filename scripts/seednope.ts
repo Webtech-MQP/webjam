@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import * as authSchema from '@/server/db/schemas/auth';
 import * as awardSchema from '@/server/db/schemas/awards';
 import * as userSchema from '@/server/db/schemas/profiles';

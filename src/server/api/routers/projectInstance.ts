@@ -176,7 +176,7 @@ export const projectInstanceRouter = createTRPCRouter({
             where: (r, { eq }) => eq(r.projectInstanceId, input.projectInstanceId),
         });
 
-        return rating.calculatedScore;
+        return rating?.calculatedScore;
     }),
 
     getRank: publicProcedure.input(z.object({ projectInstanceId: z.cuid2() })).query(async ({ ctx, input }) => {
