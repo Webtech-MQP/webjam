@@ -17,7 +17,7 @@ export function JamGrid({ jams, name }: Props) {
                     className="relative"
                 >
                     <Link
-                        target="_blank"
+                        target={!!j.projectInstance.ranking?.submission.deploymentURL ? '_blank' : undefined}
                         href={j.projectInstance.ranking?.submission.deploymentURL ?? '#'}
                     >
                         <ProjectCard

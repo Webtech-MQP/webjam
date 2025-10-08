@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { CandidateCard } from '@/features/profiles/candidate-card';
 import { api } from '@/trpc/react';
-import { Briefcase, ChevronLeft, ChevronRight, Code, Github, MapPin } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Github, MapPin } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
@@ -36,8 +36,6 @@ export function CandidateSearch({ initialPage = 1, initialSearchParams = {} }: C
     const candidatesQuery = api.candidates.searchCandidates.useQuery({
         name: searchParams.name || undefined,
         location: searchParams.location || undefined,
-        language: searchParams.language || undefined,
-        experience: searchParams.experience || undefined,
         githubUsername: searchParams.githubUsername || undefined,
         page: currentPage,
         limit: 12,
@@ -61,7 +59,7 @@ export function CandidateSearch({ initialPage = 1, initialSearchParams = {} }: C
                 </div>
 
                 <div className="relative">
-                    <MapPin className="text-muted dark:text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
+                    <MapPin className="text-muted-foreground dark:text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
                     <Input
                         placeholder="Location"
                         className="w-40 pl-10"
@@ -77,39 +75,7 @@ export function CandidateSearch({ initialPage = 1, initialSearchParams = {} }: C
                 </div>
 
                 <div className="relative">
-                    <Code className="text-muted dark:text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
-                    <Input
-                        placeholder="Language"
-                        className="w-40 pl-10"
-                        value={searchParams.language}
-                        onChange={(e) => {
-                            setSearchParams((prev) => ({
-                                ...prev,
-                                language: e.target.value,
-                            }));
-                            setCurrentPage(1);
-                        }}
-                    />
-                </div>
-
-                <div className="relative">
-                    <Briefcase className="text-muted dark:text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
-                    <Input
-                        placeholder="Experience"
-                        className="w-40 pl-10"
-                        value={searchParams.experience}
-                        onChange={(e) => {
-                            setSearchParams((prev) => ({
-                                ...prev,
-                                experience: e.target.value,
-                            }));
-                            setCurrentPage(1);
-                        }}
-                    />
-                </div>
-
-                <div className="relative">
-                    <Github className="text-muted dark:text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
+                    <Github className="text-muted-foreground dark:text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
                     <Input
                         placeholder="GitHub username"
                         className="w-48 pl-10"
@@ -166,7 +132,7 @@ export function CandidateSearch({ initialPage = 1, initialSearchParams = {} }: C
                     </div>
                 )}
 
-                {candidates && candidates.length === 0 && !candidatesQuery.isLoading && <div className="text-muted dark:text-muted-foreground text-center">No candidates found.</div>}
+                {candidates && candidates.length === 0 && !candidatesQuery.isLoading && <div className="text-muted-foreground dark:text-muted-foreground text-center">No candidates found.</div>}
 
                 {pagination && pagination.totalPages > 1 && (
                     <div className="mt-6 flex items-center justify-center gap-2">
@@ -195,7 +161,7 @@ export function CandidateSearch({ initialPage = 1, initialSearchParams = {} }: C
                                     </Button>
                                 );
                             })}
-                            {pagination.totalPages > 5 && <span className="text-muted dark:text-muted-foreground text-sm">...</span>}
+                            {pagination.totalPages > 5 && <span className="text-muted-foreground dark:text-muted-foreground text-sm">...</span>}
                         </div>
 
                         <Button
@@ -211,7 +177,7 @@ export function CandidateSearch({ initialPage = 1, initialSearchParams = {} }: C
                 )}
 
                 {pagination && (
-                    <div className="text-muted dark:text-muted-foreground mt-4 pb-4 text-center text-sm">
+                    <div className="text-muted-foreground dark:text-muted-foreground mt-4 pb-4 text-center text-sm">
                         Showing {(currentPage - 1) * 12 + 1} to {Math.min(currentPage * 12, pagination.total)} of {pagination.total} candidates
                     </div>
                 )}

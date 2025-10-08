@@ -61,7 +61,7 @@ export default function ProjectSubmission({ submission }: { submission: ProjectS
                     {Array.from({ length: 10 }).map((_, index) => (
                         <div
                             key={index}
-                            className={cn('box-content w-2.5 flex-0 peer text-muted dark:text-muted-foreground pl-1', index % 2 == 0 && 'rotate-y-180 pl-0', avgRating.data >= 10 - index ? 'text-primary fill-primary' : '')}
+                            className={cn('box-content w-2.5 flex-0 peer text-muted-foreground dark:text-muted-foreground pl-1', index % 2 == 0 && 'rotate-y-180 pl-0', avgRating.data >= 10 - index ? 'text-primary fill-primary' : '')}
                         >
                             <StarHalf className={cn('w-5 h-5 fill-inherit')} />
                         </div>

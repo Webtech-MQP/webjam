@@ -223,7 +223,7 @@ export default function ProjectAwardsSection({ projectId, defaultAwards = [] }: 
                                                 )}
                                                 <div>
                                                     <p className="text-sm font-medium">{award.title}</p>
-                                                    {award.description && <p className="text-sm text-muted dark:text-muted-foreground">{award.description}</p>}
+                                                    {award.description && <p className="text-sm text-muted-foreground dark:text-muted-foreground">{award.description}</p>}
                                                 </div>
                                             </div>
                                             <Button
@@ -235,7 +235,7 @@ export default function ProjectAwardsSection({ projectId, defaultAwards = [] }: 
                                             </Button>
                                         </div>
                                     ))}
-                                    {selectedAwards.length === 0 && <div className="p-4 text-center text-sm text-muted dark:text-muted-foreground">No awards selected</div>}
+                                    {selectedAwards.length === 0 && <div className="p-4 text-center text-sm text-muted-foreground dark:text-muted-foreground">No awards selected</div>}
                                 </div>
                             </div>
 
@@ -257,7 +257,7 @@ export default function ProjectAwardsSection({ projectId, defaultAwards = [] }: 
                                                 )}
                                                 <div>
                                                     <p className="text-sm font-medium">{award.title}</p>
-                                                    {award.description && <p className="text-sm text-muted dark:text-muted-foreground">{award.description}</p>}
+                                                    {award.description && <p className="text-sm text-muted-foreground dark:text-muted-foreground">{award.description}</p>}
                                                 </div>
                                             </div>
                                             <Button
@@ -269,7 +269,7 @@ export default function ProjectAwardsSection({ projectId, defaultAwards = [] }: 
                                             </Button>
                                         </div>
                                     ))}
-                                    {availableAwards.length === 0 && <div className="p-4 text-center text-sm text-muted dark:text-muted-foreground">No available awards</div>}
+                                    {availableAwards.length === 0 && <div className="p-4 text-center text-sm text-muted-foreground dark:text-muted-foreground">No available awards</div>}
                                 </div>
                             </div>
                         </div>
@@ -307,11 +307,11 @@ export default function ProjectAwardsSection({ projectId, defaultAwards = [] }: 
                         )}
                         <div>
                             <p className="text-sm font-medium">{award.title}</p>
-                            {award.description && <p className="text-sm text-muted dark:text-muted-foreground">{award.description}</p>}
+                            {award.description && <p className="text-sm text-muted-foreground dark:text-muted-foreground">{award.description}</p>}
                         </div>
                     </div>
                 ))}
-                {selectedAwards.length === 0 && <div className="p-4 text-center text-sm text-muted dark:text-muted-foreground">No awards set up yet</div>}
+                {selectedAwards.length === 0 && <div className="p-4 text-center text-sm text-muted-foreground dark:text-muted-foreground">No awards set up yet</div>}
             </div>
         </div>
     );

@@ -85,7 +85,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
                                 <Users /> {projectInstance.teamMembers.length} members
                             </Badge>
                             <Badge className="bg-indigo-500">
-                                <Clock /> {projectInstance.project.deadline?.toLocaleDateString()}
+                                <Clock /> {projectInstance.project.endDateTime?.toLocaleDateString()}
                             </Badge>
                         </div>
                         {rank != null && (

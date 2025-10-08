@@ -38,11 +38,11 @@ export function AdminReportCard({ report }: Props) {
                     was reported on {report.createdAt?.toLocaleString()}
                 </p>
                 <p className="flex gap-2 items-center">
-                    <Info className="h-4 w-4 text-muted dark:text-muted-foreground" />
+                    <Info className="h-4 w-4 text-muted-foreground dark:text-muted-foreground" />
                     {report.reporter?.name ?? 'An admin'} wrote &quot;{report.reason}&quot;
                 </p>
                 {report.action && (
-                    <p className="text-sm text-muted dark:text-muted-foreground">
+                    <p className="text-sm text-muted-foreground dark:text-muted-foreground">
                         On {report.actionedAt!.toLocaleString()}, {report.actioner!.displayName} {report.action === 'banned' ? <span className="text-red-400">banned {report.bannedUserDisplayName}.</span> : <span className="text-orange-200">archived this report.</span>}
                     </p>
                 )}

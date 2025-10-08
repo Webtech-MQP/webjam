@@ -40,7 +40,7 @@ export function ProjectRegistrations({ projectId }: Props) {
                             r={r}
                         />
                     ))}
-                    {registrations.length === 0 && <p className="text-muted dark:text-muted-foreground">No registrations yet.</p>}
+                    {registrations.length === 0 && <p className="text-muted-foreground dark:text-muted-foreground-foreground">No registrations yet.</p>}
                 </div>
             </CardContent>
         </Card>
