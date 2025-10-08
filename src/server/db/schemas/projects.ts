@@ -36,7 +36,7 @@ export const projects = createTable('project', (d) => ({
         .integer({ mode: 'timestamp' })
         .notNull()
         .default(sql`(unixepoch())`),
-    createdBy: d.text({ length: 255 }).references(() => adminProfiles.userId, { onDelete: 'set null' }),
+    createdBy: d.text({ length: 255 }).references(() => adminProfiles.userId, { onUpdate: 'cascade', onDelete: 'set null' }),
 }));
 
 export const projectsRelations = relations(projects, ({ one, many }) => ({
@@ -116,6 +116,7 @@ export const projectInstanceRankings = createTable('project_instance_ranking', (
         .text()
         .notNull()
         .references(() => projectSubmissions.id, { onDelete: 'cascade', onUpdate: 'cascade' }),
+    calculatedScore: d.integer().notNull(),
 }));
 
 export const projectInstanceRankingsRelations = relations(projectInstanceRankings, ({ one }) => ({
@@ -167,7 +168,7 @@ export const projectSubmissions = createTable('project_submission', (d) => ({
         .references(() => users.id),
     status: d.text({ enum: ['submitted', 'under-review', 'approved', 'denied'] }).default('submitted'),
     reviewedOn: d.integer({ mode: 'timestamp' }),
-    reviewedBy: d.text({ length: 255 }).references(() => adminProfiles.userId),
+    reviewedBy: d.text({ length: 255 }).references(() => adminProfiles.userId, { onUpdate: 'cascade' }),
     notes: d.text({ length: 255 }),
     repositoryURL: d.text({ length: 512 }),
     deploymentURL: d.text({ length: 512 }),
@@ -225,7 +226,7 @@ export const projectSubmissionRating = createTable(
         ratedBy: d
             .text()
             .notNull()
-            .references(() => adminProfiles.userId, { onDelete: 'set null' }),
+            .references(() => adminProfiles.userId, { onUpdate: 'cascade', onDelete: 'set null' }),
         rating: d.integer().notNull(), // e.g., 1 to 10
         ratedOn: d.integer({ mode: 'timestamp' }).default(sql`(unixepoch())`),
     }),
@@ -325,7 +326,7 @@ export const submissionJudgement = createTable(
         judgedBy: d
             .text()
             .notNull()
-            .references(() => adminProfiles.userId, { onDelete: 'set null' }),
+            .references(() => adminProfiles.userId, { onUpdate: 'cascade', onDelete: 'set null' }),
         criterionId: d
             .text()
             .notNull()

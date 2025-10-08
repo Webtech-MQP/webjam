@@ -1,0 +1,198 @@
+{
+    "$schema": "https://biomejs.dev/schemas/2.2.5/schema.json",
+    "vcs": { "enabled": false, "clientKind": "git", "useIgnoreFile": false },
+    "files": { "ignoreUnknown": false },
+    "formatter": { "enabled": true, "indentStyle": "tab" },
+    "linter": {
+        "enabled": true,
+        "rules": { "recommended": false },
+        "includes": ["**", "!.next"]
+    },
+    "javascript": { "formatter": { "quoteStyle": "double" }, "globals": [] },
+    "overrides": [
+        { "includes": ["**/*.ts", "**/*.tsx"], "javascript": { "globals": [] } },
+        {
+            "includes": ["**/*.ts", "**/*.tsx"],
+            "linter": {
+                "rules": {
+                    "complexity": { "noArguments": "error" },
+                    "correctness": {
+                        "noConstAssign": "off",
+                        "noGlobalObjectCalls": "off",
+                        "noInvalidBuiltinInstantiation": "off",
+                        "noInvalidConstructorSuper": "off",
+                        "noSetterReturn": "off",
+                        "noUndeclaredVariables": "off",
+                        "noUnreachable": "off",
+                        "noUnreachableSuper": "off"
+                    },
+                    "style": { "useConst": "error" },
+                    "suspicious": {
+                        "noClassAssign": "off",
+                        "noDuplicateClassMembers": "off",
+                        "noDuplicateObjectKeys": "off",
+                        "noDuplicateParameters": "off",
+                        "noFunctionAssign": "off",
+                        "noImportAssign": "off",
+                        "noRedeclare": "off",
+                        "noUnsafeNegation": "off",
+                        "noVar": "error",
+                        "noWith": "off",
+                        "useGetterReturn": "off",
+                        "noEmptyBlockStatements": "off"
+                    }
+                }
+            }
+        },
+        {
+            "includes": ["**/*.ts", "**/*.tsx"],
+            "linter": {
+                "rules": {
+                    "complexity": { "noUselessTypeConstraint": "error" },
+                    "correctness": { "noUnusedVariables": "error" },
+                    "style": {
+                        "noCommonJs": "error",
+                        "noNamespace": "error",
+                        "useArrayLiterals": "error",
+                        "useAsConstAssertion": "error"
+                    },
+                    "suspicious": {
+                        "noExplicitAny": "error",
+                        "noExtraNonNullAssertion": "error",
+                        "noMisleadingInstantiator": "error",
+                        "noUnsafeDeclarationMerging": "error",
+                        "useNamespaceKeyword": "error",
+                        "noEmptyBlockStatements": "warn"
+                    }
+                }
+            }
+        },
+        { "includes": ["**/*.ts", "**/*.tsx"], "javascript": { "globals": [] } },
+        {
+            "includes": ["**/*.ts", "**/*.tsx"],
+            "linter": {
+                "rules": {
+                    "complexity": { "noArguments": "error" },
+                    "correctness": {
+                        "noConstAssign": "off",
+                        "noGlobalObjectCalls": "off",
+                        "noInvalidBuiltinInstantiation": "off",
+                        "noInvalidConstructorSuper": "off",
+                        "noSetterReturn": "off",
+                        "noUndeclaredVariables": "off",
+                        "noUnreachable": "off",
+                        "noUnreachableSuper": "off"
+                    },
+                    "style": { "useConst": "error" },
+                    "suspicious": {
+                        "noClassAssign": "off",
+                        "noDuplicateClassMembers": "off",
+                        "noDuplicateObjectKeys": "off",
+                        "noDuplicateParameters": "off",
+                        "noFunctionAssign": "off",
+                        "noImportAssign": "off",
+                        "noRedeclare": "off",
+                        "noUnsafeNegation": "off",
+                        "noVar": "error",
+                        "noWith": "off",
+                        "useGetterReturn": "off",
+                        "noEmptyBlockStatements": "off"
+                    }
+                }
+            }
+        },
+        {
+            "includes": ["**/*.ts", "**/*.tsx"],
+            "linter": {
+                "rules": {
+                    "complexity": { "noUselessTypeConstraint": "error" },
+                    "correctness": { "noUnusedVariables": "error" },
+                    "style": {
+                        "noCommonJs": "error",
+                        "noNamespace": "error",
+                        "useArrayLiterals": "error",
+                        "useAsConstAssertion": "error"
+                    },
+                    "suspicious": {
+                        "noExplicitAny": "error",
+                        "noExtraNonNullAssertion": "error",
+                        "noMisleadingInstantiator": "error",
+                        "noUnsafeDeclarationMerging": "error",
+                        "useAwait": "error",
+                        "useNamespaceKeyword": "error",
+                        "noEmptyBlockStatements": "off"
+                    }
+                }
+            }
+        },
+        { "includes": ["**/*.ts", "**/*.tsx"], "javascript": { "globals": [] } },
+        {
+            "includes": ["**/*.ts", "**/*.tsx"],
+            "linter": {
+                "rules": {
+                    "complexity": { "noArguments": "error" },
+                    "correctness": {
+                        "noConstAssign": "off",
+                        "noGlobalObjectCalls": "off",
+                        "noInvalidBuiltinInstantiation": "off",
+                        "noInvalidConstructorSuper": "off",
+                        "noSetterReturn": "off",
+                        "noUndeclaredVariables": "off",
+                        "noUnreachable": "off",
+                        "noUnreachableSuper": "off"
+                    },
+                    "style": { "useConst": "error" },
+                    "suspicious": {
+                        "noClassAssign": "off",
+                        "noDuplicateClassMembers": "off",
+                        "noDuplicateObjectKeys": "off",
+                        "noDuplicateParameters": "off",
+                        "noFunctionAssign": "off",
+                        "noImportAssign": "off",
+                        "noRedeclare": "off",
+                        "noUnsafeNegation": "off",
+                        "noVar": "error",
+                        "noWith": "off",
+                        "useGetterReturn": "off",
+                        "noEmptyBlockStatements": "off"
+                    }
+                }
+            }
+        },
+        {
+            "includes": ["**/*.ts", "**/*.tsx"],
+            "linter": {
+                "rules": {
+                    "complexity": {
+                        "useLiteralKeys": "error",
+                        "useOptionalChain": "error"
+                    },
+                    "style": {
+                        "noInferrableTypes": "error",
+                        "useConsistentArrayType": "error",
+                        "useForOf": "error",
+                        "useShorthandFunctionType": "error"
+                    },
+                    "suspicious": {
+                        "noEmptyBlockStatements": "error",
+                        "useAdjacentOverloadSignatures": "error"
+                    }
+                }
+            }
+        },
+        {
+            "includes": ["**/*.ts", "**/*.tsx"],
+            "linter": {
+                "rules": {
+                    "correctness": { "noUnusedVariables": "warn" },
+                    "style": { "useConsistentArrayType": "off" },
+                    "suspicious": { "useAwait": "off", "noEmptyBlockStatements": "off" }
+                }
+            }
+        }
+    ],
+    "assist": {
+        "enabled": true,
+        "actions": { "source": { "organizeImports": "on" } }
+    }
+}

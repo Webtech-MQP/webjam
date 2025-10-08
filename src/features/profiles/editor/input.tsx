@@ -28,8 +28,8 @@ export function Input(props: Props) {
                     {...rest}
                 />
             )}
-            {rest.label && <label className="text-muted-foreground bg-background absolute top-0 left-2 block -translate-y-1/2 px-2 text-sm font-semibold">{props.label}</label>}
-            {icon && <div className="text-muted-foreground absolute top-1/2 left-2 block -translate-y-1/2 px-2">{icon}</div>}
+            {rest.label && <label className="text-muted-foreground dark:text-muted-foreground bg-background absolute top-0 left-2 block -translate-y-1/2 px-2 text-sm font-semibold">{props.label}</label>}
+            {icon && <div className="text-muted-foreground dark:text-muted-foreground absolute top-1/2 left-2 block -translate-y-1/2 px-2">{icon}</div>}
         </div>
     );
 }

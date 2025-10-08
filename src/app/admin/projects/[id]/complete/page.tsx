@@ -14,7 +14,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
     return (
         <div className="flex flex-col h-full p-2">
             <h1 className="mb-0">
-                Complete Project <span className="font-mono bg-stone-900 rounded px-2 w-fit border-1 border-primary/50">{project.title}</span>
+                Complete Project <span className="font-mono bg-primary rounded px-2 w-fit border-1 border-primary/50">{project.title}</span>
             </h1>
             <p className="mb-4 text-muted-foreground">Finalize the judging phase for this project.</p>
             <CompletionForm

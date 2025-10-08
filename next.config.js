@@ -20,10 +20,17 @@ const config = {
                 protocol: 'https',
                 hostname: 'avatars.githubusercontent.com',
             },
+            {
+                protocol: 'https',
+                hostname: 'loremflickr.com',
+            },
         ],
         unoptimized: true,
     },
     devIndicators: false,
+    experimental: {
+        authInterrupts: true,
+    },
 };
 
 export default config;

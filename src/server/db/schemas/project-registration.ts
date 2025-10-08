@@ -14,7 +14,7 @@ export const projectRegistrationQuestions = createTable('project_registration_qu
     type: d.text({ enum: ['text', 'select'] }).default('text'),
     options: d.text(),
     required: d.integer({ mode: 'boolean' }).default(true),
-    createdBy: d.text({ length: 255 }).references(() => adminProfiles.userId, { onDelete: 'set null' }),
+    createdBy: d.text({ length: 255 }).references(() => adminProfiles.userId, { onUpdate: 'cascade', onDelete: 'set null' }),
     skill: d.text({ length: 255 }).notNull(),
 }));
 

@@ -44,7 +44,7 @@ export function AwardsSection({ awards, className = '', size = 'md', title = 'Aw
                 {awards.map((award) => (
                     <AwardBadge
                         key={award.id}
-                        CandidateAward={award}
+                        candidateAward={award}
                         size={size}
                     />
                 ))}

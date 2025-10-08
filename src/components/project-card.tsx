@@ -8,7 +8,7 @@ import { Badge } from './ui/badge';
 
 type Tag = RouterOutputs['projects']['getAll'][number]['projectsToTags'][number]['tag'];
 
-interface JamCardProps {
+interface ProjectCardProps {
     title: string;
     startDateTime: Date;
     endDateTime: Date;
@@ -19,9 +19,10 @@ interface JamCardProps {
     tags?: Tag[];
     onClick?: () => void;
     className?: string;
+    explicitStatus?: string;
 }
 
-export function JamCard({ title, startDateTime, endDateTime, numberOfTeammates, imageUrl, rating, numberOfRatings, tags, onClick, className }: JamCardProps) {
+export function ProjectCard({ title, startDateTime, endDateTime, numberOfTeammates, imageUrl, rating, numberOfRatings, tags, onClick, className, explicitStatus }: ProjectCardProps) {
     return (
         <DashboardCard
             onClick={onClick}
@@ -38,6 +39,17 @@ export function JamCard({ title, startDateTime, endDateTime, numberOfTeammates, 
                 ) : (
                     <div className="w-full h-full bg-primary flex-1 rounded-t-lg" />
                 )}
+                {explicitStatus && (
+                    <Badge
+                        className={cn('absolute top-2 left-2', {
+                            'bg-green-800': explicitStatus === 'completed',
+                            'bg-primary': explicitStatus === 'judging',
+                            'bg-blue-800': explicitStatus === 'created',
+                        })}
+                    >
+                        {explicitStatus.charAt(0).toUpperCase() + explicitStatus.slice(1)}
+                    </Badge>
+                )}
             </div>
             <div className="group-hover:bg-primary flex w-full flex-0 flex-col items-start rounded-b-lg p-3 transition-colors duration-300">
                 <div className="flex w-full items-center justify-between">
@@ -51,7 +63,7 @@ export function JamCard({ title, startDateTime, endDateTime, numberOfTeammates, 
                 </div>
                 {startDateTime && endDateTime && (
                     <p className="text-sm">
-                        {format(startDateTime, 'MMM dd, yyyy')} - {endDateTime ? format(endDateTime, 'MMM dd, yyyy') : 'Present'} • {numberOfTeammates} members
+                        {format(startDateTime, 'MMM dd, yyyy')} - {endDateTime ? format(endDateTime, 'MMM dd, yyyy') : 'Present'} {numberOfTeammates != undefined && `• ${numberOfTeammates} members`}
                     </p>
                 )}
                 {tags && tags.length > 0 && (

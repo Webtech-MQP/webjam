@@ -1,7 +1,7 @@
 import { ProjectSubmissions } from '@/app/admin/components/ProjectSubmissions';
-import { DashboardCard } from '@/components/dashboard-card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import { api } from '@/trpc/server';
 import { ClipboardPenLine, Clock, CodeXml, ExternalLink, Gavel, LockIcon, MoveDown, Pencil } from 'lucide-react';
@@ -45,114 +45,124 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
 
     return (
         <div className="flex flex-col gap-2 p-4">
-            <DashboardCard>
-                <h1 className="mb-0">{project.title}</h1>
-                <p>{project.subtitle}</p>
-                <div className="flex gap-2 items-center">
-                    {project.projectsToTags.map((pt) => (
-                        <Badge key={pt.tag.id}>{pt.tag.name}</Badge>
-                    ))}
-                </div>
-                <div className="flex gap-2 my-3">
-                    <Badge className="bg-indigo-500">{project.registrations.length} registrations</Badge>
-                    <Badge className="bg-indigo-500">
-                        <Clock /> {getDaysUntil(project.startDateTime) >= 0 ? `${getDaysUntil(project.startDateTime)} day${getDaysUntil(project.startDateTime) != 1 && 's'} until project starts` : 'Start date has passed'}
-                    </Badge>
-                    <Button
-                        className="ml-auto"
-                        variant="outline"
-                        size="icon"
-                        asChild
-                    >
-                        <Link href={`/admin/projects/${project.id}/edit`}>
-                            <Pencil />
-                        </Link>
-                    </Button>
-                    {project.status === 'judging' && (
+            <Card>
+                <CardHeader>
+                    <CardTitle>{project.title}</CardTitle>
+                    <CardDescription>{project.subtitle}</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <div className="flex gap-2 items-center">
+                        {project.projectsToTags.map((pt) => (
+                            <Badge key={pt.tag.id}>{pt.tag.name}</Badge>
+                        ))}
+                    </div>
+                    <div className="flex gap-2 my-3">
+                        {project.status === 'created' && project.projectInstances.length == 0 && <Badge className="bg-indigo-500">{project.registrations.length} registrations</Badge>}
+                        <Badge className="bg-indigo-500">
+                            <Clock /> {getDaysUntil(project.startDateTime) >= 0 ? `${getDaysUntil(project.startDateTime)} day${getDaysUntil(project.startDateTime) != 1 && 's'} until project starts` : 'Start date has passed'}
+                        </Badge>
                         <Button
-                            variant="default"
+                            className="ml-auto"
+                            variant="outline"
+                            size="icon"
                             asChild
                         >
-                            <Link href={`/admin/projects/${project.id}/judge`}>Judge Project</Link>
+                            <Link href={`/admin/projects/${project.id}/edit`}>
+                                <Pencil />
+                            </Link>
                         </Button>
-                    )}
-                    <TransitionProjectButton
-                        projectId={project.id}
-                        status={project.status}
-                    />
-
-                    {project.projectInstances.length == 0 && project.registrations.length > 0 && <CreateJamsButton projectId={project.id} />}
-                </div>
-                <div className="relative flex w-full gap-8 pt-4">
-                    <div className="relative min-w-1/4 h-fill rounded-lg">
-                        {project.imageUrl ? (
-                            <Image
-                                src={project.imageUrl}
-                                alt="Project Image"
-                                fill
-                                objectFit="cover"
-                                className="rounded"
-                            />
-                        ) : (
-                            <div className="w-full h-full bg-primary rounded flex items-center justify-center text-center">
-                                <span className="font-bold text-2xl italic text-orange-200">webjam</span>
-                            </div>
-                        )}
-                    </div>
-                    <div className="flex flex-col items-center justify-center gap-2">
-                        <ClipboardPenLine className={cn(project.projectInstances.length == 0 && 'animate-pulse text-red-300')} />
-                        <MoveDown className="text-stone-500" />
-                        <CodeXml className={cn(project.projectInstances.length > 0 && project.status !== 'completed' && project.status !== 'judging' && 'animate-pulse text-red-300')} />
-                        <MoveDown className="text-stone-500" />
-                        <Gavel className={cn(project.status === 'judging' && 'animate-pulse text-red-300')} />
-                        <MoveDown className="text-stone-500" />
-                        <LockIcon className={cn(project.status === 'completed' && 'text-red-300')} />
-                    </div>
-                    <div className="text-muted-foreground hover:text-white transition-colors">{project.description}</div>
-                </div>
-            </DashboardCard>
-            <div className="flex flex-1 gap-2 overflow-y-auto">
-                {project.status === 'created' && <ProjectRegistrations projectId={id} />}
-                <DashboardCard className="flex-1">
-                    <h1>Jams</h1>
-                    {project.projectInstances.length == 0 && <p className="text-muted-foregoround">No Jams yet.</p>}
-                    {project.projectInstances.map((j) => {
-                        return (
-                            <div
-                                key={j.id}
-                                className="flex items-center gap-3"
+                        {project.status === 'judging' && (
+                            <Button
+                                variant="default"
+                                asChild
                             >
-                                <Link
-                                    className="flex-1 hover:underline hover:text-primary"
-                                    target="_blank"
-                                    href={`/dashboard/jams/${j.id}`}
+                                <Link href={`/admin/projects/${project.id}/judge`}>Judge Project</Link>
+                            </Button>
+                        )}
+                        <TransitionProjectButton
+                            projectId={project.id}
+                            status={project.status}
+                        />
+
+                        {project.projectInstances.length == 0 && project.registrations.length > 0 && <CreateJamsButton projectId={project.id} />}
+                    </div>
+                    <div className="relative flex w-full gap-8 pt-4">
+                        <div className="relative min-w-1/4 h-fill rounded-lg">
+                            {project.imageUrl ? (
+                                <Image
+                                    src={project.imageUrl}
+                                    alt="Project Image"
+                                    fill
+                                    objectFit="cover"
+                                    className="rounded"
+                                />
+                            ) : (
+                                <div className="w-full h-full bg-primary rounded flex items-center justify-center text-center">
+                                    <span className="font-bold text-2xl italic text-orange-200">webjam</span>
+                                </div>
+                            )}
+                        </div>
+                        <div className="flex flex-col items-center justify-center gap-2">
+                            <ClipboardPenLine className={cn(project.projectInstances.length == 0 && 'animate-pulse text-red-700 dark:text-red-300')} />
+                            <MoveDown className="text-muted-foreground" />
+                            <CodeXml className={cn(project.projectInstances.length > 0 && project.status !== 'completed' && project.status !== 'judging' && 'animate-pulse text-red-700 dark:text-red-300')} />
+                            <MoveDown className="text-muted-foreground-" />
+                            <Gavel className={cn(project.status === 'judging' && 'animate-pulse text-red-700 dark:text-red-300')} />
+                            <MoveDown className="text-muted-foreground" />
+                            <LockIcon className={cn(project.status === 'completed' && 'text-red-700 dark:text-red-300')} />
+                        </div>
+                        <div className="text-muted-foreground dark:hover:text-white transition-colors">{project.description}</div>
+                    </div>
+                </CardContent>
+            </Card>
+            <div className="flex flex-1 gap-2 overflow-y-auto">
+                {project.status === 'created' && project.projectInstances.length == 0 && <ProjectRegistrations projectId={id} />}
+                <Card className="flex-1">
+                    <CardHeader>
+                        <CardTitle>Jams</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        {project.projectInstances.length == 0 && <p className="text-muted-foregoround">No Jams yet.</p>}
+                        {project.projectInstances.map((j) => {
+                            return (
+                                <div
+                                    key={j.id}
+                                    className="flex items-center gap-3"
                                 >
-                                    {j.teamName}
-                                </Link>
-                                {j.repoUrl && (
                                     <Link
+                                        className="flex-1 hover:underline hover:text-primary"
                                         target="_blank"
-                                        href={j.repoUrl}
+                                        href={`/dashboard/jams/${j.id}`}
                                     >
-                                        <ExternalLink className="hover:text-primary cursor-pointer" />
+                                        {j.teamName}
                                     </Link>
-                                )}
-                            </div>
-                        );
-                    })}
-                </DashboardCard>
+                                    {j.repoUrl && (
+                                        <Link
+                                            target="_blank"
+                                            href={j.repoUrl}
+                                        >
+                                            <ExternalLink className="h-4 w-4hover:text-primary cursor-pointer" />
+                                        </Link>
+                                    )}
+                                </div>
+                            );
+                        })}
+                    </CardContent>
+                </Card>
             </div>
-            <ProjectSubmissions submissions={latestSubmissions} />
-            <ProjectRankings
-                rankings={project.projectInstances.flatMap((instance, index) =>
-                    instance.ranking
-                        ? {
-                              projectInstance: instance,
-                              rank: instance.ranking.rank,
-                          }
-                        : []
-                )}
-            />
+            {project.status !== 'completed' && <ProjectSubmissions submissions={latestSubmissions} />}
+            {project.status === 'completed' && (
+                <ProjectRankings
+                    rankings={project.projectInstances.flatMap((instance, index) =>
+                        instance.ranking
+                            ? {
+                                  projectInstance: instance,
+                                  rank: instance.ranking.rank,
+                              }
+                            : []
+                    )}
+                />
+            )}
         </div>
     );
 }

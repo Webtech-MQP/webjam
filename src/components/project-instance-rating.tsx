@@ -13,7 +13,7 @@ type ProjectInstanceRatingProps = {
 export function ProjectInstanceRating({ projectInstanceId, isAdmin }: ProjectInstanceRatingProps) {
     const utils = api.useUtils();
 
-    const myRatingRaw = isAdmin ? api.projectInstances.getAvgProjectInstanceRating.useQuery({ projectInstanceId }) : api.projectInstances.getMyProjectInstanceRating.useQuery({ projectInstanceId });
+    const myRatingRaw = api.projectInstances.getAvgProjectInstanceRating.useQuery({ projectInstanceId });
 
     const rate = api.projectInstances.createOrUpdateRating.useMutation({
         onSettled: () => utils.projectInstances.getMyProjectInstanceRating.invalidate({ projectInstanceId }),
@@ -34,7 +34,7 @@ export function ProjectInstanceRating({ projectInstanceId, isAdmin }: ProjectIns
                     key={index}
                     disabled={isAdmin}
                     onClick={() => !isAdmin && rate.mutate({ projectInstanceId, rating: 10 - index })}
-                    className={cn('box-content w-2.5 flex-0', isAdmin ? 'text-muted-foreground pl-1' : 'cursor-pointer peer hover:text-primary hover:fill-primary peer-hover:fill-primary peer-hover:text-primary text-muted-foreground pl-1', index % 2 == 0 && 'rotate-y-180 pl-0', myRating >= 10 - index ? cn('text-primary fill-primary', !isAdmin && 'group-hover:fill-none') : '')}
+                    className={cn('fill-background box-content w-2.5 flex-0', isAdmin ? 'text-muted-foreground pl-1' : 'cursor-pointer peer hover:text-primary hover:fill-primary peer-hover:fill-primary peer-hover:text-primary text-muted-foreground pl-1', index % 2 == 0 && 'rotate-y-180 pl-0', myRating >= 10 - index ? cn('text-primary fill-primary', !isAdmin && 'group-hover:fill-none') : '')}
                 >
                     <StarHalf className="w-5 h-5 pointer-events-none fill-inherit" />
                 </button>

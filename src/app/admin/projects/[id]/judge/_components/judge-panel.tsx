@@ -51,10 +51,10 @@ export function JudgePanel({ project }: Props) {
                                             layout
                                             key={submission.id}
                                             className="flex items-center justify-stretch gap-4 p-3 pr-0 divide-border rounded cursor-pointer"
-                                            transition={{
-                                                duration: 0.2,
-                                                ease: 'anticipate',
-                                            }}
+                                            // transition={{
+                                            //     duration: 0.2,
+                                            //     ease: 'anticipate',
+                                            // }}
                                             // onMouseEnter={(e) => setHoveredRankingRef(e.currentTarget)}
                                             {...register(submissionId)}
                                         >
@@ -66,7 +66,7 @@ export function JudgePanel({ project }: Props) {
                                                 {Array.from({ length: 10 }).map((_, index) => (
                                                     <div
                                                         key={index}
-                                                        className={cn('box-content w-2.5 flex-0 peer text-muted-foreground pl-1', index % 2 == 0 && 'rotate-y-180 pl-0', submission.avgRating >= 10 - index ? 'text-primary fill-primary' : '')}
+                                                        className={cn('fill-none box-content w-2.5 flex-0 peer text-muted-foreground pl-1', index % 2 == 0 && 'rotate-y-180 pl-0', submission.avgRating >= 10 - index ? 'text-primary fill-primary' : '')}
                                                     >
                                                         <StarHalf className={cn('w-5 h-5 fill-inherit')} />
                                                     </div>
@@ -83,9 +83,6 @@ export function JudgePanel({ project }: Props) {
                         {!!submissionDetail && (
                             <div>
                                 <h1 className="font-mono">{submissionDetail.jam!.teamName}</h1>
-                                <p className="italic text-muted-foreground">Reviewed by {submissionDetail.reviewer?.displayName}</p>
-                                <p className="mt-4 text-xs text-muted-foreground">Notes</p>
-                                <p>{submissionDetail.notes}</p>
                                 <div className="mt-4 w-full flex gap-2 justify-stretch items-stretch">
                                     {submissionDetail.deploymentURL && (
                                         <Button
@@ -206,7 +203,7 @@ function Criteria({ submissionId, criteria }: { submissionId: string; criteria: 
                                     updateJudgement.mutate({ submissionId, criterionId: c.id, rating: 10 - index });
                                     console.log(`Rated ${10 - index} stars for submission ${c.id}`);
                                 }}
-                                className={cn('box-content cursor-pointer w-2.5 flex-0 peer hover:fill-primary peer-hover:fill-primary hover:text-primary peer-hover:text-primary text-muted-foreground pl-1', index % 2 == 0 && 'rotate-y-180 pl-0', (judgementsMaps?.[c.id]?.totalScore ?? 0) >= 10 - index ? 'text-primary fill-primary group-hover:fill-none' : '')}
+                                className={cn('fill-none box-content cursor-pointer w-2.5 flex-0 peer hover:fill-primary peer-hover:fill-primary hover:text-primary peer-hover:text-primary text-muted-foreground pl-1', index % 2 == 0 && 'rotate-y-180 pl-0', (judgementsMaps?.[c.id]?.totalScore ?? 0) >= 10 - index ? 'text-primary fill-primary group-hover:fill-none' : '')}
                             >
                                 <StarHalf className={cn('w-5 h-5 pointer-events-none fill-inherit')} />
                             </button>

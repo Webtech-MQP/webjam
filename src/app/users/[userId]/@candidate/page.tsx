@@ -2,6 +2,7 @@ import { AwardsSection } from '@/components/awards/awards-display-section';
 import { Button } from '@/components/ui/button';
 import { UserActionsMenu } from '@/components/user-actions-menu';
 import { JamGrid } from '@/features/profiles/jam-grid';
+import { cn } from '@/lib/utils';
 import { auth } from '@/server/auth';
 import { api } from '@/trpc/server';
 import { GithubIcon, LinkedinIcon, PencilIcon } from 'lucide-react';
@@ -21,8 +22,6 @@ export default async function Page({ params }: Props) {
 
     const session = await auth();
 
-    console.log(userId);
-
     const candidate = await api.candidates.getOne(userId.startsWith('@') ? { githubUsername: userId.slice(1) } : { id: userId });
 
     if (!candidate) {
@@ -40,15 +39,16 @@ export default async function Page({ params }: Props) {
     return (
         <div>
             <div>
-                <div className="relative h-60 w-full -m-4">
-                    {/* Banner Image */}
-                    <Image
-                        src={candidate.bannerUrl ?? 'https://placehold.co/1920x1080/png'}
-                        alt="Profile banner"
-                        fill
-                        className="object-cover"
-                        priority
-                    />
+                <div className={cn('relative h-80 w-[calc(100% + 4px)] -mt-4 -mx-4', !candidate.bannerUrl && 'bg-primary')}>
+                    {candidate.bannerUrl && (
+                        <Image
+                            src={candidate.bannerUrl}
+                            alt="Profile banner"
+                            fill
+                            className="object-cover"
+                            priority
+                        />
+                    )}
                 </div>
                 <div className="relative space-y-8 p-15">
                     <div className="z-30">
@@ -71,8 +71,8 @@ export default async function Page({ params }: Props) {
                             />
                         </div>
                         <Image
-                            src={candidate.imageUrl ?? 'https://placehold.co/100.png'}
-                            className="relative z-20 -mt-30 box-content rounded-xl border-6 border-(--color-background)"
+                            src={candidate.imageUrl ?? ''}
+                            className="relative h-20 w-20 z-20 -mt-30 box-content rounded-xl border-6 border-(--color-background)"
                             alt="Profile picture"
                             height={100}
                             width={100}

@@ -1,5 +1,6 @@
 'use client';
 
+import { AwardBadge } from '@/components/awards/award-badge';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { api, type RouterOutputs } from '@/trpc/react';
@@ -19,16 +20,20 @@ interface Props {
 
 export function CompletionForm({ project, previewedRankings }: Props) {
     const router = useRouter();
-
+    const utils = api.useUtils();
     // Submission handler
     const completeProjectMutation = api.projects.completeProject.useMutation({
         onSuccess: () => {
             void router.push('/admin/projects/' + project.id);
         },
     });
+    const [awardAssignments, setAwardAssignments] = useState<Record<string, string | null>>({});
 
     const [submissionDetailId, register, checkLock] = useHoverLock<string>();
     const submissionDetail = submissionDetailId ? previewedRankings[submissionDetailId] : null;
+    const submissionDetailAwards = Object.entries(awardAssignments).filter(([awardId, submissionId]) => {
+        return submissionId === submissionDetail?.id;
+    });
 
     return (
         <>
@@ -112,14 +117,63 @@ export function CompletionForm({ project, previewedRankings }: Props) {
                                         </Button>
                                     )}
                                 </div>
+                                <div className="flex items-center gap-2 border-l-2 pl-4 mt-4">
+                                    {submissionDetailAwards.map(([awardId, submissionId]) => {
+                                        const award = project.awards.find((award) => award.awardId === awardId);
+
+                                        if (!award) {
+                                            return null;
+                                        }
+
+                                        return (
+                                            <AwardBadge
+                                                key={awardId}
+                                                award={award.award}
+                                            />
+                                        );
+                                    })}
+                                </div>
                             </>
                         )}
                     </div>
                 </div>
+                <div className="flex items-center flex-wrap mt-4 p-4 border rounded">
+                    {project.awards.map((projectAward) => (
+                        <div
+                            key={projectAward.awardId}
+                            className="relative h-fit w-fit"
+                        >
+                            <div className="absolute flex items-center justify-center top-0 z-20 right-0 rounded-full w-6 h-6 bg-primary">{awardAssignments[projectAward.awardId] && awardAssignments[projectAward.awardId] === submissionDetailId ? '✓' : awardAssignments[projectAward.awardId] ? '→' : '✗'}</div>
+                            <AwardBadge
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    if (!submissionDetailId) {
+                                        return;
+                                    }
+
+                                    setAwardAssignments((old) => {
+                                        if (old[projectAward.awardId] == submissionDetailId) {
+                                            return {
+                                                ...old,
+                                                [projectAward.awardId]: null,
+                                            };
+                                        }
+                                        return {
+                                            ...old,
+                                            [projectAward.awardId]: submissionDetailId,
+                                        };
+                                    });
+                                }}
+                                key={projectAward.award.id}
+                                award={projectAward.award}
+                            />
+                        </div>
+                    ))}
+                </div>
                 <Button
                     type="button"
                     className="justify-self-end w-full mt-4"
-                    onClick={() => completeProjectMutation.mutate({ projectId: project.id })}
+                    onClick={() => completeProjectMutation.mutate({ projectId: project.id, awards: awardAssignments })}
                 >
                     Confirm {completeProjectMutation.isPending && <LoaderCircle className="animate-spin w-4 h-4" />}
                 </Button>

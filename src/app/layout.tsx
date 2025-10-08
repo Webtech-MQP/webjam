@@ -1,13 +1,14 @@
 import '@/styles/globals.css';
 
 import { type Metadata } from 'next';
-import { Overpass, Poppins } from 'next/font/google';
+import { Caprasimo, Overpass, Poppins } from 'next/font/google';
 
 import { AuthProvider } from '@/features/auth/components/auth-provider';
 import { TRPCReactProvider } from '@/trpc/react';
+import { ThemeProvider } from 'next-themes';
 
 export const metadata: Metadata = {
-    title: 'WebJam',
+    title: 'webjam',
     icons: [{ rel: 'icon', url: '/favicon.ico' }],
 };
 
@@ -23,16 +24,29 @@ const overpass = Overpass({
     variable: '--font-overpass',
 });
 
+const caprasimo = Caprasimo({
+    subsets: ['latin'],
+    weight: '400',
+    variable: '--font-caprasimo',
+});
+
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
     return (
         <html
+            suppressHydrationWarning
             lang="en"
-            className={`${poppins.className} ${overpass.variable}`}
+            className={`${poppins.className} ${overpass.variable} ${caprasimo.variable}`}
         >
             <body>
-                <TRPCReactProvider>
-                    <AuthProvider>{children}</AuthProvider>
-                </TRPCReactProvider>
+                <ThemeProvider
+                    attribute="class"
+                    defaultTheme="system"
+                    enableSystem
+                >
+                    <TRPCReactProvider>
+                        <AuthProvider>{children}</AuthProvider>
+                    </TRPCReactProvider>
+                </ThemeProvider>
             </body>
         </html>
     );

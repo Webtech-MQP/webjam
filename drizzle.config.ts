@@ -8,5 +8,5 @@ export default {
     dbCredentials: {
         url: env.DATABASE_URL,
     },
-    tablesFilter: ['prototype-3_*'],
+    tablesFilter: ['webjam_*'],
 } satisfies Config;

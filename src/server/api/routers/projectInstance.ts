@@ -1,5 +1,5 @@
 import { sendJamStartEmail } from '@/lib/mailer';
-import { adminProcedure, createTRPCRouter, protectedProcedure, publicProcedure } from '@/server/api/trpc';
+import { createTRPCRouter, protectedProcedure, publicProcedure } from '@/server/api/trpc';
 import { candidateProfilesToProjectInstances, projectInstanceRatings, projectInstances, projects } from '@/server/db/schemas/projects';
 import { TRPCError } from '@trpc/server';
 import { and, eq, getTableColumns, gte } from 'drizzle-orm';
@@ -100,9 +100,30 @@ export const projectInstanceRouter = createTRPCRouter({
             },
         });
     }),
-    getMyActive: protectedProcedure.query(async ({ ctx }) => {
+
+    updateOne: protectedProcedure
+        .input(
+            z
+                .object({
+                    id: z.cuid2(),
+                    teamName: z.string(),
+                    repoUrl: z
+                        .string()
+                        .refine((v) => v.match(/^(?:https:\/\/)?github.com\/[^\/]+\/[^\/]+\/?$/))
+                        .or(z.string().length(0)),
+                    projectId: z.string(),
+                })
+                .partial()
+                .required({ id: true })
+        )
+        .mutation(async ({ ctx, input }) => {
+            const updatedData = Object.fromEntries(Object.entries(input).filter(([key, value]) => key !== 'id' && value !== undefined));
+            return ctx.db.update(projectInstances).set(updatedData).where(eq(projectInstances.id, input.id));
+        }),
+
+    getMyActive: protectedProcedure.input(z.object({ withProject: z.boolean().default(false) }).default({ withProject: false })).query(async ({ input, ctx }) => {
         return ctx.db
-            .select(getTableColumns(projectInstances))
+            .select({ ...getTableColumns(projectInstances), project: getTableColumns(projects) })
             .from(projectInstances)
             .innerJoin(candidateProfilesToProjectInstances, eq(candidateProfilesToProjectInstances.projectInstanceId, projectInstances.id))
             .innerJoin(projects, eq(projectInstances.projectId, projects.id))
@@ -150,12 +171,12 @@ export const projectInstanceRouter = createTRPCRouter({
         );
     }),
 
-    getAvgProjectInstanceRating: adminProcedure.input(z.object({ projectInstanceId: z.cuid2() })).query(async ({ ctx, input }) => {
-        const ratings = await ctx.db.query.projectInstanceRatings.findMany({
-            where: (rating, { eq }) => eq(rating.projectInstanceId, input.projectInstanceId),
+    getAvgProjectInstanceRating: protectedProcedure.input(z.object({ projectInstanceId: z.cuid2() })).query(async ({ ctx, input }) => {
+        const rating = await ctx.db.query.projectInstanceRankings.findFirst({
+            where: (r, { eq }) => eq(r.projectInstanceId, input.projectInstanceId),
         });
 
-        return ratings.reduce((acc, r) => acc + r.rating, 0) / (ratings.length || 1);
+        return rating?.calculatedScore;
     }),
 
     getRank: publicProcedure.input(z.object({ projectInstanceId: z.cuid2() })).query(async ({ ctx, input }) => {
@@ -168,5 +189,20 @@ export const projectInstanceRouter = createTRPCRouter({
         }
 
         return ranking.rank;
+    }),
+
+    getMyProjectInstances: protectedProcedure.query(async ({ ctx }) => {
+        const results = await ctx.db.query.candidateProfilesToProjectInstances.findMany({
+            where: (candidateProfilesToProjectInstances, { eq }) => eq(candidateProfilesToProjectInstances.candidateId, ctx.session.user.id),
+            with: {
+                projectInstance: {
+                    with: {
+                        project: true,
+                    },
+                },
+            },
+        });
+
+        return results.map((result) => result.projectInstance);
     }),
 });

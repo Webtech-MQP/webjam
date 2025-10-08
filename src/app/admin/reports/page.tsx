@@ -31,7 +31,7 @@ export default function Page() {
             {archivedReports && archivedReports.length > 0 && (
                 <>
                     <div className="mt-8 border-t relative">
-                        <p className="italic text-muted-foreground absolute left-1/2 -translate-y-1/2 -translate-x-1/2 bg-background p-2">Resolved Reports</p>
+                        <p className="italic text-muted-foreground dark:text-muted-foreground absolute left-1/2 -translate-y-1/2 -translate-x-1/2 bg-background p-2">Resolved Reports</p>
                     </div>
                     <div className="mt-8 space-y-4">
                         {archivedReports?.map((report) => (

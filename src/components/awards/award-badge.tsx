@@ -2,18 +2,34 @@
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Award, Calendar } from 'lucide-react';
+import { Award, Calendar, Lock } from 'lucide-react';
 import Image from 'next/image';
 import { useState } from 'react';
 import type { CandidateAwardSchema } from './awards-display-section';
 
 interface AwardBadgeProps {
-    CandidateAward: CandidateAwardSchema;
+    candidateAward?: Partial<CandidateAwardSchema>;
+    award?: {
+        id: string;
+        title: string;
+        description: string | null;
+        imageUrl: string;
+        createdAt: Date | null;
+    };
     size?: 'sm' | 'md' | 'lg';
+    onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
 }
 
-export function AwardBadge({ CandidateAward, size = 'md' }: AwardBadgeProps) {
+export function AwardBadge({ onClick, candidateAward, award, size = 'md' }: AwardBadgeProps) {
     const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+    // Determine which award data to use
+    const awardData = candidateAward?.award || award;
+    const isUnassigned = !candidateAward && !!award;
+
+    if (!awardData) {
+        return null;
+    }
 
     const sizeClasses = {
         sm: 'w-8 h-8',
@@ -21,25 +37,35 @@ export function AwardBadge({ CandidateAward, size = 'md' }: AwardBadgeProps) {
         lg: 'w-16 h-16',
     };
 
+    const getBorderClass = () => {
+        if (isUnassigned) {
+            return 'border-gray-500 opacity-60';
+        }
+        return 'border-gray-700 hover:border-gray-500';
+    };
+
     return (
         <TooltipProvider>
             <Tooltip>
                 <TooltipTrigger asChild>
                     <button
-                        onClick={() => setIsDialogOpen(true)}
-                        className={`${sizeClasses[size]} cursor-pointer overflow-hidden rounded-full border-2 border-gray-700 transition-transform hover:scale-110 hover:border-gray-500`}
+                        onClick={(e) => (!!onClick ? onClick(e) : setIsDialogOpen(true))}
+                        className={`${sizeClasses[size]} cursor-pointer overflow-hidden rounded-full border-2 ${getBorderClass()} transition-transform hover:scale-110 relative`}
                     >
                         <Image
-                            src={CandidateAward.award.imageUrl ?? 'https://placehold.co/64x64/png'}
-                            alt={CandidateAward.award.title}
+                            src={awardData.imageUrl ?? ''}
+                            alt={awardData.title}
                             width={64}
                             height={64}
-                            className="h-full w-full object-cover"
+                            className={`h-full w-full object-cover ${isUnassigned ? 'grayscale' : ''}`}
                         />
                     </button>
                 </TooltipTrigger>
                 <TooltipContent>
-                    <p className="font-medium">{CandidateAward.award.title}</p>
+                    <p className="font-medium">
+                        {awardData.title}
+                        {isUnassigned && ' (Not earned)'}
+                    </p>
                 </TooltipContent>
             </Tooltip>
 
@@ -47,40 +73,55 @@ export function AwardBadge({ CandidateAward, size = 'md' }: AwardBadgeProps) {
                 open={isDialogOpen}
                 onOpenChange={setIsDialogOpen}
             >
-                <DialogContent className="max-w-md border-gray-700 bg-stone-950">
+                <DialogContent className="max-w-md">
                     <DialogHeader>
-                        <DialogTitle className="flex items-center gap-3 text-white">
-                            <div className="h-12 w-12 overflow-hidden rounded-full border-2 border-gray-600">
+                        <DialogTitle className="flex items-center gap-3 text-foreground">
+                            <div className="h-12 w-12 overflow-hidden rounded-full border-2 relative">
                                 <Image
-                                    src={CandidateAward.award.imageUrl ?? 'https://placehold.co/48x48/png'}
-                                    alt={CandidateAward.award.title}
+                                    src={awardData.imageUrl ?? ''}
+                                    alt={awardData.title}
                                     width={48}
                                     height={48}
-                                    className="h-full w-full object-cover"
+                                    className={`h-full w-full object-cover ${isUnassigned ? 'grayscale' : ''}`}
                                 />
                             </div>
                             <div>
-                                <h3 className="text-lg font-semibold">{CandidateAward.award.title}</h3>
-                                {CandidateAward.projectSubmission && <p className="text-sm text-gray-400">Earned from project submission</p>}
+                                <h3 className="text-lg font-semibold">{awardData.title}</h3>
+                                {candidateAward?.projectSubmission && <p className="text-sm text-muted-foreground">Earned from project submission</p>}
+                                {isUnassigned && <p className="text-sm text-muted-foreground">Not yet earned</p>}
                             </div>
                         </DialogTitle>
                     </DialogHeader>
 
                     <div className="space-y-4">
-                        {CandidateAward.award.description && <p className="text-sm leading-relaxed text-gray-300">{CandidateAward.award.description}</p>}
+                        {awardData.description && <p className="text-sm leading-relaxed text-muted-foreground">{awardData.description}</p>}
 
                         <div className="space-y-2">
-                            <div className="flex items-center gap-2 text-sm">
-                                <Calendar className="h-4 w-4 text-gray-400" />
-                                <span className="text-gray-400">Earned:</span>
-                                <span className="text-white">{CandidateAward.earnedAt?.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
-                            </div>
-
-                            {CandidateAward.projectSubmission && (
+                            {candidateAward?.earnedAt && (
                                 <div className="flex items-center gap-2 text-sm">
-                                    <Award className="h-4 w-4 text-gray-400" />
-                                    <span className="text-gray-400">Submission Status:</span>
-                                    <span className="text-white capitalize">{CandidateAward.projectSubmission.status}</span>
+                                    <Calendar className="h-4 w-4 text-muted-foreground" />
+                                    <span className="text-muted-foreground">Earned:</span>
+                                    <span className="text-foreground">
+                                        {candidateAward.earnedAt.toLocaleDateString('en-US', {
+                                            year: 'numeric',
+                                            month: 'long',
+                                            day: 'numeric',
+                                        })}
+                                    </span>
+                                </div>
+                            )}
+                            {isUnassigned && (
+                                <div className="flex items-center gap-2 text-sm">
+                                    <Lock className="h-4 w-4 text-muted-foreground" />
+                                    <span className="text-muted-foreground">Status:</span>
+                                    <span className="text-muted-foreground">Not earned yet</span>
+                                </div>
+                            )}{' '}
+                            {candidateAward?.projectSubmission && (
+                                <div className="flex items-center gap-2 text-sm">
+                                    <Award className="h-4 w-4 text-muted-foreground" />
+                                    <span className="text-muted-foreground">Submission Status:</span>
+                                    <span className="text-foreground capitalize">{candidateAward.projectSubmission.status}</span>
                                 </div>
                             )}
                         </div>

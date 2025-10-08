@@ -1,4 +1,4 @@
-import { DashboardCard } from '@/components/dashboard-card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface Props {
     rankings: {
@@ -14,15 +14,19 @@ export function ProjectRankings({ rankings }: Props) {
     const sorted = rankings.sort((a, b) => a.rank - b.rank);
 
     return (
-        <DashboardCard>
-            <h1>Rankings</h1>
-            <ol>
-                {sorted.map((ranking) => (
-                    <li key={ranking.projectInstance.id}>
-                        <span className="text-primary font-mono font-bold">{ranking.rank}</span> <span>{ranking.projectInstance.teamName}</span>
-                    </li>
-                ))}
-            </ol>
-        </DashboardCard>
+        <Card>
+            <CardHeader>
+                <CardTitle>Rankings</CardTitle>
+            </CardHeader>
+            <CardContent>
+                <ol>
+                    {sorted.map((ranking) => (
+                        <li key={ranking.projectInstance.id}>
+                            <span className="text-primary font-mono font-bold">{ranking.rank}</span> <span>{ranking.projectInstance.teamName}</span>
+                        </li>
+                    ))}
+                </ol>
+            </CardContent>
+        </Card>
     );
 }

@@ -12,7 +12,6 @@ import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import z from 'zod';
 import { TextField } from './text-input';
-
 const onboardingSchema = z.object({
     isRecruiter: z.string().refine((val) => val === 'yes' || val === 'no', {
         message: 'Please select recruiter status',
@@ -62,7 +61,7 @@ export function OnboardingWizard() {
             if (value.isRecruiter === 'no') {
                 router.push(!!session.data?.user.id ? `/users/${session.data.user.id}` : '/dashboard');
             } else {
-                router.push('/dashboard/recruiter');
+                router.push('/dashboard/home');
             }
         },
         validators: {

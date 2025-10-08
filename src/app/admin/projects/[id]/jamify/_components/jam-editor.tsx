@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { api, type RouterOutputs } from '@/trpc/react';
 import type { DragEndEvent, DragStartEvent } from '@dnd-kit/core';
 import { DndContext, DragOverlay, closestCenter, useDraggable, useDroppable } from '@dnd-kit/core';
-import { ArrowRight, Eye, GripVertical, LoaderCircle, Plus } from 'lucide-react';
+import { ArrowRight, GripVertical, LoaderCircle, Plus } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
@@ -37,7 +37,6 @@ function DraggableUser({ userId, profiles }: { userId: string; profiles: Props['
         >
             <GripVertical />
             <p className="font-bold">{profiles.find((p) => p.userId === userId)?.displayName}</p>
-            <Eye className="ml-auto" />
         </div>
     );
 }
@@ -50,7 +49,7 @@ function DroppableTeam({ teamIndex, team, profiles }: { teamIndex: number; team:
     return (
         <div
             ref={setNodeRef}
-            className={`min-w-1/4 flex-1 rounded-lg p-4 space-y-2 transition-colors ${isOver ? 'bg-stone-700' : 'bg-stone-900'}`}
+            className={`min-w-1/4 flex-1 rounded-lg p-4 space-y-2 transition-colors bg-secondary ${isOver && 'outline-2 outline-primary'}`}
         >
             <h1>Team {String.fromCharCode(teamIndex + 65)}</h1>
             {team.map((userId) => (
@@ -92,10 +91,6 @@ export function JamEditor(props: Props) {
         const handleWindowClose = (e: BeforeUnloadEvent) => {
             e.preventDefault();
             e.returnValue = ''; // Needed for Chrome
-        };
-
-        const handleBrowseAway = (url: string) => {
-            if (window.confirm('You have unsaved changes. Are you sure you want to leave?')) return;
         };
 
         window.addEventListener('beforeunload', handleWindowClose);
@@ -193,7 +188,6 @@ export function JamEditor(props: Props) {
                         <div className="p-2 bg-white/40 backdrop-blur-lg rounded flex gap-2 items-center cursor-grab">
                             <GripVertical />
                             <p className="font-bold">{props.profiles.find((p) => p.userId === activeUser)?.displayName}</p>
-                            <Eye className="ml-auto" />
                         </div>
                     ) : null}
                 </DragOverlay>

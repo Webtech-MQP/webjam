@@ -9,7 +9,7 @@ export const awardRouter = createTRPCRouter({
         .input(
             z.object({
                 title: z.string().min(1).max(256),
-                description: z.string().min(1).max(1000),
+                description: z.string().max(1000).optional(),
                 imageUrl: z.string(),
             })
         )
@@ -26,7 +26,7 @@ export const awardRouter = createTRPCRouter({
             z.object({
                 id: z.cuid2(),
                 title: z.string().min(1).max(256),
-                description: z.string().min(1).max(1000),
+                description: z.string().max(1000).optional(),
                 imageUrl: z.string(),
             })
         )

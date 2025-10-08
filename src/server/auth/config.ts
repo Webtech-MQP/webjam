@@ -4,6 +4,7 @@ import { accounts, sessions, users, verificationTokens } from '@/server/db/schem
 import { DrizzleAdapter } from '@auth/drizzle-adapter';
 import { type DefaultSession, type NextAuthConfig } from 'next-auth';
 import GithubProvider from 'next-auth/providers/github';
+import LinkedInProvider from 'next-auth/providers/linkedin';
 import { type SqlFlavorOptions } from 'node_modules/@auth/drizzle-adapter/lib/utils';
 
 /**
@@ -17,7 +18,10 @@ declare module 'next-auth' {
         user: {
             id: string;
             githubAuthToken: string;
-            role: 'candidate' | 'recruiter' | 'admin';
+            linkedinAuthToken: string;
+            isAdmin: boolean;
+            isRecruiter: boolean;
+            isCandidate: boolean;
         } & DefaultSession['user'];
     }
 }
@@ -33,6 +37,7 @@ export const authConfig = {
         GithubProvider({
             clientId: env.AUTH_GITHUB_ID,
             clientSecret: env.AUTH_GITHUB_SECRET,
+            allowDangerousEmailAccountLinking: true,
             profile(profile) {
                 return {
                     id: profile.id.toString(),
@@ -40,6 +45,19 @@ export const authConfig = {
                     email: profile.email,
                     image: profile.avatar_url,
                     githubUsername: profile.login,
+                };
+            },
+        }),
+        LinkedInProvider({
+            clientId: env.AUTH_LINKEDIN_ID,
+            clientSecret: env.AUTH_LINKEDIN_SECRET,
+            allowDangerousEmailAccountLinking: true,
+            profile(profile) {
+                return {
+                    id: profile.sub,
+                    name: profile.name,
+                    email: profile.email,
+                    image: profile.picture,
                 };
             },
         }),
@@ -61,22 +79,25 @@ export const authConfig = {
     }),
     callbacks: {
         session: async ({ session, user }) => {
-            // Fetch the user's role from the database
-            let role: 'candidate' | 'recruiter' | 'admin' = 'candidate';
-            if (user.id) {
-                const dbUser = await db.query.users.findFirst({
-                    where: (u, { eq }) => eq(u.id, user.id),
-                });
-                if (dbUser?.role === 'recruiter' || dbUser?.role === 'admin') {
-                    role = dbUser.role;
-                }
-            }
+            const adminProfile = await db.query.adminProfiles.findFirst({
+                where: (a, { eq }) => eq(a.userId, user.id),
+            });
+
+            const recruiterProfile = await db.query.recruiterProfiles.findFirst({
+                where: (r, { eq }) => eq(r.userId, user.id),
+            });
+            const candidateProfile = await db.query.candidateProfiles.findFirst({
+                where: (c, { eq }) => eq(c.userId, user.id),
+            });
+
             return {
                 ...session,
                 user: {
                     ...session.user,
                     id: user.id,
-                    role,
+                    isAdmin: !!adminProfile,
+                    isRecruiter: !!recruiterProfile,
+                    isCandidate: !!candidateProfile,
                 },
             };
         },

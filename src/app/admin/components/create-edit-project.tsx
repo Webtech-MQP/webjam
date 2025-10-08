@@ -19,12 +19,14 @@ import { useState } from 'react';
 import { toast } from 'sonner';
 import z from 'zod';
 import { JudgingCriteriaInput, type JudgingCriterion } from '../../../components/judging-criteria-input';
+import ProjectAwardsSection from './ProjectAwardsSection';
 import ProjectRegistrationSection from './ProjectRegistrationSection';
 
 const defaultForm = z.object({
     title: z.string().min(1, 'Title should be longer than 1 character.'),
     subtitle: z.string().min(1, 'Subtitle should be longer than 1 character.'),
     description: z.string(),
+    instructions: z.string(),
     requirements: z.array(z.string()),
     startDateTime: z.string().min(1, 'Must input a date.'),
     endDateTime: z.string().min(1, 'Must input a date.'),
@@ -55,6 +57,7 @@ const defaultForm = z.object({
             isHeader: z.boolean(),
         })
     ),
+    awards: z.array(z.string()),
 });
 
 const transformToUpload = defaultForm.transform((data) => ({
@@ -85,6 +88,7 @@ export default function AdminCreateEditProject(props: AdminCreateEditProjectProp
               title: '',
               subtitle: '',
               description: '',
+              instructions: '',
               requirements: [],
               startDateTime: '',
               endDateTime: '',
@@ -92,6 +96,7 @@ export default function AdminCreateEditProject(props: AdminCreateEditProjectProp
               tags: [],
               judgingCriteria: [],
               events: [],
+              awards: [],
           };
 
     const [open, setOpen] = useState(false);
@@ -143,7 +148,7 @@ export default function AdminCreateEditProject(props: AdminCreateEditProjectProp
     const isNewProject = props.projectId === undefined;
 
     return (
-        <div className="grid w-full items-center gap-3">
+        <div className="max-h-full overflow-auto flex-1 w-full items-center gap-3">
             <form
                 onSubmit={async (e) => {
                     e.preventDefault();
@@ -197,6 +202,21 @@ export default function AdminCreateEditProject(props: AdminCreateEditProjectProp
                         {(field) => (
                             <>
                                 <Label htmlFor={field.name}>Description</Label>
+                                <Textarea
+                                    id={field.name}
+                                    name={field.name}
+                                    value={field.state.value}
+                                    onBlur={field.handleBlur}
+                                    onChange={(e) => field.handleChange(e.target.value)}
+                                />
+                                {field.state.meta.errors.length > 0 && <div className="text-sm text-red-300 mt-1">{field.state.meta.errors.map((error) => error?.message).join(', ')}</div>}
+                            </>
+                        )}
+                    </form.Field>
+                    <form.Field name="instructions">
+                        {(field) => (
+                            <>
+                                <Label htmlFor={field.name}>Instructions</Label>
                                 <Textarea
                                     id={field.name}
                                     name={field.name}
@@ -394,6 +414,7 @@ export default function AdminCreateEditProject(props: AdminCreateEditProjectProp
                         )}
                     </form.Field>
                     <ProjectRegistrationSection projectId={props.projectId} />
+                    <ProjectAwardsSection projectId={props.projectId} />
                     <form.Subscribe selector={(state) => [state.isPristine]}>
                         {([isPristine]) => (
                             <Button
@@ -415,18 +436,6 @@ export default function AdminCreateEditProject(props: AdminCreateEditProjectProp
             </form>
         </div>
     );
-}
-
-function isValidHttpUrl(str: string) {
-    let url;
-
-    try {
-        url = new URL(str);
-    } catch {
-        return false;
-    }
-
-    return url.protocol === 'http:' || url.protocol === 'https:';
 }
 
 /**

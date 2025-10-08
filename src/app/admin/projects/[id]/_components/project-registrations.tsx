@@ -1,8 +1,8 @@
 'use client';
 
-import { DashboardCard } from '@/components/dashboard-card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { api, type RouterOutputs } from '@/trpc/react';
 import { LoaderCircle, Trash } from 'lucide-react';
 
@@ -17,27 +17,33 @@ export function ProjectRegistrations({ projectId }: Props) {
 
     if (isLoading) {
         return (
-            <DashboardCard>
-                <LoaderCircle className="animate-spin" />
-            </DashboardCard>
+            <Card>
+                <CardContent>
+                    <LoaderCircle className="animate-spin" />
+                </CardContent>
+            </Card>
         );
     }
 
     if (!registrations) return null;
 
     return (
-        <DashboardCard>
-            <h1>Registered users</h1>
-            <div className="relative flex w-full flex-col gap-4">
-                {registrations.map((r, index) => (
-                    <Registration
-                        key={index}
-                        r={r}
-                    />
-                ))}
-                {registrations.length === 0 && <p className="text-muted-foreground">No registrations yet.</p>}
-            </div>
-        </DashboardCard>
+        <Card>
+            <CardHeader>
+                <CardTitle>Registered users</CardTitle>
+            </CardHeader>
+            <CardContent className="max-h-full overflow-auto">
+                <div className="relative flex w-full flex-col gap-4 overflow-auto max-h-full">
+                    {registrations.map((r, index) => (
+                        <Registration
+                            key={index}
+                            r={r}
+                        />
+                    ))}
+                    {registrations.length === 0 && <p className="text-muted-foreground dark:text-muted-foreground-foreground">No registrations yet.</p>}
+                </div>
+            </CardContent>
+        </Card>
     );
 }
 

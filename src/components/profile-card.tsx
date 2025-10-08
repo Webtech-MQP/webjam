@@ -17,21 +17,17 @@ export default function ProfileCard({ profile }: { profile: Profile }) {
 
     return (
         <DashboardCard
-            className="flex items-center gap-8 w-full max-w-2xl border text-white rounded-xl shadow-md p-6 transition-all duration-200 cursor-pointer hover:border-primary hover:shadow-lg"
+            className="flex items-center gap-8 w-full max-w-2xl border text-foreground rounded-xl shadow-md p-6 transition-all duration-200 cursor-pointer hover:border-primary hover:shadow-lg"
             onClick={async () => {
                 await updateRole.mutateAsync({
                     id: profile.userId,
                     role: isCandidate ? 'candidate' : 'recruiter',
                 });
-                if (isCandidate) {
-                    router.push('/dashboard');
-                } else {
-                    router.push('/dashboard/recruiter');
-                }
+                router.push('/dashboard/home');
             }}
         >
             <Image
-                src={profile?.imageUrl ?? 'https://placehold.co/100x100/png'}
+                src={profile?.imageUrl ?? ''}
                 alt="Profile Image"
                 width={100}
                 height={100}

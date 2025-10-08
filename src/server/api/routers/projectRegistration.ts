@@ -221,6 +221,7 @@ export const projectRegistrationRouter = createTRPCRouter({
                 }
             }
         }),
+
     getProjectRegistrations: adminProcedure.input(z.object({ projectId: z.string() })).query(async ({ ctx, input }) => {
         const registrations = await ctx.db.query.projectRegistrations.findMany({
             where: eq(projectRegistrations.projectId, input.projectId),

@@ -23,16 +23,23 @@ export const judgingRouter = createTRPCRouter({
     }),
 
     judgeSubmission: adminProcedure.input(z.object({ criterionId: z.cuid2(), submissionId: z.cuid2(), rating: z.number().min(1).max(10) })).mutation(async ({ ctx, input }) => {
-        const p = await ctx.db.query.projects.findFirst({
+        const projectSubmission = await ctx.db.query.projectSubmissions.findFirst({
+            where: (s, { eq }) => eq(s.id, input.submissionId),
             with: {
-                projectInstances: {
+                projectInstance: {
                     with: {
-                        submissions: {
-                            where: (submissions, { eq }) => eq(submissions.id, input.submissionId),
-                        },
+                        project: true,
                     },
                 },
             },
+        });
+
+        if (!projectSubmission) {
+            throw new TRPCError({ code: 'NOT_FOUND', message: 'Submission not found' });
+        }
+
+        const p = await ctx.db.query.projects.findFirst({
+            where: (projects, { eq }) => eq(projects.id, projectSubmission.projectInstance.project.id),
         });
 
         if (!p) {

@@ -13,7 +13,7 @@ export default async function ProfilesPage() {
 
     return (
         <motion.div
-            className="flex flex-col items-center justify-center mx-72 h-screen gap-2"
+            className="flex flex-col items-center justify-center h-screen gap-2"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.7, ease: 'easeOut' }}

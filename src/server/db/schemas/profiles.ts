@@ -85,7 +85,6 @@ export const lists = createTable('list', (d) => ({
         .notNull()
         .references(() => recruiterProfiles.userId, { onDelete: 'cascade' }),
     name: d.text({ length: 255 }).notNull(),
-    description: d.text({ length: 255 }).notNull().default(''),
 }));
 
 export const listCandidates = createTable(
@@ -150,39 +149,6 @@ export const adminProfilesRelations = relations(adminProfiles, ({ one, many }) =
     judgements: many(submissionJudgement),
 }));
 
-export const recruitersToCandidates = createTable(
-    'recruiters_candidates',
-    (d) => ({
-        recruiterId: d
-            .text('recruiter_id')
-            .notNull()
-            .references(() => recruiterProfiles.userId, {
-                onDelete: 'cascade',
-                onUpdate: 'cascade',
-            }),
-        candidateId: d
-            .text('candidate_id')
-            .notNull()
-            .references(() => candidateProfiles.userId, {
-                onDelete: 'cascade',
-                onUpdate: 'cascade',
-            }),
-        comments: d.text('comments').notNull().default(''),
-    }),
-    (t) => [primaryKey({ columns: [t.candidateId, t.recruiterId] })]
-);
-
-export const recruitersToCandidatesRelations = relations(recruitersToCandidates, ({ one }) => ({
-    recruiterProfile: one(recruiterProfiles, {
-        fields: [recruitersToCandidates.recruiterId],
-        references: [recruiterProfiles.userId],
-    }),
-    candidateProfile: one(candidateProfiles, {
-        fields: [recruitersToCandidates.candidateId],
-        references: [candidateProfiles.userId],
-    }),
-}));
-
 export const candidateReport = createTable('candidate_report', (d) => ({
     id: d
         .text()
@@ -202,7 +168,7 @@ export const candidateReport = createTable('candidate_report', (d) => ({
 
     action: d.text({ enum: ['banned', 'archived'] }),
     actionedAt: d.integer({ mode: 'timestamp' }),
-    actionedBy: d.text().references(() => adminProfiles.userId),
+    actionedBy: d.text().references(() => adminProfiles.userId, { onUpdate: 'cascade' }),
     bannedUserDisplayName: d.text('banned_user_display_name').notNull().default('A user'),
 }));
 

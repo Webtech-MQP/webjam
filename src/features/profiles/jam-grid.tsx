@@ -1,4 +1,4 @@
-import { JamCard } from '@/components/jam-card';
+import { ProjectCard } from '@/components/project-card';
 import type { RouterOutputs } from '@/trpc/react';
 import Link from 'next/link';
 import { z } from 'zod';
@@ -10,17 +10,17 @@ type Props = {
 
 export function JamGrid({ jams, name }: Props) {
     return (
-        <div>
+        <div className="grid grid-cols-2 xl:grid-cols-3 gap-4">
             {jams?.map((j) => (
                 <div
                     key={j.projectInstanceId}
                     className="relative"
                 >
                     <Link
-                        target="_blank"
+                        target={!!j.projectInstance.ranking?.submission.deploymentURL ? '_blank' : undefined}
                         href={j.projectInstance.ranking?.submission.deploymentURL ?? '#'}
                     >
-                        <JamCard
+                        <ProjectCard
                             {...z
                                 .looseObject({})
                                 .transform((x) => (!!x ? x : undefined))
@@ -35,7 +35,7 @@ export function JamGrid({ jams, name }: Props) {
                     </Link>
                 </div>
             ))}
-            {jams?.length === 0 && <p className="text-muted-foreground italic">{name ?? 'This user'} has no jams.</p>}
+            {jams?.length === 0 && <p className="text-foreground dark:text-muted-foreground italic">{name ?? 'This user'} has no jams.</p>}
         </div>
     );
 }

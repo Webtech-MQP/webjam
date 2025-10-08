@@ -1,13 +1,11 @@
 interface Props {
-    modal: React.ReactNode;
-    rest: React.ReactNode;
+    children: React.ReactNode;
 }
 
-export default function Layout({ modal, rest }: Props) {
+export default function Layout({ children }: Props) {
     return (
         <>
-            <div className="h-full">{rest}</div>
-            {modal}
+            <div className="max-h-full overflow-auto">{children}</div>
         </>
     );
 }

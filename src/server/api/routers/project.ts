@@ -2,6 +2,7 @@ import { env } from '@/env';
 import { sendJamEndEmail, sendJudgedEmail } from '@/lib/mailer';
 import { createPresignedPost, deleteS3Object, getS3KeyFromUrl, s3Client } from '@/lib/s3';
 import { adminProcedure, createTRPCRouter, protectedProcedure, publicProcedure } from '@/server/api/trpc';
+import { candidateAward, projectAward } from '@/server/db/schemas/awards';
 import { projectEvent, projectInstanceRankings, projectJudgingCriteria, projects, projectsTags, tags } from '@/server/db/schemas/projects';
 import { TRPCError } from '@trpc/server';
 import { eq } from 'drizzle-orm';
@@ -140,6 +141,11 @@ export const projectRouter = createTRPCRouter({
                 },
                 judgingCriteria: true,
                 events: true,
+                awards: {
+                    with: {
+                        award: true,
+                    },
+                },
             },
         });
     }),
@@ -165,6 +171,7 @@ export const projectRouter = createTRPCRouter({
                 title: z.string().min(1).max(1000),
                 subtitle: z.string().min(0).max(1000),
                 description: z.string().min(0).max(10000),
+                instructions: z.string().min(0).max(10000),
                 requirements: z.string().min(0).max(10000),
                 imageUrl: z.url(),
                 starts: z.date(),
@@ -206,7 +213,7 @@ export const projectRouter = createTRPCRouter({
                     title: input.title,
                     subtitle: input.subtitle,
                     description: input.description,
-                    instructions: '',
+                    instructions: input.instructions,
                     requirements: input.requirements,
                     imageUrl: input.imageUrl,
                     deadline: new Date(0),
@@ -271,6 +278,7 @@ export const projectRouter = createTRPCRouter({
                 to: z.date().optional(),
                 groupSize: z.number().optional(),
                 tags: z.array(z.string()).optional(),
+                onlyEligible: z.boolean().optional(),
             })
         )
         .query(async ({ ctx, input }) => {
@@ -461,12 +469,13 @@ export const projectRouter = createTRPCRouter({
         return ctx.db.update(projects).set({ status: input.status }).where(eq(projects.id, input.id));
     }),
 
-    completeProject: adminProcedure.input(z.object({ projectId: z.cuid2() })).mutation(async ({ ctx, input }) => {
+    completeProject: adminProcedure.input(z.object({ projectId: z.cuid2(), awards: z.record(z.string(), z.string().nullish()) })).mutation(async ({ ctx, input }) => {
         const project = await ctx.db.query.projects.findFirst({
             where: (projects, { eq }) => eq(projects.id, input.projectId),
             with: {
                 projectInstances: {
                     with: {
+                        teamMembers: true,
                         submissions: {
                             with: {
                                 judgements: true,
@@ -517,9 +526,36 @@ export const projectRouter = createTRPCRouter({
 
         const ranks = rankedSubmissions.map((s, index) => ({
             projectInstanceId: s.projectInstanceId,
+            calculatedScore: Math.floor(s.calculatedScore),
             rank: index + 1,
             submissionId: s.id,
         }));
+
+        const submissionsToAwards = Object.entries(input.awards)
+            .filter((i) => !!i[1])
+            .reduce(
+                (acc, curr) => ({
+                    ...acc,
+                    [curr[1]!]: [...(acc[curr[1]!] || []), curr[0]],
+                }),
+                {} as Record<string, string[]>
+            );
+
+        const awards = project.projectInstances.flatMap((pi) =>
+            pi.teamMembers.flatMap((tm) => {
+                const submission = rankedSubmissions.find((s) => s.projectInstanceId === pi.id);
+                if (!submission) return [];
+                return (
+                    submissionsToAwards[submission.id]?.map((award) => ({
+                        userId: tm.candidateId,
+                        awardId: award,
+                        projectSubmissionId: submission.id,
+                    })) ?? []
+                );
+            })
+        );
+
+        await ctx.db.insert(candidateAward).values(awards);
 
         await ctx.db.insert(projectInstanceRankings).values(ranks);
 
@@ -638,4 +674,37 @@ export const projectRouter = createTRPCRouter({
     deleteEvent: protectedProcedure.input(z.object({ projectEventId: z.string() })).mutation(async ({ ctx, input }) => {
         return ctx.db.delete(projectEvent).where(eq(projectEvent.id, input.projectEventId));
     }),
+
+    getProjectAwards: adminProcedure.input(z.object({ projectId: z.string() })).query(async ({ ctx, input }) => {
+        const projectAwards = await ctx.db.query.projectAward.findMany({
+            where: eq(projectAward.projectId, input.projectId),
+            with: {
+                award: true,
+            },
+        });
+        return projectAwards.map((pa) => pa.award);
+    }),
+
+    updateProjectAwards: adminProcedure
+        .input(
+            z.object({
+                projectId: z.string(),
+                awardIds: z.array(z.string()),
+            })
+        )
+        .mutation(async ({ ctx, input }) => {
+            // First, delete all existing project-award connections
+            await ctx.db.delete(projectAward).where(eq(projectAward.projectId, input.projectId));
+
+            // Then, create new connections
+            if (input.awardIds.length > 0) {
+                const newConnections = input.awardIds.map((awardId) => ({
+                    projectId: input.projectId,
+                    awardId,
+                }));
+                await ctx.db.insert(projectAward).values(newConnections);
+            }
+
+            return { success: true };
+        }),
 });

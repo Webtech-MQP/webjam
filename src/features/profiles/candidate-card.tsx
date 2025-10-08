@@ -17,24 +17,27 @@ interface CandidateCardProps {
     githubUsername?: string;
     linkedinURL?: string;
     imageUrl?: string;
+    bannerUrl?: string;
     projectCount?: number;
     onClick?: () => void;
     className?: string;
 }
 
-export function CandidateCard({ displayName, bio, location, language, experience, githubUsername, linkedinURL, imageUrl, projectCount = 0, onClick, className }: CandidateCardProps) {
+export function CandidateCard({ displayName, bio, location, language, experience, githubUsername, linkedinURL, imageUrl, bannerUrl, projectCount = 0, onClick, className }: CandidateCardProps) {
     return (
         <DashboardCard
             onClick={onClick}
             className={cn('group flex h-80 cursor-pointer flex-col items-start overflow-hidden px-0 pb-0', className)}
         >
-            <div className="relative -mt-6 mb-0 h-32 w-full rounded-t-lg">
-                <Image
-                    src={imageUrl ?? 'https://placehold.co/400x128/png'}
-                    alt={`${displayName} banner`}
-                    fill
-                    className="object-cover"
-                />
+            <div className={cn('relative -mt-6 mb-0 h-32 w-full rounded-t-lg', !bannerUrl && 'bg-primary')}>
+                {bannerUrl && (
+                    <Image
+                        src={bannerUrl ?? ''}
+                        alt={`${displayName} banner`}
+                        fill
+                        className="object-cover"
+                    />
+                )}
             </div>
             <div className="group-hover:bg-primary flex w-full flex-1 flex-col items-start rounded-b-lg p-4 transition-colors duration-300">
                 <div className="mb-3 flex w-full flex-col items-start gap-3">
@@ -51,7 +54,7 @@ export function CandidateCard({ displayName, bio, location, language, experience
                     <div className="min-w-0 flex-1">
                         <h3 className="truncate font-semibold">{displayName}</h3>
                         {location && (
-                            <div className="flex items-center gap-1 text-sm text-white">
+                            <div className="flex items-center gap-1 text-sm text-foreground">
                                 <MapPinIcon className="h-3 w-3" />
                                 <span className="truncate">{location}</span>
                             </div>
@@ -59,13 +62,13 @@ export function CandidateCard({ displayName, bio, location, language, experience
                     </div>
                 </div>
 
-                {bio && <p className="mb-3 line-clamp-2 text-sm text-white">{bio}</p>}
+                {bio && <p className="mb-3 line-clamp-2 text-sm text-foreground">{bio}</p>}
 
                 <div className="mb-3 flex flex-wrap gap-2">
                     {language && (
                         <Badge
                             variant="outline"
-                            className="text-xs"
+                            className="text-xs dark:group-hover:border-white"
                         >
                             <CodeIcon className="mr-1 h-3 w-3" />
                             {language}
@@ -74,7 +77,7 @@ export function CandidateCard({ displayName, bio, location, language, experience
                     {experience && (
                         <Badge
                             variant="outline"
-                            className="text-xs"
+                            className="text-xs dark:group-hover:border-white"
                         >
                             <BriefcaseIcon className="mr-1 h-3 w-3" />
                             {experience}
@@ -82,7 +85,7 @@ export function CandidateCard({ displayName, bio, location, language, experience
                     )}
                     <Badge
                         variant="outline"
-                        className="text-xs"
+                        className="text-xs dark:group-hover:border-white"
                     >
                         {projectCount} {projectCount === 1 ? 'project' : 'projects'}
                     </Badge>
